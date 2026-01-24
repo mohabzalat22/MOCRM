@@ -24,8 +24,9 @@ class Client extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function scopeForUser($query, $user_id)
+    public function scopeForUser($query)
     {
+        $user_id = auth()->id();
         return $query->where('user_id', $user_id);
     }
 

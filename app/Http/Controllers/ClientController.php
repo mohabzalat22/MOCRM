@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateClientRequest;
 use App\Models\Client;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Inertia\Inertia;
 
 class ClientController extends Controller
@@ -16,8 +14,8 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::forUser(auth()->id())->get();
-        return Inertia::render('clients', [
+        $clients = Client::forUser()->get();
+        return Inertia::render('clients/index', [
             'clients' => $clients,
         ]);
     }
@@ -35,7 +33,7 @@ class ClientController extends Controller
             $validated['image'] = $path;
         }
 
-        $client = Client::create($validated);
+        Client::create($validated);
 
         return to_route('clients.index');
     }
@@ -45,15 +43,10 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Client $client)
-    {
-        //
+        $client = Client::forUser()->where('id', $client->id)->first();
+        return Inertia::render('clients/show', [
+            'client' => $client,
+        ]);
     }
 
     /**

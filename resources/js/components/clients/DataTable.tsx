@@ -15,6 +15,8 @@ import {
     TableRow,
 } from '@/components/ui/table';
 
+import { router } from '@inertiajs/react';
+
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
@@ -58,6 +60,9 @@ export function DataTable<TData, TValue>({
                             <TableRow
                                 key={row.id}
                                 data-state={row.getIsSelected() && 'selected'}
+                                onClick={() => {
+                                    router.visit(`clients/${row.id}`);
+                                }}
                             >
                                 {row.getVisibleCells().map((cell) => (
                                     <TableCell key={cell.id}>
