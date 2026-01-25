@@ -1,10 +1,10 @@
 import { Head } from '@inertiajs/react';
+import { columns } from '@/components/clients/Columns';
+import type { Client } from '@/components/clients/Columns';
+import { DataTable } from '@/components/clients/DataTable';
 import { ClientDialog } from '@/components/clients/dialog';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-import type { Client } from '@/components/clients/Columns';
-import { columns } from '@/components/clients/Columns';
-import { DataTable } from '@/components/clients/DataTable';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

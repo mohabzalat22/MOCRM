@@ -19,4 +19,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('/clients', ClientController::class);
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

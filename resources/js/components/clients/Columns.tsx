@@ -3,11 +3,12 @@ import type { ColumnDef } from '@tanstack/react-table';
 export type Client = {
     id: string;
     name: string;
-    company_name: string;
+    company_name?: string;
     email: string;
-    phone: string;
-    website: string;
-    address: string;
+    phone?: string;
+    website?: string;
+    address?: string;
+    image?:string;
 };
 
 export const columns: ColumnDef<Client>[] = [

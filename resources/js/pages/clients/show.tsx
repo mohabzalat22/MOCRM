@@ -2,12 +2,12 @@ import { Head, useForm } from '@inertiajs/react';
 import { Camera } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
+import type { Client } from '@/components/clients/Columns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-import type { Client } from '@/components/clients/Columns';
 
 interface ClientPageProps {
     client: Client;
@@ -26,16 +26,16 @@ export default function Show({ client }: ClientPageProps) {
     ];
 
     const [image, setImage] = useState<string | null>(
-        client.image ? `http://localhost:8000/storage/${client.image}` : null,
+        client?.image ? `http://localhost:8000/storage/${client?.image}` : null,
     );
     const inputRef = useRef<HTMLInputElement | null>(null);
-    const { data, setData, post, processing, reset } = useForm({
-        name: client.name || '',
-        company_name: client.company_name || '',
-        email: client.email || '',
-        phone: client.phone || '',
-        website: client.website || '',
-        address: client.address || '',
+    const { data, setData, post, processing } = useForm({
+        name: client.name ,
+        company_name: client.company_name ,
+        email: client.email ,
+        phone: client.phone ,
+        website: client.website ,
+        address: client.address ,
         image: null as File | null,
     });
 

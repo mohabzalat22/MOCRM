@@ -16,7 +16,7 @@ class Client extends Model
         'status',
         'website',
         'address',
-        'image'
+        'image',
     ];
 
     public function user(): BelongsTo
@@ -27,6 +27,7 @@ class Client extends Model
     public function scopeForUser($query)
     {
         $user_id = auth()->id();
+
         return $query->where('user_id', $user_id);
     }
 

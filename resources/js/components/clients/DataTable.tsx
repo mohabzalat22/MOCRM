@@ -1,4 +1,4 @@
-'use client';
+import { router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
     flexRender,
@@ -15,7 +15,6 @@ import {
     TableRow,
 } from '@/components/ui/table';
 
-import { router } from '@inertiajs/react';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -26,6 +25,7 @@ export function DataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
+    // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
         data,
         columns,

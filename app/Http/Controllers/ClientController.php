@@ -15,11 +15,11 @@ class ClientController extends Controller
     public function index()
     {
         $clients = Client::forUser()->get();
+
         return Inertia::render('clients/index', [
             'clients' => $clients,
         ]);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -44,6 +44,7 @@ class ClientController extends Controller
     public function show(Client $client)
     {
         $client = Client::forUser()->where('id', $client->id)->first();
+
         return Inertia::render('clients/show', [
             'client' => $client,
         ]);

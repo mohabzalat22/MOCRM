@@ -22,18 +22,19 @@ class CreateClientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name" => ['required', 'max:255'],
-            "company_name" => ['max:255'],
-            "email" => ['required', 'email', 'unique:clients,email'],
-            "phone" => ['nullable', 'regex:/^\+?[0-9]{10,15}$/'],
-            "website" => ['max:255'],
-            "address" => ['max:255'],
-            "image" => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp']
+            'name' => ['required', 'max:255'],
+            'company_name' => ['max:255'],
+            'email' => ['required', 'email', 'unique:clients,email'],
+            'phone' => ['nullable', 'regex:/^\+?[0-9]{10,15}$/'],
+            'website' => ['max:255'],
+            'address' => ['max:255'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp'],
         ];
     }
 
     /**
      * Return validation messages
+     *
      * @return array{address.max: string, company_name.max: string, email.required: string, image.image: string, name.max: string, name.required: string, phone.regex: string, website.max: string}
      */
     public function messages(): array
@@ -46,7 +47,7 @@ class CreateClientRequest extends FormRequest
             'phone.regex' => 'phone number is not compatible.',
             'website.max' => 'website must not exceed 255 characters',
             'address.max' => 'address must not exceed 255 characters',
-            'image.image' => 'image should be of types [jpg, jpeg, png, webp]'
+            'image.image' => 'image should be of types [jpg, jpeg, png, webp]',
         ];
     }
 }
