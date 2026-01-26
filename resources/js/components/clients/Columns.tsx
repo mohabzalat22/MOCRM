@@ -8,7 +8,8 @@ export type Client = {
     phone?: string;
     website?: string;
     address?: string;
-    image?:string;
+    image?: string;
+    created_at: string;
 };
 
 export const columns: ColumnDef<Client>[] = [

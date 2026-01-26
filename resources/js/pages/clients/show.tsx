@@ -194,7 +194,15 @@ export default function Show({ client }: ClientPageProps) {
             <div className="flex justify-center p-4">
                 <div className="w-full rounded-lg bg-white p-6 shadow dark:bg-zinc-900 dark:shadow-zinc-800">
                     <div className="mb-6 flex flex-col items-center justify-center gap-2">
-                        <div className="flex w-full justify-end">
+                        <div className="flex w-full justify-between">
+                            <div>
+                                <p>
+                                    Client since:
+                                    <span className="ms-2 text-sm font-bold">
+                                        {client?.created_at}
+                                    </span>
+                                </p>
+                            </div>
                             <SettingButton
                                 onEdit={() => setEditMode(true)}
                                 onDeleteConfirm={handleDelete}

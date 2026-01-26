@@ -38,4 +38,11 @@ class Client extends Model
             $client->user_id = auth()->id();
         });
     }
+
+    protected function casts()
+    {
+        return [
+            'created_at' => 'datetime:d M Y, h:i A',
+        ];
+    }
 }
