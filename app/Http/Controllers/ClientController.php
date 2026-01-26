@@ -74,9 +74,7 @@ class ClientController extends Controller
 
         $client->foruser()->update($validated);
 
-        return Inertia::render('clients/show', [
-            'client' => $client,
-        ]);
+        return to_route('clients.show');
     }
 
     /**
@@ -84,6 +82,14 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
-        //
+        $client = Client::forUser()->where('id', $client->id)->firstOrFail();
+
+        if ($client->image) {
+            Storage::disk('public')->delete($client->image);
+        }
+
+        $client->delete();
+
+        return to_route('clients.index');
     }
 }

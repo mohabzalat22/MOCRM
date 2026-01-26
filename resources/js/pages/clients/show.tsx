@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import { Camera } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -41,6 +41,40 @@ export default function Show({ client }: ClientPageProps) {
         address: client.address,
         image: null as File | null,
     });
+
+    const [deleting, setDeleting] = useState(false);
+
+    const handleDelete = () => {
+        confirm(
+            () => {
+                setDeleting(true);
+                router.delete(`/clients/${client.id}`, {
+                    onSuccess: () => {
+                        toast.success('Client has been deleted.');
+                    },
+                    onError: (errors) => {
+                        setDeleting(false);
+                        if (errors && Object.keys(errors).length > 0) {
+                            Object.values(errors).forEach((message) => {
+                                if (typeof message === 'string') {
+                                    toast.error(message);
+                                }
+                            });
+                        } else {
+                            toast.error(
+                                'An error occurred while deleting the client.',
+                            );
+                        }
+                    },
+                });
+            },
+            {
+                title: 'Confirm Delete',
+                message:
+                    'Are you sure you want to delete this client? This action cannot be undone.',
+            },
+        );
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -212,6 +246,14 @@ export default function Show({ client }: ClientPageProps) {
                         <Button variant="outline">Cancel</Button>
                         <Button type="submit" disabled={processing}>
                             {processing ? 'Saving...' : 'Save changes'}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            disabled={deleting}
+                            onClick={handleDelete}
+                        >
+                            {deleting ? 'Deleting...' : 'Delete'}
                         </Button>
                     </div>
                 </form>
