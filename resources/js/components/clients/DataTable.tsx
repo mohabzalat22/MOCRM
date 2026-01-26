@@ -15,13 +15,16 @@ import {
     TableRow,
 } from '@/components/ui/table';
 
+interface WithId {
+    id: string | number;
+}
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends WithId, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends WithId, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
@@ -61,7 +64,8 @@ export function DataTable<TData, TValue>({
                                 key={row.id}
                                 data-state={row.getIsSelected() && 'selected'}
                                 onClick={() => {
-                                    router.visit(`clients/${row.id}`);
+                                    // Use the row's original data to get the id
+                                    router.visit(`clients/${row.original.id}`);
                                 }}
                             >
                                 {row.getVisibleCells().map((cell) => (

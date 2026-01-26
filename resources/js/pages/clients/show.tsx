@@ -6,9 +6,9 @@ import type { Client } from '@/components/clients/Columns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-
 interface ClientPageProps {
     client: Client;
 }
@@ -24,40 +24,53 @@ export default function Show({ client }: ClientPageProps) {
             href: `/clients/${client.id}`,
         },
     ];
+    const { confirm, ConfirmDialog } = useConfirmDialog();
 
     const [image, setImage] = useState<string | null>(
         client?.image ? `http://localhost:8000/storage/${client?.image}` : null,
     );
+
     const inputRef = useRef<HTMLInputElement | null>(null);
     const { data, setData, post, processing } = useForm({
-        name: client.name ,
-        company_name: client.company_name ,
-        email: client.email ,
-        phone: client.phone ,
-        website: client.website ,
-        address: client.address ,
+        _method: 'PUT',
+        name: client.name,
+        company_name: client.company_name,
+        email: client.email,
+        phone: client.phone,
+        website: client.website,
+        address: client.address,
         image: null as File | null,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(`/clients/${client.id}/update`, {
-            forceFormData: true,
-            onSuccess: () => {
-                toast.success('Client has been updated.');
-            },
-            onError: (errors) => {
-                if (errors && Object.keys(errors).length > 0) {
-                    Object.values(errors).forEach((message) => {
-                        if (typeof message === 'string') {
-                            toast.error(message);
+        confirm(
+            () => {
+                post(`/clients/${client.id}`, {
+                    forceFormData: true,
+                    onSuccess: () => {
+                        toast.success('Client has been updated.');
+                    },
+                    onError: (errors) => {
+                        if (errors && Object.keys(errors).length > 0) {
+                            Object.values(errors).forEach((message) => {
+                                if (typeof message === 'string') {
+                                    toast.error(message);
+                                }
+                            });
+                        } else {
+                            toast.error(
+                                'An error occurred while updating the client.',
+                            );
                         }
-                    });
-                } else {
-                    toast.error('An error occurred while updating the client.');
-                }
+                    },
+                });
             },
-        });
+            {
+                title: 'Confirm Update',
+                message: 'Are you sure you want to update this client data?',
+            },
+        );
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,8 +96,6 @@ export default function Show({ client }: ClientPageProps) {
             <div className="flex justify-center p-4">
                 <form
                     onSubmit={handleSubmit}
-                    action={`/clients/${client.id}/update`}
-                    method="post"
                     encType="multipart/form-data"
                     className="w-full rounded-lg bg-white p-6 shadow dark:bg-zinc-900 dark:shadow-zinc-800"
                 >
@@ -125,10 +136,7 @@ export default function Show({ client }: ClientPageProps) {
                     </div>
                     <div className="grid gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="name">
-                                Client Name
-                                <span className="m-1 text-red-500">*</span>
-                            </Label>
+                            <Label htmlFor="name">Client Name</Label>
                             <Input
                                 id="name"
                                 placeholder="name"
@@ -152,10 +160,7 @@ export default function Show({ client }: ClientPageProps) {
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="email">
-                                Email
-                                <span className="m-1 text-red-500">*</span>
-                            </Label>
+                            <Label htmlFor="email">Email</Label>
                             <Input
                                 id="email"
                                 placeholder="client email"
@@ -204,12 +209,15 @@ export default function Show({ client }: ClientPageProps) {
                         </div>
                     </div>
                     <div className="mt-6 flex justify-end gap-2">
+                        <Button variant="outline">Cancel</Button>
                         <Button type="submit" disabled={processing}>
                             {processing ? 'Saving...' : 'Save changes'}
                         </Button>
                     </div>
                 </form>
             </div>
+            {/* confirmDialog */}
+            <ConfirmDialog />
         </AppLayout>
     );
 }

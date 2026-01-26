@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateClientRequest;
+use App\Http\Requests\ClientRequest;
 use App\Models\Client;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ClientController extends Controller
@@ -24,7 +24,7 @@ class ClientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CreateClientRequest $request)
+    public function store(ClientRequest $request)
     {
         $validated = $request->validated();
 
@@ -53,9 +53,30 @@ class ClientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Client $client)
+    public function update(ClientRequest $request, Client $client)
     {
-        //
+        $validated = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $request_image = $request->file('image');
+
+            if ($request_image) {
+                // remove the previous image
+                if ($client->image) {
+                    Storage::disk('public')->delete($client->image);
+                }
+
+                // add the new image
+                $path = $request->file('image')->store('clients', 'public');
+                $validated['image'] = $path;
+            }
+        }
+
+        $client->foruser()->update($validated);
+
+        return Inertia::render('clients/show', [
+            'client' => $client,
+        ]);
     }
 
     /**

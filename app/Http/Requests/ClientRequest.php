@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class CreateClientRequest extends FormRequest
+class ClientRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,10 +22,12 @@ class CreateClientRequest extends FormRequest
      */
     public function rules(): array
     {
+        $clientId = $this->route('client');
+
         return [
             'name' => ['required', 'max:255'],
             'company_name' => ['max:255'],
-            'email' => ['required', 'email', 'unique:clients,email'],
+            'email' => ['required', 'email', Rule::unique('clients')->ignore($clientId)],
             'phone' => ['nullable', 'regex:/^\+?[0-9]{10,15}$/'],
             'website' => ['max:255'],
             'address' => ['max:255'],
