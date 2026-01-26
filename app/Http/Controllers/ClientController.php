@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ClientRequest;
+use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -53,28 +54,29 @@ class ClientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ClientRequest $request, Client $client)
+    public function update(UpdateClientRequest $request, Client $client)
     {
         $validated = $request->validated();
-
-        if ($request->hasFile('image')) {
-            $request_image = $request->file('image');
-
-            if ($request_image) {
-                // remove the previous image
-                if ($client->image) {
-                    Storage::disk('public')->delete($client->image);
-                }
-
-                // add the new image
-                $path = $request->file('image')->store('clients', 'public');
-                $validated['image'] = $path;
+        // user wants to remove client image
+        if ($request->input('image') === null || $request->input('image') === '') {
+            if ($client->image) {
+                Storage::disk('public')->delete($client->image);
             }
+            $validated['image'] = null;
+        }
+
+        // user want to update client image with new one
+        if ($request->hasFile('image') && $request->file('image')) {
+            if ($client->image) {
+                Storage::disk('public')->delete($client->image);
+            }
+            $path = $request->file('image')->store('clients', 'public');
+            $validated['image'] = $path;
         }
 
         $client->foruser()->update($validated);
 
-        return to_route('clients.show');
+        return to_route('clients.show', $client->id);
     }
 
     /**
