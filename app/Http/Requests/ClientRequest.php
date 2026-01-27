@@ -32,6 +32,9 @@ class ClientRequest extends FormRequest
             'website' => ['max:255'],
             'address' => ['max:255'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp'],
+            'customFields' => ['nullable', 'array'],
+            'customFields.*.key' => ['required', 'string', 'distinct', 'max:255'],
+            'customFields.*.value' => ['nullable', 'string', 'max:1000'],
         ];
     }
 
@@ -51,6 +54,14 @@ class ClientRequest extends FormRequest
             'website.max' => 'website must not exceed 255 characters',
             'address.max' => 'address must not exceed 255 characters',
             'image.image' => 'image should be of types [jpg, jpeg, png, webp]',
+            // custom fields 
+            'customFields.array' => 'Custom fields must be sent as a list.',
+            'customFields.*.key.required' => 'Each custom field must have a name.',
+            'customFields.*.key.string' => 'Custom field names must be text.',
+            'customFields.*.key.distinct' => 'Custom field names must be unique.',
+            'customFields.*.key.max' => 'Custom field names may not exceed 255 characters.',
+            'customFields.*.value.string' => 'Custom field values must be text.',
+            'customFields.*.value.max' => 'Custom field values may not exceed 1000 characters.',
         ];
     }
 }

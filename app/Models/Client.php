@@ -24,6 +24,11 @@ class Client extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function customFields()
+    {
+        return $this->morphMany(CustomField::class, 'model');
+    }
+
     public function scopeForUser($query)
     {
         $user_id = auth()->id();

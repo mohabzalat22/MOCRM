@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { Camera } from 'lucide-react';
-import type { ChangeEvent} from 'react';
+import type { ChangeEvent } from 'react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import CustomFieldsForm from './custom-fields';
+import type { CustomField } from './custom-fields';
 
 export function ClientDialog() {
     const [image, setImage] = useState<string | null>(null);
@@ -29,6 +31,7 @@ export function ClientDialog() {
         website: '',
         address: '',
         image: null as File | null,
+        customFields: [] as CustomField[],
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -190,6 +193,14 @@ export function ClientDialog() {
                                 onChange={(e) =>
                                     setData('address', e.target.value)
                                 }
+                            />
+                        </div>
+                        {/* custom fields */}
+                        <div>
+                            <CustomFieldsForm
+                                onSubmit={(customFields) => {
+                                    setData('customFields', customFields);
+                                }}
                             />
                         </div>
                     </div>

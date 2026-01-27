@@ -18,7 +18,7 @@ class ClientController extends Controller
         $clients = Client::forUser()->get();
 
         return Inertia::render('clients/index', [
-            'clients' => $clients,
+            'clients' => $clients->load('customFields'),
         ]);
     }
 
@@ -34,7 +34,17 @@ class ClientController extends Controller
             $validated['image'] = $path;
         }
 
-        Client::create($validated);
+        $client = Client::create(
+            collect($validated)->except('customFields')->toArray()
+        );
+
+        foreach ($validated['customFields'] as $field) {
+            $client->customFields()->create([
+                'key' => $field['key'],
+                'value' => $field['value']
+
+            ]);
+        }
 
         return to_route('clients.index');
     }
