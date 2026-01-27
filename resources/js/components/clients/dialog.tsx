@@ -31,7 +31,7 @@ export function ClientDialog() {
         website: '',
         address: '',
         image: null as File | null,
-        customFields: [] as CustomField[],
+        custom_fields: [] as CustomField[],
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -198,8 +198,8 @@ export function ClientDialog() {
                         {/* custom fields */}
                         <div>
                             <CustomFieldsForm
-                                onSubmit={(customFields) => {
-                                    setData('customFields', customFields);
+                                onSubmit={(custom_fields) => {
+                                    setData('custom_fields', custom_fields);
                                 }}
                             />
                         </div>

@@ -35,10 +35,10 @@ class ClientController extends Controller
         }
 
         $client = Client::create(
-            collect($validated)->except('customFields')->toArray()
+            collect($validated)->except('custom_fields')->toArray()
         );
 
-        foreach ($validated['customFields'] as $field) {
+        foreach ($validated['custom_fields'] as $field) {
             $client->customFields()->create([
                 'key' => $field['key'],
                 'value' => $field['value'],
@@ -87,7 +87,7 @@ class ClientController extends Controller
             $validated['image'] = $path;
         }
 
-        $client->foruser()->update(collect($validated)->except('custom_fields')->toArray());
+        Client::forUser()->where('id', $client->id)->update(collect($validated)->except('custom_fields')->toArray());
         // Update custom fields
         // TODO refactor this part
         if (isset($validated['custom_fields']) && is_array($validated['custom_fields'])) {
