@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ClientRequest;
+use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use Illuminate\Support\Facades\Storage;
@@ -25,7 +25,7 @@ class ClientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ClientRequest $request)
+    public function store(CreateClientRequest $request)
     {
         $validated = $request->validated();
 
@@ -41,7 +41,7 @@ class ClientController extends Controller
         foreach ($validated['customFields'] as $field) {
             $client->customFields()->create([
                 'key' => $field['key'],
-                'value' => $field['value']
+                'value' => $field['value'],
 
             ]);
         }
@@ -54,7 +54,10 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        $client = Client::forUser()->where('id', $client->id)->first();
+        $client = Client::forUser()
+            ->where('id', $client->id)
+            ->with('customFields')
+            ->first();
 
         return Inertia::render('clients/show', [
             'client' => $client,
@@ -68,7 +71,7 @@ class ClientController extends Controller
     {
         $validated = $request->validated();
         // user wants to remove client image
-        if ($request->input('image') === null || $request->input('image') === '') {
+        if ($request->has('image') && $request->input('image') === null || $request->input('image') === '') {
             if ($client->image) {
                 Storage::disk('public')->delete($client->image);
             }
@@ -84,7 +87,34 @@ class ClientController extends Controller
             $validated['image'] = $path;
         }
 
-        $client->foruser()->update($validated);
+        $client->foruser()->update(collect($validated)->except('custom_fields')->toArray());
+        // Update custom fields
+        // TODO refactor this part
+        if (isset($validated['custom_fields']) && is_array($validated['custom_fields'])) {
+            $existingFields = $client->customFields()->get()->keyBy('key');
+            $newFields = collect($validated['custom_fields'])->keyBy('key');
+
+            // Update or create fields
+            foreach ($newFields as $key => $field) {
+                if ($existingFields->has($key)) {
+                    $existing = $existingFields[$key];
+                    if ($existing->value !== $field['value']) {
+                        $existing->update(['value' => $field['value']]);
+                    }
+                } else {
+                    $client->customFields()->create([
+                        'key' => $field['key'],
+                        'value' => $field['value'],
+                    ]);
+                }
+            }
+
+            // Delete removed fields
+            $toDelete = $existingFields->keys()->diff($newFields->keys());
+            if ($toDelete->isNotEmpty()) {
+                $client->customFields()->whereIn('key', $toDelete)->delete();
+            }
+        }
 
         return to_route('clients.show', $client->id);
     }

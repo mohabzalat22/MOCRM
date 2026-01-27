@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { CustomField } from './custom-fields';
+import CustomFieldsView from './custom-fields-view';
 interface ClientFormData {
     name: string;
     company_name: string;
@@ -8,12 +10,16 @@ interface ClientFormData {
     phone: string;
     website: string;
     address: string;
+    custom_fields: CustomField[];
 }
 
 interface ClientFormProps {
     data: ClientFormData;
     editMode: boolean;
-    onFieldChange: (key: keyof ClientFormData, value: string) => void;
+    onFieldChange: (
+        key: keyof ClientFormData,
+        value: string | CustomField[],
+    ) => void;
     onReset?: () => void;
 }
 
@@ -103,21 +109,58 @@ export default function ClientForm({
             key: 'address' as const,
             placeholder: 'client address',
         },
+        {
+            id: 'custom Fields',
+            label: 'custom Fields',
+            key: 'custom_fields' as const,
+            placeholder: 'custom Fields',
+        },
     ];
 
     return (
         <div className="grid gap-4">
-            {fields.map((field) => (
-                <FormField
-                    key={field.id}
-                    id={field.id}
-                    label={field.label}
-                    value={data[field.key]}
-                    placeholder={field.placeholder}
-                    editMode={editMode}
-                    onChange={(value) => onFieldChange(field.key, value)}
-                />
-            ))}
+            {fields.map((field) => {
+                if (field.key === 'custom_fields') {
+                    return (
+                        <CustomFieldsView
+                            key={field.id}
+                            fields={data.custom_fields}
+                            editMode={editMode}
+                            onFieldChange={
+                                editMode
+                                    ? (idx, value) => {
+                                          // Update only the value of the custom field at idx
+                                          const updated =
+                                              data.custom_fields.map((f, i) =>
+                                                  i === idx
+                                                      ? { ...f, value }
+                                                      : f,
+                                              );
+                                          onFieldChange(
+                                              'custom_fields',
+                                              updated,
+                                          );
+                                      }
+                                    : undefined
+                            }
+                        />
+                    );
+                } else {
+                    return (
+                        <FormField
+                            key={field.id}
+                            id={field.id}
+                            label={field.label}
+                            value={data[field.key]}
+                            placeholder={field.placeholder}
+                            editMode={editMode}
+                            onChange={(value) =>
+                                onFieldChange(field.key, value)
+                            }
+                        />
+                    );
+                }
+            })}
         </div>
     );
 }

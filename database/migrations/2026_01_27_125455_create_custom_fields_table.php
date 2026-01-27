@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('value')->nullable();
             $table->timestamps();
 
-            //index     
+            // index
             $table->index(['model_type', 'model_id']);
         });
     }

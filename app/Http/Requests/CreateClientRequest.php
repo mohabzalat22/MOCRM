@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class ClientRequest extends FormRequest
+class CreateClientRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -54,7 +54,7 @@ class ClientRequest extends FormRequest
             'website.max' => 'website must not exceed 255 characters',
             'address.max' => 'address must not exceed 255 characters',
             'image.image' => 'image should be of types [jpg, jpeg, png, webp]',
-            // custom fields 
+            // custom fields
             'customFields.array' => 'Custom fields must be sent as a list.',
             'customFields.*.key.required' => 'Each custom field must have a name.',
             'customFields.*.key.string' => 'Custom field names must be text.',

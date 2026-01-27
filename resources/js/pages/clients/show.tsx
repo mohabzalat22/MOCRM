@@ -4,12 +4,12 @@ import { toast } from 'sonner';
 import ClientForm from '@/components/clients/client-form';
 import ClientImageUpload from '@/components/clients/client-image';
 import type { Client } from '@/components/clients/Columns';
+import type { CustomField } from '@/components/clients/custom-fields';
 import SettingButton from '@/components/clients/setting-button';
 import { Button } from '@/components/ui/button';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-
 interface ClientPageProps {
     client: Client;
 }
@@ -22,12 +22,32 @@ const getImageUrl = (imagePath: string | null): string | null => {
 };
 
 const buildFormData = (
-    changedFields: Record<string, string | File>,
+    changedFields: Record<string, string | File | CustomField[] | null>,
 ): FormData => {
     const formData = new FormData();
+
     Object.entries(changedFields).forEach(([key, value]) => {
         if (key === 'image') {
             formData.append('image', value === '' ? '' : (value as File));
+        } else if (key === 'custom_fields') {
+            if (Array.isArray(value)) {
+                value.forEach((field, idx) => {
+                    if (field && typeof field === 'object') {
+                        if ('key' in field) {
+                            formData.append(
+                                `custom_fields[${idx}][key]`,
+                                field.key ?? '',
+                            );
+                        }
+                        if ('value' in field) {
+                            formData.append(
+                                `custom_fields[${idx}][value]`,
+                                field.value ?? '',
+                            );
+                        }
+                    }
+                });
+            }
         } else {
             formData.append(key, value as string);
         }
@@ -71,7 +91,7 @@ export default function Show({ client }: ClientPageProps) {
     const [deleting, setDeleting] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [changedFields, setChangedFields] = useState<
-        Record<string, string | File>
+        Record<string, string | File | CustomField[] | null>
     >({});
 
     // FORM Setup
@@ -83,6 +103,7 @@ export default function Show({ client }: ClientPageProps) {
         website: client.website ?? '',
         address: client.address ?? '',
         image: null as File | null,
+        custom_fields: client.custom_fields || [],
     };
     const { data, setData, processing } = useForm(initialData);
 
@@ -90,7 +111,7 @@ export default function Show({ client }: ClientPageProps) {
     // TODO : refactor this handleFieldChange function
     const handleFieldChange = (
         key: keyof typeof initialData,
-        value: string | File | null,
+        value: string | File | CustomField[] | null,
     ) => {
         setData(key, value);
         if (key === 'image') {
@@ -99,6 +120,11 @@ export default function Show({ client }: ClientPageProps) {
             } else {
                 setChangedFields((prev) => ({ ...prev, image: value }));
             }
+        } else if (key === 'custom_fields') {
+            setChangedFields((prev) => ({
+                ...prev,
+                custom_fields: value as CustomField[],
+            }));
         } else if (value !== initialData[key]) {
             setChangedFields((prev) => ({
                 ...prev,
