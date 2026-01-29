@@ -230,27 +230,29 @@ export default function Show({ client }: ClientPageProps) {
                                         {client?.created_at}
                                     </span>
                                 </p>
-                                <div className="">
-                                    <StatusButton
-                                        className="mt-1"
-                                        editMode={editMode}
-                                        initialStatus={client.status}
-                                        onSelect={(status) => {
-                                            setData('status', status);
-                                            setChangedFields((prev) => ({
-                                                ...prev,
-                                                status,
-                                            }));
-                                        }}
-                                    />
-                                </div>
                             </div>
-                            <SettingButton
-                                onEdit={() => setEditMode(true)}
-                                onDeleteConfirm={handleDelete}
-                                editMode={editMode}
-                                deleting={deleting}
-                            />
+                            <div className="flex">
+                                <StatusButton
+                                    className="mx-1"
+                                    editMode={editMode}
+                                    initialStatus={client.status}
+                                    onSelect={(status) => {
+                                        setData('status', status);
+                                        setChangedFields((prev) => ({
+                                            ...prev,
+                                            status,
+                                        }));
+                                    }}
+                                />
+                                <SettingButton
+                                    onToggleEdit={() =>
+                                        setEditMode((prev) => !prev)
+                                    }
+                                    onDeleteConfirm={handleDelete}
+                                    editMode={editMode}
+                                    deleting={deleting}
+                                />
+                            </div>
                         </div>
 
                         <ClientImageUpload

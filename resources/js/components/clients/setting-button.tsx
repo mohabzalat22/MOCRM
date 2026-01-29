@@ -8,19 +8,18 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
 interface SettingButtonProps {
-    onEdit?: () => void;
+    onToggleEdit?: () => void;
     onDeleteConfirm?: () => void;
     editMode?: boolean;
     deleting?: boolean;
 }
 
 export default function SettingButton({
-    onEdit,
+    onToggleEdit,
     onDeleteConfirm,
     editMode,
     deleting,
@@ -39,7 +38,7 @@ export default function SettingButton({
                     <DropdownMenuItem
                         onSelect={(e) => {
                             e.preventDefault();
-                            if (onEdit) onEdit();
+                            if (onToggleEdit) onToggleEdit();
                         }}
                         className={
                             editMode
@@ -48,7 +47,6 @@ export default function SettingButton({
                         }
                     >
                         {editMode ? 'Editing...' : 'Edit'}
-                        <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -63,7 +61,6 @@ export default function SettingButton({
                         className="text-red-600 focus:bg-red-100 dark:focus:bg-red-900"
                     >
                         {deleting ? 'Deleting...' : 'Delete'}
-                        <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
             </DropdownMenuContent>

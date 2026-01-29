@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Client extends Model
 {
@@ -24,9 +26,14 @@ class Client extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function customFields()
+    public function customFields(): MorphMany
     {
         return $this->morphMany(CustomField::class, 'model');
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Client::class, 'taggable');
     }
 
     public function scopeForUser($query)
