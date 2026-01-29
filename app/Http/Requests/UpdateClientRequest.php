@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ClientStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -35,6 +36,7 @@ class UpdateClientRequest extends FormRequest
             'custom_fields' => ['nullable', 'array'],
             'custom_fields.*.key' => ['required', 'string', 'distinct', 'max:255'],
             'custom_fields.*.value' => ['nullable', 'string', 'max:1000'],
+            'status' => ['required', Rule::in(array_column(ClientStatus::cases(), 'value'))],
         ];
     }
 
@@ -54,7 +56,6 @@ class UpdateClientRequest extends FormRequest
             'website.max' => 'website must not exceed 255 characters',
             'address.max' => 'address must not exceed 255 characters',
             'image.image' => 'image should be of types [jpg, jpeg, png, webp]',
-            // custom fields
             'custom_fields.array' => 'Custom fields must be sent as a list.',
             'custom_fields.*.key.required' => 'Each custom field must have a name.',
             'custom_fields.*.key.string' => 'Custom field names must be text.',
@@ -62,6 +63,7 @@ class UpdateClientRequest extends FormRequest
             'custom_fields.*.key.max' => 'Custom field names may not exceed 255 characters.',
             'custom_fields.*.value.string' => 'Custom field values must be text.',
             'custom_fields.*.value.max' => 'Custom field values may not exceed 1000 characters.',
+            'status.in' => 'The selected status is invalid.',
         ];
     }
 }

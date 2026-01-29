@@ -6,6 +6,7 @@ import ClientImageUpload from '@/components/clients/client-image';
 import type { Client } from '@/components/clients/Columns';
 import type { CustomField } from '@/components/clients/custom-fields';
 import SettingButton from '@/components/clients/setting-button';
+import StatusButton from '@/components/clients/status-button';
 import { Button } from '@/components/ui/button';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
@@ -104,6 +105,7 @@ export default function Show({ client }: ClientPageProps) {
         address: client.address ?? '',
         image: null as File | null,
         custom_fields: client.custom_fields || [],
+        status: client.status ?? '',
     };
     const { data, setData, processing } = useForm(initialData);
 
@@ -228,6 +230,20 @@ export default function Show({ client }: ClientPageProps) {
                                         {client?.created_at}
                                     </span>
                                 </p>
+                                <div className="">
+                                    <StatusButton
+                                        className="mt-1"
+                                        editMode={editMode}
+                                        initialStatus={client.status}
+                                        onSelect={(status) => {
+                                            setData('status', status);
+                                            setChangedFields((prev) => ({
+                                                ...prev,
+                                                status,
+                                            }));
+                                        }}
+                                    />
+                                </div>
                             </div>
                             <SettingButton
                                 onEdit={() => setEditMode(true)}

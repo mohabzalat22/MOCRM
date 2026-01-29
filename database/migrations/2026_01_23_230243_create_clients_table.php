@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ClientStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,6 +21,7 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->string('address')->nullable();
             $table->string('image')->nullable();
+            $table->string('status')->default(ClientStatus::LEAD->value);
             $table->timestamps();
             // relations
             $table->foreignId('user_id')->constrianed('users')->cascadeOnDelete();

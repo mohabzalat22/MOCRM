@@ -141,3 +141,25 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Status button decoration classes */
+.status-btn-active {
+    background-color: #22c55e !important; /* Tailwind green-500 */
+    color: #fff !important;
+    border-color: #22c55e !important;
+}
+.status-btn-lead {
+    background-color: #eab308 !important; /* Tailwind yellow-500 */
+    color: #fff !important;
+    border-color: #eab308 !important;
+}
+.status-btn-at-risk {
+    background-color: #ef4444 !important; /* Tailwind red-500 */
+    color: #fff !important;
+    border-color: #ef4444 !important;
+}
+.status-btn-in-active {
+    background-color: #000 !important; /* Black */
+    color: #fff !important;
+    border-color: #000 !important;
+}

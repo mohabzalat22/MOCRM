@@ -12,6 +12,7 @@ export type Client = {
     image?: string;
     created_at: string;
     custom_fields: CustomField[];
+    status: string;
 };
 
 export const columns: ColumnDef<Client>[] = [
