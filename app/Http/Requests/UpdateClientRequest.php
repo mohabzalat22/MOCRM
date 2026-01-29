@@ -36,7 +36,7 @@ class UpdateClientRequest extends FormRequest
             'custom_fields' => ['nullable', 'array'],
             'custom_fields.*.key' => ['required', 'string', 'distinct', 'max:255'],
             'custom_fields.*.value' => ['nullable', 'string', 'max:1000'],
-            'status' => ['required', Rule::in(array_column(ClientStatus::cases(), 'value'))],
+            'status' => ['sometimes', Rule::in(array_column(ClientStatus::cases(), 'value'))],
         ];
     }
 

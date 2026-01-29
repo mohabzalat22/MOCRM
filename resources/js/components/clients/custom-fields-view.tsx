@@ -37,75 +37,103 @@ export default function CustomFieldsView({
         onFieldsChange(updated);
     };
 
-    if (!fields || fields.length === 0) {
-        return (
-            <div className="text-sm text-gray-500">No custom fields added.</div>
-        );
-    }
+    // Always show at least one empty row in edit mode for adding new fields
+    const showEmptyRow = editMode && (!fields || fields.length === 0);
     return (
         <div>
             <label className="mb-2 block font-semibold">Custom Fields</label>
             <div className="space-y-2">
-                {fields.length === 0 && (
+                {(!fields || fields.length === 0) && (
                     <div className="text-sm text-gray-500">
                         No custom fields added.
                     </div>
                 )}
-                {fields.map((customField, idx) => (
-                    <div key={idx} className="my-1 flex items-center gap-2">
-                        {editMode ? (
-                            <>
-                                <input
-                                    className="w-1/3 rounded border px-2 py-1 dark:bg-zinc-800 dark:text-white"
-                                    type="text"
-                                    placeholder="Key"
-                                    value={customField.key}
-                                    onChange={(e) =>
-                                        handleCustomFieldChange(
-                                            idx,
-                                            'key',
-                                            e.target.value,
-                                        )
-                                    }
-                                />
-                                <input
-                                    className="w-1/2 rounded border px-2 py-1 dark:bg-zinc-800 dark:text-white"
-                                    type="text"
-                                    placeholder="Value"
-                                    value={customField.value}
-                                    onChange={(e) =>
-                                        handleCustomFieldChange(
-                                            idx,
-                                            'value',
-                                            e.target.value,
-                                        )
-                                    }
-                                />
-                                <button
-                                    type="button"
-                                    className="ml-2 rounded p-1 text-red-500 transition-colors duration-150 hover:bg-red-500 hover:text-white focus:ring-2 focus:ring-red-400 focus:outline-none"
-                                    aria-label="Remove field"
-                                    onClick={() => handleRemoveCustomField(idx)}
-                                >
-                                    <Trash
-                                        size={20}
-                                        strokeWidth={2.2}
-                                        className="pointer-events-none"
-                                    />
-                                </button>
-                            </>
-                        ) : (
-                            <div className="w-full">
-                                <p className="my-1 text-sm font-medium">
-                                    {customField.key}
-                                </p>
-                                <div className="w-full rounded bg-zinc-100 px-3 py-2 text-black dark:bg-zinc-800 dark:text-white">
-                                    {customField.value}
-                                </div>
-                            </div>
-                        )}
+                {showEmptyRow && (
+                    <div className="my-1 flex items-center gap-2">
+                        <input
+                            className="w-1/3 rounded border px-2 py-1 dark:bg-zinc-800 dark:text-white"
+                            type="text"
+                            placeholder="Key"
+                            value={''}
+                            onChange={(e) => {
+                                // Add new field on first input
+                                onFieldsChange([
+                                    { key: e.target.value, value: '' },
+                                ]);
+                            }}
+                        />
+                        <input
+                            className="w-1/2 rounded border px-2 py-1 dark:bg-zinc-800 dark:text-white"
+                            type="text"
+                            placeholder="Value"
+                            value={''}
+                            onChange={(e) => {
+                                onFieldsChange([
+                                    { key: '', value: e.target.value },
+                                ]);
+                            }}
+                        />
+                        {/* No remove button for the empty row */}
                     </div>
-                ))}
+                )}
+                {fields &&
+                    fields.map((customField, idx) => (
+                        <div key={idx} className="my-1 flex items-center gap-2">
+                            {editMode ? (
+                                <>
+                                    <input
+                                        className="w-1/3 rounded border px-2 py-1 dark:bg-zinc-800 dark:text-white"
+                                        type="text"
+                                        placeholder="Key"
+                                        value={customField.key}
+                                        onChange={(e) =>
+                                            handleCustomFieldChange(
+                                                idx,
+                                                'key',
+                                                e.target.value,
+                                            )
+                                        }
+                                    />
+                                    <input
+                                        className="w-1/2 rounded border px-2 py-1 dark:bg-zinc-800 dark:text-white"
+                                        type="text"
+                                        placeholder="Value"
+                                        value={customField.value}
+                                        onChange={(e) =>
+                                            handleCustomFieldChange(
+                                                idx,
+                                                'value',
+                                                e.target.value,
+                                            )
+                                        }
+                                    />
+                                    <button
+                                        type="button"
+                                        className="ml-2 rounded p-1 text-red-500 transition-colors duration-150 hover:bg-red-500 hover:text-white focus:ring-2 focus:ring-red-400 focus:outline-none"
+                                        aria-label="Remove field"
+                                        onClick={() =>
+                                            handleRemoveCustomField(idx)
+                                        }
+                                    >
+                                        <Trash
+                                            size={20}
+                                            strokeWidth={2.2}
+                                            className="pointer-events-none"
+                                        />
+                                    </button>
+                                </>
+                            ) : (
+                                <div className="w-full">
+                                    <p className="my-1 text-sm font-medium capitalize">
+                                        {customField.key}
+                                    </p>
+                                    <div className="w-full rounded bg-zinc-100 px-3 py-2 text-black dark:bg-zinc-800 dark:text-white">
+                                        {customField.value}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
             </div>
             {editMode && (
                 <Button variant="outline" onClick={handleAddCustomField}>

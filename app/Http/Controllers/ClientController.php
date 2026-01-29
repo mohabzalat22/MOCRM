@@ -38,12 +38,13 @@ class ClientController extends Controller
             collect($validated)->except('custom_fields')->toArray()
         );
 
-        foreach ($validated['custom_fields'] as $field) {
-            $client->customFields()->create([
-                'key' => $field['key'],
-                'value' => $field['value'],
-
-            ]);
+        if (isset($validated['custom_fields']) && is_array($validated['custom_fields'])) {
+            foreach ($validated['custom_fields'] as $field) {
+                $client->customFields()->create([
+                    'key' => $field['key'],
+                    'value' => $field['value'],
+                ]);
+            }
         }
 
         return to_route('clients.index');
