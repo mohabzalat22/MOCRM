@@ -33,7 +33,7 @@ class Client extends Model
 
     public function tags(): MorphToMany
     {
-        return $this->morphToMany(Client::class, 'taggable');
+        return $this->morphToMany(Tag::class, 'taggable')->withTimestamps();
     }
 
     public function scopeForUser($query)

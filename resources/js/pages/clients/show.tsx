@@ -7,12 +7,16 @@ import type { Client } from '@/components/clients/Columns';
 import type { CustomField } from '@/components/clients/custom-fields';
 import SettingButton from '@/components/clients/setting-button';
 import StatusButton from '@/components/clients/status-button';
+import TagInput from '@/components/clients/tag-input';
 import { Button } from '@/components/ui/button';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
+import type { Tag } from '@/types';
 import type { BreadcrumbItem } from '@/types';
+
 interface ClientPageProps {
     client: Client;
+    allTags?: Tag[];
 }
 
 const STORAGE_BASE_URL = 'http://localhost:8000/storage/';
@@ -90,7 +94,7 @@ const showErrorToasts = (errors: Record<string, unknown>) => {
     }
 };
 
-export default function Show({ client }: ClientPageProps) {
+export default function Show({ client, allTags = [] }: ClientPageProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Clients',
@@ -301,7 +305,7 @@ export default function Show({ client }: ClientPageProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Clients" />
-            <div className="flex justify-center p-4">
+            <div className="flex flex-col justify-center gap-4 p-4">
                 <div className="w-full rounded-lg bg-white p-6 shadow dark:bg-zinc-900 dark:shadow-zinc-800">
                     <div className="mb-6 flex flex-col items-center justify-center gap-2">
                         <div className="flex w-full justify-between">
@@ -343,6 +347,17 @@ export default function Show({ client }: ClientPageProps) {
                             inputRef={inputRef}
                             onImageChange={handleImageChange}
                             onRemoveImage={handleRemoveImage}
+                        />
+                    </div>
+
+                    {/* Tag Input for this client */}
+                    <div className="mb-6">
+                        <TagInput
+                            taggableId={Number(client.id)}
+                            taggableType="client"
+                            existingTags={client.tags || []}
+                            allTags={allTags}
+                            editMode={editMode}
                         />
                     </div>
 

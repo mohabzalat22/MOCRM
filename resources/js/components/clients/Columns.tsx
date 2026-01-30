@@ -1,6 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
+import type { Tag } from '@/types';
 import type { CustomField } from './custom-fields';
-
 export type Client = {
     id: string;
     name: string;
@@ -13,6 +13,7 @@ export type Client = {
     created_at: string;
     custom_fields: CustomField[];
     status: string;
+    tags: Tag[];
 };
 
 export const columns: ColumnDef<Client>[] = [

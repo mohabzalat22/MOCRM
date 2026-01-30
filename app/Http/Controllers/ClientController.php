@@ -15,10 +15,13 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::forUser()->get();
+        $clients = Client::forUser()->with([
+            'customFields',
+            'tags'
+        ])->get();
 
         return Inertia::render('clients/index', [
-            'clients' => $clients->load('customFields'),
+            'clients' => $clients,
         ]);
     }
 
@@ -57,11 +60,15 @@ class ClientController extends Controller
     {
         $client = Client::forUser()
             ->where('id', $client->id)
-            ->with('customFields')
-            ->first();
+            ->with(['customFields', 'tags'])
+            ->firstOrFail();
+
+        // Get all tags for tag input/filter
+        $allTags = \App\Models\Tag::orderBy('name')->get();
 
         return Inertia::render('clients/show', [
             'client' => $client,
+            'allTags' => $allTags,
         ]);
     }
 

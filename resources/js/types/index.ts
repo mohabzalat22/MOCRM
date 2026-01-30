@@ -10,3 +10,14 @@ export type SharedData = {
     sidebarOpen: boolean;
     [key: string]: unknown;
 };
+
+export interface Tag {
+    id: number;
+    name: string;
+    color: string;
+    usage_count: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export type TaggableType = 'client' | 'project' | 'task';
