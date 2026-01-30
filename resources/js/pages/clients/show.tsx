@@ -22,6 +22,21 @@ const getImageUrl = (imagePath: string | null): string | null => {
     return imagePath ? `${STORAGE_BASE_URL}/${imagePath}` : null;
 };
 
+const customFieldsChanged = (
+    current: CustomField[],
+    initial: CustomField[],
+): boolean => {
+    if (current.length !== initial.length) return true;
+
+    return current.some((field, idx) => {
+        const initialField = initial[idx];
+        if (!initialField) return true;
+        return (
+            field.key !== initialField.key || field.value !== initialField.value
+        );
+    });
+};
+
 const buildFormData = (
     changedFields: Record<string, string | File | CustomField[] | null>,
 ): FormData => {
@@ -48,6 +63,11 @@ const buildFormData = (
                         }
                     }
                 });
+                // If the array is empty, still send an empty array to backend
+                if (value.length === 0) {
+                    // This ensures Laravel gets an empty array, not a string
+                    formData.append('custom_fields', '');
+                }
             }
         } else {
             formData.append(key, value as string);
@@ -104,29 +124,62 @@ export default function Show({ client }: ClientPageProps) {
         website: client.website ?? '',
         address: client.address ?? '',
         image: null as File | null,
-        custom_fields: client.custom_fields || [],
+        custom_fields: (client.custom_fields || []) as CustomField[],
         status: client.status ?? '',
     };
     const { data, setData, processing } = useForm(initialData);
 
     // Helper to update data and track changes
-    // TODO : refactor this handleFieldChange function
     const handleFieldChange = (
         key: keyof typeof initialData,
         value: string | File | CustomField[] | null,
     ) => {
-        setData(key, value);
+        setData(key, value as never);
+
         if (key === 'image') {
             if (value === null || value === '') {
                 setChangedFields((prev) => ({ ...prev, image: '' }));
             } else {
-                setChangedFields((prev) => ({ ...prev, image: value }));
+                setChangedFields((prev) => ({ ...prev, image: value as File }));
             }
         } else if (key === 'custom_fields') {
-            setChangedFields((prev) => ({
-                ...prev,
-                custom_fields: value as CustomField[],
-            }));
+            // Filter out completely empty custom fields
+            const fieldsArray = (value as CustomField[]) || [];
+            const nonEmptyFields = fieldsArray.filter(
+                (field) =>
+                    (field.key && field.key.trim() !== '') ||
+                    (field.value && field.value.trim() !== ''),
+            );
+
+            // Only mark as changed if non-empty fields differ from initial
+            const hasChanges = customFieldsChanged(
+                nonEmptyFields,
+                initialData.custom_fields,
+            );
+
+            if (hasChanges && nonEmptyFields.length > 0) {
+                // Has actual changes with content
+                setChangedFields((prev) => ({
+                    ...prev,
+                    custom_fields: fieldsArray, // Keep all fields including empty ones for the form
+                }));
+            } else if (
+                nonEmptyFields.length === 0 &&
+                initialData.custom_fields.length > 0
+            ) {
+                // All fields deleted (went from having fields to empty)
+                setChangedFields((prev) => ({
+                    ...prev,
+                    custom_fields: [],
+                }));
+            } else {
+                // No meaningful changes
+                setChangedFields((prev) => {
+                    const updated = { ...prev };
+                    delete updated.custom_fields;
+                    return updated;
+                });
+            }
         } else if (value !== initialData[key]) {
             setChangedFields((prev) => ({
                 ...prev,
@@ -145,6 +198,7 @@ export default function Show({ client }: ClientPageProps) {
         setEditMode(false);
         setChangedFields({});
         setData(initialData);
+        setImage(getImageUrl(client?.image ?? null));
         if (inputRef.current) {
             inputRef.current.value = '';
         }
@@ -166,10 +220,37 @@ export default function Show({ client }: ClientPageProps) {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (Object.keys(changedFields).length === 0) {
+            toast.info('No changes to save.');
+            return;
+        }
+
+        // Check if there are any real changes
+        const hasRealChanges = Object.entries(changedFields).some(
+            ([key, value]) => {
+                if (key === 'custom_fields' && Array.isArray(value)) {
+                    // Empty array is a valid change if we had fields before (deletion case)
+                    if (
+                        value.length === 0 &&
+                        initialData.custom_fields.length > 0
+                    ) {
+                        return true;
+                    }
+                    // Check if custom fields have actual content
+                    return value.some(
+                        (field) =>
+                            (field.key && field.key.trim() !== '') ||
+                            (field.value && field.value.trim() !== ''),
+                    );
+                }
+                return true; // Other fields are considered real changes
+            },
+        );
+
+        if (!hasRealChanges) {
             toast.info('No changes to save.');
             return;
         }
@@ -181,6 +262,7 @@ export default function Show({ client }: ClientPageProps) {
                 router.post(`/clients/${client.id}`, formData, {
                     onSuccess: () => {
                         setEditMode(false);
+                        setChangedFields({});
                         toast.success('Client has been updated.');
                     },
                     onError: showErrorToasts,

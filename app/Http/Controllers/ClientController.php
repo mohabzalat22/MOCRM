@@ -90,30 +90,34 @@ class ClientController extends Controller
 
         Client::forUser()->where('id', $client->id)->update(collect($validated)->except('custom_fields')->toArray());
         // Update custom fields
-        // TODO refactor this part
-        if (isset($validated['custom_fields']) && is_array($validated['custom_fields'])) {
-            $existingFields = $client->customFields()->get()->keyBy('key');
-            $newFields = collect($validated['custom_fields'])->keyBy('key');
+        // If custom_fields is present and is null or an empty array, delete all custom fields
+        if (array_key_exists('custom_fields', $validated)) {
+            if (empty($validated['custom_fields'])) {
+                $client->customFields()->delete();
+            } elseif (is_array($validated['custom_fields'])) {
+                $existingFields = $client->customFields()->get()->keyBy('key');
+                $newFields = collect($validated['custom_fields'])->keyBy('key');
 
-            // Update or create fields
-            foreach ($newFields as $key => $field) {
-                if ($existingFields->has($key)) {
-                    $existing = $existingFields[$key];
-                    if ($existing->value !== $field['value']) {
-                        $existing->update(['value' => $field['value']]);
+                // Update or create fields
+                foreach ($newFields as $key => $field) {
+                    if ($existingFields->has($key)) {
+                        $existing = $existingFields[$key];
+                        if ($existing->value !== $field['value']) {
+                            $existing->update(['value' => $field['value']]);
+                        }
+                    } else {
+                        $client->customFields()->create([
+                            'key' => $field['key'],
+                            'value' => $field['value'],
+                        ]);
                     }
-                } else {
-                    $client->customFields()->create([
-                        'key' => $field['key'],
-                        'value' => $field['value'],
-                    ]);
                 }
-            }
 
-            // Delete removed fields
-            $toDelete = $existingFields->keys()->diff($newFields->keys());
-            if ($toDelete->isNotEmpty()) {
-                $client->customFields()->whereIn('key', $toDelete)->delete();
+                // Delete removed fields
+                $toDelete = $existingFields->keys()->diff($newFields->keys());
+                if ($toDelete->isNotEmpty()) {
+                    $client->customFields()->whereIn('key', $toDelete)->delete();
+                }
             }
         }
 

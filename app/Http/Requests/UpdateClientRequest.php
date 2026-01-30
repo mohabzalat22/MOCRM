@@ -33,7 +33,7 @@ class UpdateClientRequest extends FormRequest
             'website' => ['sometimes', 'max:255'],
             'address' => ['sometimes', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp'],
-            'custom_fields' => ['nullable', 'array'],
+            'custom_fields' => ['sometimes', 'nullable', 'array'],
             'custom_fields.*.key' => ['required', 'string', 'distinct', 'max:255'],
             'custom_fields.*.value' => ['nullable', 'string', 'max:1000'],
             'status' => ['sometimes', Rule::in(array_column(ClientStatus::cases(), 'value'))],

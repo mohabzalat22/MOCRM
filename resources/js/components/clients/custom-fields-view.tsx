@@ -1,4 +1,5 @@
 import { Trash } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { CustomField } from './custom-fields';
 
@@ -13,10 +14,31 @@ export default function CustomFieldsView({
     editMode,
     onFieldsChange,
 }: CustomFieldsViewProps) {
+    const [adding, setAdding] = useState(false);
+    const [newField, setNewField] = useState<CustomField>({
+        key: '',
+        value: '',
+    });
+
     // Handler to add a new custom field
     const handleAddCustomField = () => {
-        const updated = [...fields, { key: '', value: '' }];
-        onFieldsChange(updated);
+        setAdding(true);
+        setNewField({ key: '', value: '' });
+    };
+
+    // Handler to save the new custom field
+    const handleSaveNewField = () => {
+        if (newField.key.trim() !== '') {
+            onFieldsChange([...fields, { ...newField }]);
+            setAdding(false);
+            setNewField({ key: '', value: '' });
+        }
+    };
+
+    // Handler to cancel adding
+    const handleCancelAdd = () => {
+        setAdding(false);
+        setNewField({ key: '', value: '' });
     };
 
     // Handler to update a custom field (key or value)
@@ -37,43 +59,13 @@ export default function CustomFieldsView({
         onFieldsChange(updated);
     };
 
-    // Always show at least one empty row in edit mode for adding new fields
-    const showEmptyRow = editMode && (!fields || fields.length === 0);
     return (
         <div>
             <label className="mb-2 block font-semibold">Custom Fields</label>
             <div className="space-y-2">
-                {(!fields || fields.length === 0) && (
+                {(!fields || fields.length === 0) && !adding && (
                     <div className="text-sm text-gray-500">
                         No custom fields added.
-                    </div>
-                )}
-                {showEmptyRow && (
-                    <div className="my-1 flex items-center gap-2">
-                        <input
-                            className="w-1/3 rounded border px-2 py-1 dark:bg-zinc-800 dark:text-white"
-                            type="text"
-                            placeholder="Key"
-                            value={''}
-                            onChange={(e) => {
-                                // Add new field on first input
-                                onFieldsChange([
-                                    { key: e.target.value, value: '' },
-                                ]);
-                            }}
-                        />
-                        <input
-                            className="w-1/2 rounded border px-2 py-1 dark:bg-zinc-800 dark:text-white"
-                            type="text"
-                            placeholder="Value"
-                            value={''}
-                            onChange={(e) => {
-                                onFieldsChange([
-                                    { key: '', value: e.target.value },
-                                ]);
-                            }}
-                        />
-                        {/* No remove button for the empty row */}
                     </div>
                 )}
                 {fields &&
@@ -134,8 +126,50 @@ export default function CustomFieldsView({
                             )}
                         </div>
                     ))}
+                {editMode && adding && (
+                    <div className="my-1 flex items-center gap-2">
+                        <input
+                            className="w-1/3 rounded border px-2 py-1 dark:bg-zinc-800 dark:text-white"
+                            type="text"
+                            placeholder="Key"
+                            value={newField.key}
+                            onChange={(e) =>
+                                setNewField((prev) => ({
+                                    ...prev,
+                                    key: e.target.value,
+                                }))
+                            }
+                        />
+                        <input
+                            className="w-1/2 rounded border px-2 py-1 dark:bg-zinc-800 dark:text-white"
+                            type="text"
+                            placeholder="Value"
+                            value={newField.value}
+                            onChange={(e) =>
+                                setNewField((prev) => ({
+                                    ...prev,
+                                    value: e.target.value,
+                                }))
+                            }
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleSaveNewField}
+                        >
+                            Save
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={handleCancelAdd}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                )}
             </div>
-            {editMode && (
+            {editMode && !adding && (
                 <Button variant="outline" onClick={handleAddCustomField}>
                     + Add New Field
                 </Button>
