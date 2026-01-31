@@ -7,7 +7,7 @@ import type { Client } from '@/components/clients/Columns';
 import type { CustomField } from '@/components/clients/custom-fields';
 import SettingButton from '@/components/clients/setting-button';
 import StatusButton from '@/components/clients/status-button';
-import TagInput from '@/components/clients/tag-input';
+import TagInput, { type TagChange } from '@/components/clients/tag-input';
 import { Button } from '@/components/ui/button';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
@@ -118,6 +118,10 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
     const [changedFields, setChangedFields] = useState<
         Record<string, string | File | CustomField[] | null>
     >({});
+    const [tagChanges, setTagChanges] = useState<TagChange>({
+        tagsToAdd: [],
+        tagsToRemove: [],
+    });
 
     // FORM Setup
     const initialData = {
@@ -201,6 +205,7 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
     const resetForm = () => {
         setEditMode(false);
         setChangedFields({});
+        setTagChanges({ tagsToAdd: [], tagsToRemove: [] });
         setData(initialData);
         setImage(getImageUrl(client?.image ?? null));
         if (inputRef.current) {
@@ -227,12 +232,15 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (Object.keys(changedFields).length === 0) {
+        const hasTagChanges = tagChanges.tagsToAdd.length > 0 || tagChanges.tagsToRemove.length > 0;
+        const hasFieldChanges = Object.keys(changedFields).length > 0;
+
+        if (!hasFieldChanges && !hasTagChanges) {
             toast.info('No changes to save.');
             return;
         }
 
-        // Check if there are any real changes
+        // Check if there are any real field changes
         const hasRealChanges = Object.entries(changedFields).some(
             ([key, value]) => {
                 if (key === 'custom_fields' && Array.isArray(value)) {
@@ -254,29 +262,91 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
             },
         );
 
-        if (!hasRealChanges) {
+        if (!hasRealChanges && !hasTagChanges) {
             toast.info('No changes to save.');
             return;
         }
 
         confirm(
             () => {
-                const formData = buildFormData(changedFields);
+                // If we have field changes, submit them first
+                if (hasRealChanges) {
+                    const formData = buildFormData(changedFields);
 
-                router.post(`/clients/${client.id}`, formData, {
-                    onSuccess: () => {
-                        setEditMode(false);
-                        setChangedFields({});
-                        toast.success('Client has been updated.');
-                    },
-                    onError: showErrorToasts,
-                });
+                    router.post(`/clients/${client.id}`, formData, {
+                        onSuccess: () => {
+                            // After successfully updating client fields, handle tag changes
+                            if (hasTagChanges) {
+                                handleTagSubmission();
+                            } else {
+                                setEditMode(false);
+                                setChangedFields({});
+                                setTagChanges({ tagsToAdd: [], tagsToRemove: [] });
+                                toast.success('Client has been updated.');
+                            }
+                        },
+                        onError: showErrorToasts,
+                    });
+                } else if (hasTagChanges) {
+                    // Only tag changes, submit them directly
+                    handleTagSubmission();
+                }
             },
             {
                 title: 'Confirm Update',
                 message: 'Are you sure you want to update this client data?',
             },
         );
+    };
+
+    const handleTagSubmission = () => {
+        let completedOperations = 0;
+        const totalOperations = tagChanges.tagsToAdd.length + tagChanges.tagsToRemove.length;
+
+        const checkCompletion = () => {
+            completedOperations++;
+            if (completedOperations === totalOperations) {
+                setEditMode(false);
+                setChangedFields({});
+                setTagChanges({ tagsToAdd: [], tagsToRemove: [] });
+                toast.success('Client has been updated.');
+            }
+        };
+
+        // Add new tags
+        tagChanges.tagsToAdd.forEach((tag) => {
+            router.post(
+                '/tags',
+                {
+                    name: tag.name,
+                    color: tag.color,
+                    taggable_id: client.id,
+                    taggable_type: 'App\\Models\\Client',
+                },
+                {
+                    preserveScroll: true,
+                    preserveState: true,
+                    onSuccess: checkCompletion,
+                    onError: (errors) => {
+                        console.error('Error adding tag:', errors);
+                        checkCompletion();
+                    },
+                },
+            );
+        });
+
+        // Remove tags
+        tagChanges.tagsToRemove.forEach((tagId) => {
+            router.delete(`/client/${client.id}/tags/${tagId}`, {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: checkCompletion,
+                onError: (errors) => {
+                    console.error('Error removing tag:', errors);
+                    checkCompletion();
+                },
+            });
+        });
     };
 
     const handleDelete = () => {
@@ -358,6 +428,7 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                             existingTags={client.tags || []}
                             allTags={allTags}
                             editMode={editMode}
+                            onChange={setTagChanges}
                         />
                     </div>
 

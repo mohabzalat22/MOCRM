@@ -21,6 +21,11 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 
+export interface TagChange {
+    tagsToAdd: Array<{ name: string; color: string }>;
+    tagsToRemove: number[];
+}
+
 interface TagInputProps {
     taggableId: number;
     taggableType?: TaggableType;
@@ -29,6 +34,7 @@ interface TagInputProps {
     popularTags?: Tag[];
     className?: string;
     editMode?: boolean;
+    onChange?: (changes: TagChange) => void;
 }
 
 export default function TagInput({
@@ -39,7 +45,12 @@ export default function TagInput({
     popularTags = [],
     className = '',
     editMode = false,
+    onChange,
 }: TagInputProps) {
+    // Local state for pending changes
+    const [tagsToAdd, setTagsToAdd] = useState<Array<{ name: string; color: string }>>([]);
+    const [tagsToRemove, setTagsToRemove] = useState<number[]>([]);
+    
     // Use useRemember to persist state across Inertia visits
     const [inputValue, setInputValue] = useRemember('');
     const [selectedColor, setSelectedColor] = useRemember<
@@ -48,6 +59,21 @@ export default function TagInput({
     const [open, setOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const popoverContentRef = useRef<HTMLDivElement>(null);
+
+    // Notify parent of changes
+    useEffect(() => {
+        if (onChange) {
+            onChange({ tagsToAdd, tagsToRemove });
+        }
+    }, [tagsToAdd, tagsToRemove, onChange]);
+
+    // Reset local state when edit mode is disabled
+    useEffect(() => {
+        if (!editMode) {
+            setTagsToAdd([]);
+            setTagsToRemove([]);
+        }
+    }, [editMode]);
 
     // Focus the input when the component mounts and after interactions
     useEffect(() => {
@@ -89,58 +115,36 @@ export default function TagInput({
         (tagName: string, color: string) => {
             if (!tagName.trim()) return;
 
-            router.post(
-                '/tags',
-                {
-                    name: tagName.trim(),
-                    color: color || selectedColor,
-                    taggable_id: taggableId,
-                    taggable_type: getModelClass(taggableType),
-                },
-                {
-                    preserveScroll: true,
-                    preserveState: true,
-                    onSuccess: () => {
-                        setInputValue('');
-                        setOpen(false);
-                        // Return focus to input
-                        setTimeout(() => {
-                            inputRef.current?.focus();
-                        }, 10);
-                    },
-                    onError: (errors) => {
-                        console.error('Error adding tag:', errors);
-                        // Keep focus on input even on error
-                        inputRef.current?.focus();
-                    },
-                },
-            );
+            // Add to local pending changes
+            setTagsToAdd((prev) => [...prev, { name: tagName.trim(), color: color || selectedColor }]);
+            setInputValue('');
+            setOpen(false);
+            
+            // Return focus to input
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 10);
         },
-        [taggableId, taggableType, selectedColor, setInputValue],
+        [selectedColor, setInputValue],
     );
 
     const handleRemoveTag = useCallback(
         (tagId: number) => {
-            router.delete(
-                `/${taggableType.toLowerCase()}/${taggableId}/tags/${tagId}`,
-                {
-                    preserveScroll: true,
-                    preserveState: true,
-                    onSuccess: () => {
-                        setTimeout(() => {
-                            inputRef.current?.focus();
-                        }, 10);
-                    },
-                },
-            );
+            // Add to local pending removals
+            setTagsToRemove((prev) => [...prev, tagId]);
+            
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 10);
         },
-        [taggableId, taggableType],
+        [],
     );
 
     const filteredSuggestions = allTags.filter(
         (tag) =>
             tag.name.toLowerCase().includes(inputValue.toLowerCase()) &&
-            !existingTags.find((t) => t.id === tag.id),
+            !existingTags.find((t) => t.id === tag.id) &&
+            !tagsToAdd.find((t) => t.name.toLowerCase() === tag.name.toLowerCase()),
     );
 
     const handleInputChange = useCallback(
@@ -207,27 +211,53 @@ export default function TagInput({
         [],
     );
 
+    // Compute display tags: existing tags minus removed ones, plus pending additions
+    const displayTags: Array<Tag & { isPending?: boolean }> = [
+        ...existingTags.filter((tag) => !tagsToRemove.includes(tag.id)),
+        ...tagsToAdd.map((tag, idx) => ({
+            id: -idx - 1, // Temporary negative ID for pending tags
+            name: tag.name,
+            color: tag.color,
+            isPending: true,
+            usage_count: 0,
+            created_at: '',
+            updated_at: '',
+        })),
+    ];
+
     return (
         <div className={cn('space-y-4', className)}>
             {/* Current Tags */}
             <div className="space-y-2">
                 <Label className="text-sm font-medium">Current Tags</Label>
                 <div className="flex min-h-[2.5rem] flex-wrap gap-2 rounded-lg border bg-muted/30 p-3">
-                    {existingTags.length > 0 ? (
-                        existingTags.map((tag) => (
+                    {displayTags.length > 0 ? (
+                        displayTags.map((tag) => (
                             <Badge
                                 key={tag.id}
-                                className="gap-1 px-3 py-1.5 pr-2 text-sm text-white transition-opacity hover:opacity-90"
+                                className={cn(
+                                    "gap-1 px-3 py-1.5 pr-2 text-sm text-white transition-opacity hover:opacity-90",
+                                    tag.isPending && "ring-2 ring-white/50 ring-offset-2"
+                                )}
                                 style={{ backgroundColor: tag.color }}
                             >
                                 {tag.name}
+                                {tag.isPending && <span className="text-xs opacity-75">(pending)</span>}
                                 {editMode && (
                                     <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
                                         className="h-5 w-5 rounded-sm p-0 hover:bg-white/20"
-                                        onClick={() => handleRemoveTag(tag.id)}
+                                        onClick={() => {
+                                            if (tag.isPending) {
+                                                // Remove from pending additions
+                                                setTagsToAdd((prev) => prev.filter((_, idx) => -idx - 1 !== tag.id));
+                                            } else {
+                                                // Add to removal list
+                                                handleRemoveTag(tag.id);
+                                            }
+                                        }}
                                         onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
                                         aria-label={`Remove ${tag.name} tag`}
                                     >
@@ -430,7 +460,9 @@ export default function TagInput({
                         {popularTags
                             .filter(
                                 (tag) =>
-                                    !existingTags.find((t) => t.id === tag.id),
+                                    !existingTags.find((t) => t.id === tag.id) &&
+                                    !tagsToRemove.includes(tag.id) &&
+                                    !tagsToAdd.find((t) => t.name.toLowerCase() === tag.name.toLowerCase()),
                             )
                             .slice(0, 6)
                             .map((tag) => (
