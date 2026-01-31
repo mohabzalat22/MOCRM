@@ -1,27 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { CustomField } from './custom-fields';
+import { useClientStore } from '@/stores/useClientStore';
 import CustomFieldsView from './custom-fields-view';
-interface ClientFormData {
-    name: string;
-    company_name: string;
-    email: string;
-    phone: string;
-    website: string;
-    address: string;
-    custom_fields: CustomField[];
-}
-
-interface ClientFormProps {
-    data: ClientFormData;
-    editMode: boolean;
-    onFieldChange: (
-        key: keyof ClientFormData,
-        value: string | CustomField[],
-    ) => void;
-    onReset?: () => void;
-}
 
 interface FormFieldProps {
     id: string;
@@ -58,20 +39,24 @@ function FormField({
         </div>
     );
 }
-export default function ClientForm({
-    data,
-    editMode,
-    onFieldChange,
-    onReset,
-}: ClientFormProps) {
+
+export default function ClientForm() {
+    const { 
+        formData, 
+        editMode, 
+        updateFormData, 
+        resetForm 
+    } = useClientStore();
+
     // Track previous editMode to detect change
     const prevEditModeRef = useRef(editMode);
     useEffect(() => {
-        if (prevEditModeRef.current && !editMode && onReset) {
-            onReset();
+        if (prevEditModeRef.current && !editMode) {
+            resetForm();
         }
         prevEditModeRef.current = editMode;
-    }, [editMode, onReset]);
+    }, [editMode, resetForm]);
+
     const fields = [
         {
             id: 'name',
@@ -118,19 +103,13 @@ export default function ClientForm({
                     key={field.id}
                     id={field.id}
                     label={field.label}
-                    value={data[field.key]}
+                    value={formData[field.key] as string}
                     placeholder={field.placeholder}
                     editMode={editMode}
-                    onChange={(value) => onFieldChange(field.key, value)}
+                    onChange={(value) => updateFormData(field.key, value)}
                 />
             ))}
-            <CustomFieldsView
-                fields={data.custom_fields}
-                editMode={editMode}
-                onFieldsChange={(fields) =>
-                    onFieldChange('custom_fields', fields)
-                }
-            />
+            <CustomFieldsView />
         </div>
     );
 }

@@ -1,5 +1,4 @@
 import { Activity } from 'lucide-react';
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -8,6 +7,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useClientStore } from '@/stores/useClientStore';
 
 enum Status {
     ACTIVE = 'Active',
@@ -17,23 +17,14 @@ enum Status {
 }
 
 interface StatusButtonProps {
-    initialStatus: string;
-    onSelect: (value: string) => void;
-    editMode: boolean;
     className?: string;
 }
 
 export default function StatusButton({
-    initialStatus,
-    onSelect,
-    editMode,
     className,
 }: StatusButtonProps) {
-    const [status, setStatus] = useState(initialStatus);
-
-    useEffect(() => {
-        setStatus(initialStatus);
-    }, [initialStatus]);
+    const { editMode, formData, updateFormData } = useClientStore();
+    const status = formData.status;
 
     // Map status to button color class
     const getStatusBtnClass = (s: string) => {
@@ -49,6 +40,10 @@ export default function StatusButton({
             default:
                 return '';
         }
+    };
+
+    const handleSelect = (newStatus: string) => {
+        updateFormData('status', newStatus);
     };
 
     if (!editMode) {
@@ -87,10 +82,7 @@ export default function StatusButton({
                 <DropdownMenuGroup>
                     {Object.values(Status).map((e) => (
                         <DropdownMenuItem
-                            onClick={() => {
-                                setStatus(e);
-                                onSelect(e);
-                            }}
+                            onClick={() => handleSelect(e)}
                             key={e}
                         >
                             <span

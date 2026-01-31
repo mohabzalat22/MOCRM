@@ -1,27 +1,47 @@
 import { Camera, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useClientStore } from '@/stores/useClientStore';
+import { useRef, useEffect } from 'react';
 
-interface ClientImageUploadProps {
-    image: string | null;
-    editMode: boolean;
-    inputRef: React.RefObject<HTMLInputElement | null>;
-    onImageChange: (file: File) => void;
-    onRemoveImage: () => void;
-}
+export default function ClientImageUpload() {
+    const { 
+        image, 
+        editMode, 
+        setImage, 
+        updateFormData 
+    } = useClientStore();
+    
+    const inputRef = useRef<HTMLInputElement>(null);
 
-export default function ClientImageUpload({
-    image,
-    editMode,
-    inputRef,
-    onImageChange,
-    onRemoveImage,
-}: ClientImageUploadProps) {
+    // Reset input when editMode changes to false
+    useEffect(() => {
+        if (!editMode && inputRef.current) {
+            inputRef.current.value = '';
+        }
+    }, [editMode]);
+
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            onImageChange(file);
+            // Update store
+            // updateFormData handles updating changedFields
+            updateFormData('image', file);
+            
+            // Preview
+            const reader = new FileReader();
+            reader.onload = () => setImage(reader.result as string);
+            reader.readAsDataURL(file);
         }
     };
+
+    const handleRemoveImage = () => {
+        setImage(null);
+        updateFormData('image', ''); // Start sending empty string to signal removal
+        if (inputRef.current) {
+            inputRef.current.value = '';
+        }
+    };
+
     const handleClick = () => {
         if (editMode) {
             inputRef.current?.click();
@@ -42,7 +62,7 @@ export default function ClientImageUpload({
                         <Button
                             type="button"
                             variant="destructive"
-                            onClick={onRemoveImage}
+                            onClick={handleRemoveImage}
                             size="icon"
                             aria-label="Remove image"
                         >

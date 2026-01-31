@@ -1,24 +1,22 @@
 import { Trash } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useClientStore } from '@/stores/useClientStore';
 import type { CustomField } from './custom-fields';
 
-interface CustomFieldsViewProps {
-    fields: CustomField[];
-    editMode: boolean;
-    onFieldsChange: (fields: CustomField[]) => void;
-}
+export default function CustomFieldsView() {
+    const { formData, updateFormData, editMode } = useClientStore();
+    const fields = formData.custom_fields;
 
-export default function CustomFieldsView({
-    fields,
-    editMode,
-    onFieldsChange,
-}: CustomFieldsViewProps) {
     const [adding, setAdding] = useState(false);
     const [newField, setNewField] = useState<CustomField>({
         key: '',
         value: '',
     });
+
+    const onFieldsChange = (newFields: CustomField[]) => {
+        updateFormData('custom_fields', newFields);
+    };
 
     // Handler to add a new custom field
     const handleAddCustomField = () => {

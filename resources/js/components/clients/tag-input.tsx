@@ -1,12 +1,13 @@
-import { router, useRemember } from '@inertiajs/react';
+import { useRemember } from '@inertiajs/react';
 import { X, Plus, Tag as TagIcon } from 'lucide-react';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn, TAG_COLORS, getModelClass } from '@/lib/utils';
-import type { Tag, TaggableType } from '@/types';
+import { cn, TAG_COLORS } from '@/lib/utils';
+import type { Tag } from '@/types';
+import { useClientStore } from '@/stores/useClientStore';
 
 import {
     Command,
@@ -27,30 +28,23 @@ export interface TagChange {
 }
 
 interface TagInputProps {
-    taggableId: number;
-    taggableType?: TaggableType;
-    existingTags?: Tag[];
-    allTags?: Tag[];
-    popularTags?: Tag[];
     className?: string;
-    editMode?: boolean;
-    onChange?: (changes: TagChange) => void;
 }
 
 export default function TagInput({
-    taggableId,
-    taggableType = 'client',
-    existingTags = [],
-    allTags = [],
-    popularTags = [],
     className = '',
-    editMode = false,
-    onChange,
 }: TagInputProps) {
-    // Local state for pending changes
-    const [tagsToAdd, setTagsToAdd] = useState<Array<{ name: string; color: string }>>([]);
-    const [tagsToRemove, setTagsToRemove] = useState<number[]>([]);
-    
+    const { 
+        allTags, 
+        client, 
+        editMode, 
+        tagChanges, 
+        setTagChanges 
+    } = useClientStore();
+
+    const existingTags = client?.tags || [];
+    const { tagsToAdd, tagsToRemove } = tagChanges;
+
     // Use useRemember to persist state across Inertia visits
     const [inputValue, setInputValue] = useRemember('');
     const [selectedColor, setSelectedColor] = useRemember<
@@ -60,20 +54,12 @@ export default function TagInput({
     const inputRef = useRef<HTMLInputElement>(null);
     const popoverContentRef = useRef<HTMLDivElement>(null);
 
-    // Notify parent of changes
-    useEffect(() => {
-        if (onChange) {
-            onChange({ tagsToAdd, tagsToRemove });
-        }
-    }, [tagsToAdd, tagsToRemove, onChange]);
-
-    // Reset local state when edit mode is disabled
+    // Reset store tag changes when edit mode is disabled
     useEffect(() => {
         if (!editMode) {
-            setTagsToAdd([]);
-            setTagsToRemove([]);
+            setTagChanges({ tagsToAdd: [], tagsToRemove: [] });
         }
-    }, [editMode]);
+    }, [editMode, setTagChanges]);
 
     // Focus the input when the component mounts and after interactions
     useEffect(() => {
@@ -115,8 +101,12 @@ export default function TagInput({
         (tagName: string, color: string) => {
             if (!tagName.trim()) return;
 
-            // Add to local pending changes
-            setTagsToAdd((prev) => [...prev, { name: tagName.trim(), color: color || selectedColor }]);
+            // Add to store tagChanges
+            setTagChanges((prev) => ({
+                ...prev,
+                tagsToAdd: [...prev.tagsToAdd, { name: tagName.trim(), color: color || selectedColor }]
+            }));
+            
             setInputValue('');
             setOpen(false);
             
@@ -125,19 +115,22 @@ export default function TagInput({
                 inputRef.current?.focus();
             }, 10);
         },
-        [selectedColor, setInputValue],
+        [selectedColor, setInputValue, setTagChanges],
     );
 
     const handleRemoveTag = useCallback(
         (tagId: number) => {
-            // Add to local pending removals
-            setTagsToRemove((prev) => [...prev, tagId]);
+            // Add to store tagChanges
+            setTagChanges((prev) => ({
+                ...prev,
+                tagsToRemove: [...prev.tagsToRemove, tagId]
+            }));
             
             setTimeout(() => {
                 inputRef.current?.focus();
             }, 10);
         },
-        [],
+        [setTagChanges],
     );
 
     const filteredSuggestions = allTags.filter(
@@ -176,13 +169,6 @@ export default function TagInput({
     const handleExistingTagSelect = useCallback(
         (tagName: string, tagColor: string) => {
             handleAddTag(tagName, tagColor);
-        },
-        [handleAddTag],
-    );
-
-    const handlePopularTagClick = useCallback(
-        (tag: Tag) => {
-            handleAddTag(tag.name, tag.color);
         },
         [handleAddTag],
     );
@@ -252,7 +238,10 @@ export default function TagInput({
                                         onClick={() => {
                                             if (tag.isPending) {
                                                 // Remove from pending additions
-                                                setTagsToAdd((prev) => prev.filter((_, idx) => -idx - 1 !== tag.id));
+                                                setTagChanges((prev) => ({
+                                                    ...prev,
+                                                    tagsToAdd: prev.tagsToAdd.filter((_, idx) => -idx - 1 !== tag.id)
+                                                }));
                                             } else {
                                                 // Add to removal list
                                                 handleRemoveTag(tag.id);
@@ -448,41 +437,6 @@ export default function TagInput({
                             <Plus className="h-4 w-4" />
                             Add
                         </Button>
-                    </div>
-                </div>
-            )}
-
-            {/* Popular Tags */}
-            {editMode && popularTags && popularTags.length > 0 && (
-                <div className="space-y-2">
-                    <Label className="text-sm font-medium">Popular Tags</Label>
-                    <div className="flex flex-wrap gap-2">
-                        {popularTags
-                            .filter(
-                                (tag) =>
-                                    !existingTags.find((t) => t.id === tag.id) &&
-                                    !tagsToRemove.includes(tag.id) &&
-                                    !tagsToAdd.find((t) => t.name.toLowerCase() === tag.name.toLowerCase()),
-                            )
-                            .slice(0, 6)
-                            .map((tag) => (
-                                <Button
-                                    key={tag.id}
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handlePopularTagClick(tag)}
-                                    onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
-                                    className="h-8 gap-1.5"
-                                    style={{
-                                        borderColor: tag.color,
-                                        color: tag.color,
-                                    }}
-                                >
-                                    <Plus className="h-3 w-3" />
-                                    {tag.name}
-                                </Button>
-                            ))}
                     </div>
                 </div>
             )}

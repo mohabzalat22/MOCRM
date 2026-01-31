@@ -1,5 +1,7 @@
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { router } from '@inertiajs/react';
+import { toast } from 'sonner';
 
 import {
     DropdownMenu,
@@ -10,60 +12,88 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useClientStore } from '@/stores/useClientStore';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
-interface SettingButtonProps {
-    onToggleEdit?: () => void;
-    onDeleteConfirm?: () => void;
-    editMode?: boolean;
-    deleting?: boolean;
-}
+export default function SettingButton() {
+    const { 
+        editMode, 
+        deleting, 
+        client, 
+        setEditMode, 
+        setDeleting 
+    } = useClientStore();
+    
+    const { confirm, ConfirmDialog } = useConfirmDialog();
 
-export default function SettingButton({
-    onToggleEdit,
-    onDeleteConfirm,
-    editMode,
-    deleting,
-}: SettingButtonProps) {
+    const handleDelete = () => {
+        if (!client) return;
+        
+        confirm(
+            () => {
+                setDeleting(true);
+                router.delete(`/clients/${client.id}`, {
+                    onSuccess: () => {
+                        setEditMode(false);
+                        toast.success('Client has been deleted.');
+                    },
+                    onError: () => {
+                        setDeleting(false);
+                        toast.error('Failed to delete client.');
+                    },
+                });
+            },
+            {
+                title: 'Confirm Delete',
+                message:
+                    'Are you sure you want to delete this client? This action cannot be undone.',
+            },
+        );
+    };
+
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                    <Settings></Settings>
-                    settings
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-40" align="center">
-                <DropdownMenuGroup>
-                    <DropdownMenuLabel>Client Actions</DropdownMenuLabel>
-                    <DropdownMenuItem
-                        onSelect={(e) => {
-                            e.preventDefault();
-                            if (onToggleEdit) onToggleEdit();
-                        }}
-                        className={
-                            editMode
-                                ? 'bg-zinc-100 font-bold dark:bg-zinc-800'
-                                : ''
-                        }
-                    >
-                        {editMode ? 'Editing...' : 'Edit'}
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                        <Settings />
+                        settings
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-40" align="center">
+                    <DropdownMenuGroup>
+                        <DropdownMenuLabel>Client Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                            onSelect={(e) => {
+                                e.preventDefault();
+                                setEditMode(!editMode);
+                            }}
+                            className={
+                                editMode
+                                    ? 'bg-zinc-100 font-bold dark:bg-zinc-800'
+                                    : ''
+                            }
+                        >
+                            {editMode ? 'Editing...' : 'Edit'}
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
 
-                <DropdownMenuGroup>
-                    <DropdownMenuItem
-                        onSelect={(e) => {
-                            e.preventDefault();
-                            if (!deleting && onDeleteConfirm) onDeleteConfirm();
-                        }}
-                        disabled={deleting}
-                        className="text-red-600 focus:bg-red-100 dark:focus:bg-red-900"
-                    >
-                        {deleting ? 'Deleting...' : 'Delete'}
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem
+                            onSelect={(e) => {
+                                e.preventDefault();
+                                if (!deleting) handleDelete();
+                            }}
+                            disabled={deleting}
+                            className="text-red-600 focus:bg-red-100 dark:focus:bg-red-900"
+                        >
+                            {deleting ? 'Deleting...' : 'Delete'}
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <ConfirmDialog />
+        </>
     );
 }

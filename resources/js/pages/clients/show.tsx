@@ -1,5 +1,5 @@
-import { Head, useForm, router } from '@inertiajs/react';
-import { useRef, useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { toast } from 'sonner';
 import ClientForm from '@/components/clients/client-form';
 import ClientImageUpload from '@/components/clients/client-image';
@@ -7,39 +7,18 @@ import type { Client } from '@/components/clients/Columns';
 import type { CustomField } from '@/components/clients/custom-fields';
 import SettingButton from '@/components/clients/setting-button';
 import StatusButton from '@/components/clients/status-button';
-import TagInput, { type TagChange } from '@/components/clients/tag-input';
+import TagInput from '@/components/clients/tag-input';
 import { Button } from '@/components/ui/button';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
 import type { Tag } from '@/types';
 import type { BreadcrumbItem } from '@/types';
+import { useClientStore } from '@/stores/useClientStore';
 
 interface ClientPageProps {
     client: Client;
     allTags?: Tag[];
 }
-
-const STORAGE_BASE_URL = 'http://localhost:8000/storage/';
-
-// Helper functions
-const getImageUrl = (imagePath: string | null): string | null => {
-    return imagePath ? `${STORAGE_BASE_URL}/${imagePath}` : null;
-};
-
-const customFieldsChanged = (
-    current: CustomField[],
-    initial: CustomField[],
-): boolean => {
-    if (current.length !== initial.length) return true;
-
-    return current.some((field, idx) => {
-        const initialField = initial[idx];
-        if (!initialField) return true;
-        return (
-            field.key !== initialField.key || field.value !== initialField.value
-        );
-    });
-};
 
 const buildFormData = (
     changedFields: Record<string, string | File | CustomField[] | null>,
@@ -111,129 +90,28 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
             href: `/clients/${client.id}`,
         },
     ];
+    
+    // Use Store
+    const { 
+        initialize, 
+        formData, 
+        editMode, 
+        changedFields, 
+        tagChanges, 
+        resetForm,
+        setIsSaving,
+        isSaving,
+        setEditMode,
+        setChangedFields,
+        setTagChanges
+    } = useClientStore();
+
+    // Initialize store on mount or prop change
+    useEffect(() => {
+        initialize(client, allTags);
+    }, [client, allTags, initialize]);
+
     const { confirm, ConfirmDialog } = useConfirmDialog();
-
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    // state
-    const [image, setImage] = useState<string | null>(
-        getImageUrl(client?.image ?? null),
-    );
-    const [deleting, setDeleting] = useState(false);
-    const [editMode, setEditMode] = useState(false);
-    const [changedFields, setChangedFields] = useState<
-        Record<string, string | File | CustomField[] | null>
-    >({});
-    const [tagChanges, setTagChanges] = useState<TagChange>({
-        tagsToAdd: [],
-        tagsToRemove: [],
-    });
-
-    // FORM Setup
-    const initialData = {
-        name: client.name ?? '',
-        company_name: client.company_name ?? '',
-        email: client.email ?? '',
-        phone: client.phone ?? '',
-        website: client.website ?? '',
-        address: client.address ?? '',
-        image: null as File | null,
-        custom_fields: (client.custom_fields || []) as CustomField[],
-        status: client.status ?? '',
-    };
-    const { data, setData, processing } = useForm(initialData);
-
-    // Helper to update data and track changes
-    const handleFieldChange = (
-        key: keyof typeof initialData,
-        value: string | File | CustomField[] | null,
-    ) => {
-        setData(key, value as never);
-
-        if (key === 'image') {
-            if (value === null || value === '') {
-                setChangedFields((prev) => ({ ...prev, image: '' }));
-            } else {
-                setChangedFields((prev) => ({ ...prev, image: value as File }));
-            }
-        } else if (key === 'custom_fields') {
-            // Filter out completely empty custom fields
-            const fieldsArray = (value as CustomField[]) || [];
-            const nonEmptyFields = fieldsArray.filter(
-                (field) =>
-                    (field.key && field.key.trim() !== '') ||
-                    (field.value && field.value.trim() !== ''),
-            );
-
-            // Only mark as changed if non-empty fields differ from initial
-            const hasChanges = customFieldsChanged(
-                nonEmptyFields,
-                initialData.custom_fields,
-            );
-
-            if (hasChanges && nonEmptyFields.length > 0) {
-                // Has actual changes with content
-                setChangedFields((prev) => ({
-                    ...prev,
-                    custom_fields: fieldsArray, // Keep all fields including empty ones for the form
-                }));
-            } else if (
-                nonEmptyFields.length === 0 &&
-                initialData.custom_fields.length > 0
-            ) {
-                // All fields deleted (went from having fields to empty)
-                setChangedFields((prev) => ({
-                    ...prev,
-                    custom_fields: [],
-                }));
-            } else {
-                // No meaningful changes
-                setChangedFields((prev) => {
-                    const updated = { ...prev };
-                    delete updated.custom_fields;
-                    return updated;
-                });
-            }
-        } else if (value !== initialData[key]) {
-            setChangedFields((prev) => ({
-                ...prev,
-                [key]: value as string,
-            }));
-        } else {
-            setChangedFields((prev) => {
-                const updated = { ...prev };
-                delete updated[key];
-                return updated;
-            });
-        }
-    };
-
-    const resetForm = () => {
-        setEditMode(false);
-        setChangedFields({});
-        setTagChanges({ tagsToAdd: [], tagsToRemove: [] });
-        setData(initialData);
-        setImage(getImageUrl(client?.image ?? null));
-        if (inputRef.current) {
-            inputRef.current.value = '';
-        }
-    };
-
-    const handleImageChange = (file: File) => {
-        handleFieldChange('image', file);
-        const reader = new FileReader();
-        reader.onload = () => setImage(reader.result as string);
-        reader.readAsDataURL(file);
-    };
-
-    const handleRemoveImage = () => {
-        setImage(null);
-        setData('image', null);
-        handleFieldChange('image', '');
-        if (inputRef.current) {
-            inputRef.current.value = '';
-        }
-    };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -255,8 +133,11 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
             ? customFieldsValue.filter(field => field && field.key && field.key.trim() !== '')
             : [];
         
+        // We need initialData custom fields to check if we cleared them
+        const initialCustomFields = client.custom_fields || [];
+
         const hasRealCustomFieldChanges = hasCustomFieldChanges && (
-            (validCustomFields.length === 0 && initialData.custom_fields.length > 0) ||
+            (validCustomFields.length === 0 && initialCustomFields.length > 0) ||
             validCustomFields.length > 0
         );
 
@@ -274,6 +155,7 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
         confirm(
             () => {
                 let hasErrors = false;
+                setIsSaving(true);
 
                 // Define steps
                 const submitTags = () => {
@@ -330,8 +212,7 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                                 console.error('Custom fields failed', errors);
                                 hasErrors = true;
                                 showErrorToasts(errors);
-                                submitTags(); // Continue to tags even if this failed? Or stop? 
-                                // Continuing allows partial updates, but we'll flag error.
+                                submitTags(); 
                             },
                         });
                     } else {
@@ -341,6 +222,7 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
 
                 const finishSubmission = () => {
                     console.log('All steps finished', { hasErrors });
+                    setIsSaving(false);
                     setEditMode(false);
                     setChangedFields({});
                     setTagChanges({ tagsToAdd: [], tagsToRemove: [] });
@@ -433,29 +315,6 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
         processNext();
     };
 
-    const handleDelete = () => {
-        confirm(
-            () => {
-                setDeleting(true);
-                router.delete(`/clients/${client.id}`, {
-                    onSuccess: () => {
-                        setEditMode(false);
-                        toast.success('Client has been deleted.');
-                    },
-                    onError: (errors) => {
-                        setDeleting(false);
-                        showErrorToasts(errors);
-                    },
-                });
-            },
-            {
-                title: 'Confirm Delete',
-                message:
-                    'Are you sure you want to delete this client? This action cannot be undone.',
-            },
-        );
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Clients" />
@@ -472,57 +331,21 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                                 </p>
                             </div>
                             <div className="flex">
-                                <StatusButton
-                                    className="mx-1"
-                                    editMode={editMode}
-                                    initialStatus={client.status}
-                                    onSelect={(status) => {
-                                        setData('status', status);
-                                        setChangedFields((prev) => ({
-                                            ...prev,
-                                            status,
-                                        }));
-                                    }}
-                                />
-                                <SettingButton
-                                    onToggleEdit={() =>
-                                        setEditMode((prev) => !prev)
-                                    }
-                                    onDeleteConfirm={handleDelete}
-                                    editMode={editMode}
-                                    deleting={deleting}
-                                />
+                                <StatusButton className="mx-1" />
+                                <SettingButton />
                             </div>
                         </div>
 
-                        <ClientImageUpload
-                            image={image}
-                            editMode={editMode}
-                            inputRef={inputRef}
-                            onImageChange={handleImageChange}
-                            onRemoveImage={handleRemoveImage}
-                        />
+                        <ClientImageUpload />
                     </div>
 
                     {/* Tag Input for this client */}
                     <div className="mb-6">
-                        <TagInput
-                            taggableId={Number(client.id)}
-                            taggableType="client"
-                            existingTags={client.tags || []}
-                            allTags={allTags}
-                            editMode={editMode}
-                            onChange={setTagChanges}
-                        />
+                        <TagInput />
                     </div>
 
                     <form onSubmit={handleSubmit} encType="multipart/form-data">
-                        <ClientForm
-                            data={data}
-                            editMode={editMode}
-                            onFieldChange={handleFieldChange}
-                            onReset={resetForm}
-                        />
+                        <ClientForm />
 
                         {editMode && (
                             <div className="mt-6 flex justify-end gap-2">
@@ -533,8 +356,8 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                                 >
                                     Cancel
                                 </Button>
-                                <Button type="submit" disabled={processing}>
-                                    {processing ? 'Saving...' : 'Save changes'}
+                                <Button type="submit" disabled={isSaving}>
+                                    {isSaving ? 'Saving...' : 'Save changes'}
                                 </Button>
                             </div>
                         )}
