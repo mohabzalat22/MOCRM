@@ -5,10 +5,13 @@ import ClientForm from '@/components/clients/client-form';
 import ClientImageUpload from '@/components/clients/client-image';
 import type { Client } from '@/components/clients/Columns';
 import type { CustomField } from '@/components/clients/custom-fields';
+import CustomFieldsView from '@/components/clients/custom-fields-view';
 import SettingButton from '@/components/clients/setting-button';
 import StatusButton from '@/components/clients/status-button';
 import TagInput from '@/components/clients/tag-input';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
 import { useClientStore } from '@/stores/useClientStore';
@@ -310,51 +313,76 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Clients" />
-            <div className="flex flex-col justify-center gap-4 p-4">
-                <div className="w-full rounded-lg bg-white p-6 shadow dark:bg-zinc-900 dark:shadow-zinc-800">
-                    <div className="mb-6 flex flex-col items-center justify-center gap-2">
-                        <div className="flex w-full justify-between">
-                            <div>
-                                <p>
-                                    Client since:
-                                    <span className="ms-2 text-sm font-bold">
-                                        {client?.created_at}
-                                    </span>
-                                </p>
-                            </div>
-                            <div className="flex">
-                                <StatusButton className="mx-1" />
-                                <SettingButton />
+            <div className="flex flex-col gap-6 p-4 md:p-8">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-lg border bg-card p-6 shadow-sm text-card-foreground">
+                    <div className="flex flex-col md:flex-row items-center gap-6">
+                        <ClientImageUpload />
+                        <div className="text-center md:text-left space-y-2">
+                            <h1 className="text-3xl font-bold tracking-tight">{client.name}</h1>
+                            {client.company_name && (
+                                <p className="text-lg text-muted-foreground">{client.company_name}</p>
+                            )}
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-1">
+                                <StatusButton />
+                                <span className="text-sm text-muted-foreground">
+                                    Member since {new Date(client.created_at).toLocaleDateString()}
+                                </span>
                             </div>
                         </div>
-
-                        <ClientImageUpload />
                     </div>
-
-                    {/* Tag Input for this client */}
-                    <div className="mb-6">
-                        <TagInput />
+                    <div className="flex gap-2 self-start md:self-center">
+                        <SettingButton />
                     </div>
-
-                    <form onSubmit={handleSubmit} encType="multipart/form-data">
-                        <ClientForm />
-
-                        {editMode && (
-                            <div className="mt-6 flex justify-end gap-2">
-                                <Button
-                                    variant="outline"
-                                    type="button"
-                                    onClick={resetForm}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button type="submit" disabled={isSaving}>
-                                    {isSaving ? 'Saving...' : 'Save changes'}
-                                </Button>
-                            </div>
-                        )}
-                    </form>
                 </div>
+
+                <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Left Column - 2 spans */}
+                        <div className="md:col-span-2 space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Contact Details</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <ClientForm />
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Right Column - 1 span */}
+                        <div className="space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Additional Info</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    <div>
+                                        <TagInput />
+                                    </div>
+                                    <Separator />
+                                    <CustomFieldsView />
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+
+                    {editMode && (
+                        <div className="fixed bottom-6 left-0 right-0 z-50 mx-auto flex w-full max-w-2xl items-center justify-between rounded-lg border bg-background/95 p-4 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                            <Button
+                                variant="outline"
+                                type="button"
+                                onClick={resetForm}
+                                disabled={isSaving}
+                            >
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={isSaving}>
+                                {isSaving ? 'Saving...' : 'Save changes'}
+                            </Button>
+                        </div>
+                    )}
+                </form>
             </div>
             <ConfirmDialog />
         </AppLayout>
