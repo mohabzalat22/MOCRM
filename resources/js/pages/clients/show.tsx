@@ -43,10 +43,16 @@ const customFieldsChanged = (
 
 const buildFormData = (
     changedFields: Record<string, string | File | CustomField[] | null>,
+    excludeCustomFields = false,
 ): FormData => {
     const formData = new FormData();
 
     Object.entries(changedFields).forEach(([key, value]) => {
+        if (key === 'custom_fields' && excludeCustomFields) {
+            // Skip custom fields when building client data form
+            return;
+        }
+
         if (key === 'image') {
             formData.append('image', value === '' ? '' : (value as File));
         } else if (key === 'custom_fields') {
@@ -240,56 +246,127 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
             return;
         }
 
-        // Check if there are any real field changes
-        const hasRealChanges = Object.entries(changedFields).some(
-            ([key, value]) => {
-                if (key === 'custom_fields' && Array.isArray(value)) {
-                    // Empty array is a valid change if we had fields before (deletion case)
-                    if (
-                        value.length === 0 &&
-                        initialData.custom_fields.length > 0
-                    ) {
-                        return true;
-                    }
-                    // Check if custom fields have actual content
-                    return value.some(
-                        (field) =>
-                            (field.key && field.key.trim() !== '') ||
-                            (field.value && field.value.trim() !== ''),
-                    );
-                }
-                return true; // Other fields are considered real changes
-            },
+        // Separate custom field changes from other field changes
+        const hasCustomFieldChanges = 'custom_fields' in changedFields;
+        const customFieldsValue = changedFields.custom_fields as CustomField[] | undefined;
+        
+        // Check if custom fields have real changes
+        const validCustomFields = Array.isArray(customFieldsValue) 
+            ? customFieldsValue.filter(field => field && field.key && field.key.trim() !== '')
+            : [];
+        
+        const hasRealCustomFieldChanges = hasCustomFieldChanges && (
+            (validCustomFields.length === 0 && initialData.custom_fields.length > 0) ||
+            validCustomFields.length > 0
         );
 
-        if (!hasRealChanges && !hasTagChanges) {
+        // Check if there are any real client data changes (excluding custom fields)
+        const clientDataChanges = Object.entries(changedFields).filter(
+            ([key]) => key !== 'custom_fields'
+        );
+        const hasRealClientChanges = clientDataChanges.length > 0;
+
+        if (!hasRealClientChanges && !hasRealCustomFieldChanges && !hasTagChanges) {
             toast.info('No changes to save.');
             return;
         }
 
         confirm(
             () => {
-                // If we have field changes, submit them first
-                if (hasRealChanges) {
-                    const formData = buildFormData(changedFields);
+                let hasErrors = false;
 
-                    router.post(`/clients/${client.id}`, formData, {
-                        onSuccess: () => {
-                            // After successfully updating client fields, handle tag changes
-                            if (hasTagChanges) {
-                                handleTagSubmission();
-                            } else {
-                                setEditMode(false);
-                                setChangedFields({});
-                                setTagChanges({ tagsToAdd: [], tagsToRemove: [] });
-                                toast.success('Client has been updated.');
+                // Define steps
+                const submitTags = () => {
+                    if (hasTagChanges) {
+                        console.log('Step 3: Submitting tag changes...');
+                        handleTagSubmission(() => {
+                            if (!hasErrors) toast.success('Client has been updated.');
+                            finishSubmission();
+                        }, () => {
+                            hasErrors = true;
+                            finishSubmission();
+                        });
+                    } else {
+                        if (!hasErrors) toast.success('Client has been updated.');
+                        finishSubmission();
+                    }
+                };
+
+                const submitCustomFields = () => {
+                    if (hasRealCustomFieldChanges) {
+                        console.log('Step 2: Submitting custom fields...');
+                        const customFieldsFormData = new FormData();
+                        
+                        if (Array.isArray(customFieldsValue)) {
+                            // Filter valid fields again to be sure
+                            const fieldsToSend = customFieldsValue.filter(
+                                field => field && field.key && field.key.trim() !== ''
+                            );
+
+                            fieldsToSend.forEach((field, idx) => {
+                                customFieldsFormData.append(
+                                    `custom_fields[${idx}][key]`,
+                                    field.key,
+                                );
+                                customFieldsFormData.append(
+                                    `custom_fields[${idx}][value]`,
+                                    field.value ?? '',
+                                );
+                            });
+
+                            if (fieldsToSend.length === 0) {
+                                customFieldsFormData.append('custom_fields', '');
                             }
+                        }
+
+                        router.post(`/clients/${client.id}/custom-fields`, customFieldsFormData, {
+                            preserveScroll: true,
+                            preserveState: true,
+                            onSuccess: () => {
+                                console.log('Custom fields updated');
+                                submitTags();
+                            },
+                            onError: (errors) => {
+                                console.error('Custom fields failed', errors);
+                                hasErrors = true;
+                                showErrorToasts(errors);
+                                submitTags(); // Continue to tags even if this failed? Or stop? 
+                                // Continuing allows partial updates, but we'll flag error.
+                            },
+                        });
+                    } else {
+                        submitTags();
+                    }
+                };
+
+                const finishSubmission = () => {
+                    console.log('All steps finished', { hasErrors });
+                    setEditMode(false);
+                    setChangedFields({});
+                    setTagChanges({ tagsToAdd: [], tagsToRemove: [] });
+                };
+
+                // Start with client data
+                if (hasRealClientChanges) {
+                    console.log('Step 1: Submitting client data...');
+                    const formData = buildFormData(changedFields, true);
+                    
+                    router.post(`/clients/${client.id}`, formData, {
+                        preserveScroll: true,
+                        preserveState: true,
+                        onSuccess: () => {
+                            console.log('Client data updated');
+                            submitCustomFields();
                         },
-                        onError: showErrorToasts,
+                        onError: (errors) => {
+                            console.error('Client data failed', errors);
+                            hasErrors = true;
+                            showErrorToasts(errors);
+                            submitCustomFields();
+                        },
                     });
-                } else if (hasTagChanges) {
-                    // Only tag changes, submit them directly
-                    handleTagSubmission();
+                } else {
+                    submitCustomFields();
                 }
             },
             {
@@ -299,54 +376,61 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
         );
     };
 
-    const handleTagSubmission = () => {
-        let completedOperations = 0;
-        const totalOperations = tagChanges.tagsToAdd.length + tagChanges.tagsToRemove.length;
+    const handleTagSubmission = (onComplete: () => void, onError: () => void) => {
+        // Queue operations to run sequentially
+        const operations: Array<() => void> = [];
 
-        const checkCompletion = () => {
-            completedOperations++;
-            if (completedOperations === totalOperations) {
-                setEditMode(false);
-                setChangedFields({});
-                setTagChanges({ tagsToAdd: [], tagsToRemove: [] });
-                toast.success('Client has been updated.');
-            }
-        };
-
-        // Add new tags
-        tagChanges.tagsToAdd.forEach((tag) => {
-            router.post(
-                '/tags',
-                {
+        // Add tag additions to queue
+        tagChanges.tagsToAdd.forEach(tag => {
+            operations.push(() => {
+                router.post('/tags', {
                     name: tag.name,
                     color: tag.color,
                     taggable_id: client.id,
                     taggable_type: 'App\\Models\\Client',
-                },
-                {
+                }, {
                     preserveScroll: true,
                     preserveState: true,
-                    onSuccess: checkCompletion,
-                    onError: (errors) => {
-                        console.error('Error adding tag:', errors);
-                        checkCompletion();
-                    },
-                },
-            );
-        });
-
-        // Remove tags
-        tagChanges.tagsToRemove.forEach((tagId) => {
-            router.delete(`/client/${client.id}/tags/${tagId}`, {
-                preserveScroll: true,
-                preserveState: true,
-                onSuccess: checkCompletion,
-                onError: (errors) => {
-                    console.error('Error removing tag:', errors);
-                    checkCompletion();
-                },
+                    onSuccess: processNext,
+                    onError: (err) => {
+                        console.error('Tag add failed', err);
+                        onError();
+                        processNext();
+                    }
+                });
             });
         });
+
+        // Add tag removals to queue
+        tagChanges.tagsToRemove.forEach(tagId => {
+            operations.push(() => {
+                router.delete(`/client/${client.id}/tags/${tagId}`, {
+                    preserveScroll: true,
+                    preserveState: true,
+                    onSuccess: processNext,
+                    onError: (err) => {
+                        console.error('Tag remove failed', err);
+                        onError();
+                        processNext();
+                    }
+                });
+            });
+        });
+
+        let currentOpIndex = 0;
+
+        const processNext = () => {
+            if (currentOpIndex < operations.length) {
+                const op = operations[currentOpIndex];
+                currentOpIndex++;
+                op();
+            } else {
+                onComplete();
+            }
+        };
+
+        // Start processing
+        processNext();
     };
 
     const handleDelete = () => {

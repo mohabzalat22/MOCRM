@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\CustomFieldController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -18,6 +19,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::resource('/clients', ClientController::class);
+
+    // Custom field routes
+    Route::post('/clients/{client}/custom-fields', [CustomFieldController::class, 'update'])
+        ->name('clients.custom-fields.update');
+    Route::delete('/clients/{client}/custom-fields', [CustomFieldController::class, 'destroy'])
+        ->name('clients.custom-fields.destroy');
 
     Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
     Route::delete('/{taggableType}/{taggableId}/tags/{tag}', [TagController::class, 'destroy'])
