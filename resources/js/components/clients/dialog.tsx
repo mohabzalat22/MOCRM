@@ -16,8 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import CustomFieldsForm from './custom-fields';
-import type { CustomField } from './custom-fields';
+
 
 export function ClientDialog() {
     const [image, setImage] = useState<string | null>(null);
@@ -31,7 +30,7 @@ export function ClientDialog() {
         website: '',
         address: '',
         image: null as File | null,
-        custom_fields: [] as CustomField[],
+
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -195,14 +194,7 @@ export function ClientDialog() {
                                 }
                             />
                         </div>
-                        {/* custom fields */}
-                        <div>
-                            <CustomFieldsForm
-                                onSubmit={(custom_fields) => {
-                                    setData('custom_fields', custom_fields);
-                                }}
-                            />
-                        </div>
+
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
