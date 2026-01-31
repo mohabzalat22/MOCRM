@@ -42,7 +42,7 @@ class Tag extends Model
             '#F97316',
             '#14B8A6',
             '#A855F7',
-            '#64748B'
+            '#64748B',
         ];
 
         return $colors[array_rand($colors)];

@@ -1,7 +1,7 @@
-import { Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { router } from '@inertiajs/react';
+import { Settings } from 'lucide-react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 import {
     DropdownMenu,
@@ -12,8 +12,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useClientStore } from '@/stores/useClientStore';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
+import { useClientStore } from '@/stores/useClientStore';
 
 export default function SettingButton() {
     const { 

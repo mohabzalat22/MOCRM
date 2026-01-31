@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import type { Client } from '@/components/clients/Columns';
 import type { CustomField } from '@/components/clients/custom-fields';
-import type { Tag } from '@/types';
 import type { TagChange } from '@/components/clients/tag-input';
+import type { Tag } from '@/types';
 
 interface ClientFormData {
     name: string;
@@ -40,7 +40,7 @@ interface ClientState {
     setIsSaving: (isSaving: boolean) => void;
     
     setFormData: (data: ClientFormData) => void;
-    updateFormData: (key: keyof ClientFormData, value: any) => void;
+    updateFormData: (key: keyof ClientFormData, value: string | File | CustomField[] | null) => void;
     handleFieldChange: (key: keyof ClientFormData, value: string | File | CustomField[] | null) => void;
 
     setChangedFields: (fields: Record<string, string | File | CustomField[] | null> | ((prev: Record<string, string | File | CustomField[] | null>) => Record<string, string | File | CustomField[] | null>)) => void;

@@ -17,7 +17,7 @@ class ClientController extends Controller
     {
         $clients = Client::forUser()->with([
             'customFields',
-            'tags'
+            'tags',
         ])->get();
 
         return Inertia::render('clients/index', [

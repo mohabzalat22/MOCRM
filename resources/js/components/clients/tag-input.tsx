@@ -3,12 +3,6 @@ import { X, Plus, Tag as TagIcon } from 'lucide-react';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { cn, TAG_COLORS } from '@/lib/utils';
-import type { Tag } from '@/types';
-import { useClientStore } from '@/stores/useClientStore';
-
 import {
     Command,
     CommandEmpty,
@@ -16,11 +10,17 @@ import {
     CommandItem,
     CommandList,
 } from '@/components/ui/command';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
+import { cn, TAG_COLORS } from '@/lib/utils';
+import { useClientStore } from '@/stores/useClientStore';
+import type { Tag } from '@/types';
+
 
 export interface TagChange {
     tagsToAdd: Array<{ name: string; color: string }>;

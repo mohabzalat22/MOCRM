@@ -11,9 +11,9 @@ import TagInput from '@/components/clients/tag-input';
 import { Button } from '@/components/ui/button';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
+import { useClientStore } from '@/stores/useClientStore';
 import type { Tag } from '@/types';
 import type { BreadcrumbItem } from '@/types';
-import { useClientStore } from '@/stores/useClientStore';
 
 interface ClientPageProps {
     client: Client;
@@ -94,7 +94,6 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
     // Use Store
     const { 
         initialize, 
-        formData, 
         editMode, 
         changedFields, 
         tagChanges, 

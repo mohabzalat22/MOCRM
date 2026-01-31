@@ -1,7 +1,7 @@
 import { Camera, Trash } from 'lucide-react';
+import { useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useClientStore } from '@/stores/useClientStore';
-import { useRef, useEffect } from 'react';
 
 export default function ClientImageUpload() {
     const { 
