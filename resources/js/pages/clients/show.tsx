@@ -159,7 +159,6 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                 // Define steps
                 const submitTags = () => {
                     if (hasTagChanges) {
-                        console.log('Step 3: Submitting tag changes...');
                         handleTagSubmission(() => {
                             if (!hasErrors) toast.success('Client has been updated.');
                             finishSubmission();
@@ -175,7 +174,6 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
 
                 const submitCustomFields = () => {
                     if (hasRealCustomFieldChanges) {
-                        console.log('Step 2: Submitting custom fields...');
                         const customFieldsFormData = new FormData();
                         
                         if (Array.isArray(customFieldsValue)) {
@@ -204,11 +202,9 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                             preserveScroll: true,
                             preserveState: true,
                             onSuccess: () => {
-                                console.log('Custom fields updated');
                                 submitTags();
                             },
                             onError: (errors) => {
-                                console.error('Custom fields failed', errors);
                                 hasErrors = true;
                                 showErrorToasts(errors);
                                 submitTags(); 
@@ -220,7 +216,6 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                 };
 
                 const finishSubmission = () => {
-                    console.log('All steps finished', { hasErrors });
                     setIsSaving(false);
                     setEditMode(false);
                     setChangedFields({});
@@ -229,14 +224,12 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
 
                 // Start with client data
                 if (hasRealClientChanges) {
-                    console.log('Step 1: Submitting client data...');
                     const formData = buildFormData(changedFields, true);
                     
                     router.post(`/clients/${client.id}`, formData, {
                         preserveScroll: true,
                         preserveState: true,
                         onSuccess: () => {
-                            console.log('Client data updated');
                             submitCustomFields();
                         },
                         onError: (errors) => {
