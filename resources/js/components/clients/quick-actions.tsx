@@ -15,6 +15,19 @@ export default function QuickActions({ client }: QuickActionsProps) {
         setActivityDialogOpen(true);
     };
 
+    const handlePhoneClick = () => {
+        if (client.phone) {
+            const cleanPhone = client.phone.replace(/[\s()-]/g, '');
+            window.open(`tel:${cleanPhone}`);
+        }
+    };
+
+    const handleEmailClick = () => {
+        if (client.email) {
+            window.open(`mailto:${client.email}`);
+        }
+    };
+
     return (
         <div className="flex flex-wrap items-center gap-3">
             {client.phone && (
@@ -22,26 +35,24 @@ export default function QuickActions({ client }: QuickActionsProps) {
                     variant="outline"
                     size="sm"
                     className="h-10 gap-2 rounded-full transition-all duration-200 hover:border-green-300 hover:bg-green-50 hover:text-green-700 dark:hover:border-green-800 dark:hover:bg-green-950/30 dark:hover:text-green-400"
-                    onClick={() => {
-                        window.location.href = `tel:${client.phone}`;
-                    }}
+                    onClick={handlePhoneClick}
                 >
                     <Phone className="h-4 w-4" />
                     <span className="font-medium">Call</span>
                 </Button>
             )}
 
-            <Button
-                variant="outline"
-                size="sm"
-                className="h-10 gap-2 rounded-full transition-all duration-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
-                onClick={() => {
-                    window.location.href = `mailto:${client.email}`;
-                }}
-            >
-                <Mail className="h-4 w-4" />
-                <span className="font-medium">Email</span>
-            </Button>
+            {client.email && (
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-10 gap-2 rounded-full transition-all duration-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
+                    onClick={handleEmailClick}
+                >
+                    <Mail className="h-4 w-4" />
+                    <span className="font-medium">Email</span>
+                </Button>
+            )}
 
             <Button
                 variant="outline"
