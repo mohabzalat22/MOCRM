@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { TagChange } from '@/components/clients/tag-input';
-import type { Client, CustomField, Tag } from '@/types';
+import type { Client, CustomField, Tag, ActivityType } from '@/types';
 
 interface ClientFormData {
     name: string;
@@ -28,6 +28,10 @@ interface ClientState {
     formData: ClientFormData;
     changedFields: Record<string, string | File | CustomField[] | null>;
     tagChanges: TagChange;
+    
+    // Activity State
+    activityDialogOpen: boolean;
+    activityType: ActivityType;
 
     // Actions
     initialize: (client: Client, allTags: Tag[]) => void;
@@ -44,6 +48,9 @@ interface ClientState {
     setChangedFields: (fields: Record<string, string | File | CustomField[] | null> | ((prev: Record<string, string | File | CustomField[] | null>) => Record<string, string | File | CustomField[] | null>)) => void;
     
     setTagChanges: (changes: TagChange | ((prev: TagChange) => TagChange)) => void;
+    
+    setActivityDialogOpen: (open: boolean) => void;
+    setActivityType: (type: ActivityType) => void;
     
     reset: () => void;
     resetForm: () => void;
@@ -93,6 +100,8 @@ export const useClientStore = create<ClientState>((set, get) => ({
     formData: defaultFormData,
     changedFields: {},
     tagChanges: { tagsToAdd: [], tagsToRemove: [] },
+    activityDialogOpen: false,
+    activityType: 'note',
 
     initialize: (client, allTags) => {
         set({
@@ -115,6 +124,8 @@ export const useClientStore = create<ClientState>((set, get) => ({
             editMode: false,
             changedFields: {},
             tagChanges: { tagsToAdd: [], tagsToRemove: [] },
+            activityDialogOpen: false,
+            activityType: 'note',
         });
     },
 
@@ -138,6 +149,9 @@ export const useClientStore = create<ClientState>((set, get) => ({
     setTagChanges: (updater) => set((state) => ({
         tagChanges: typeof updater === 'function' ? updater(state.tagChanges) : updater
     })),
+
+    setActivityDialogOpen: (open) => set({ activityDialogOpen: open }),
+    setActivityType: (type) => set({ activityType: type }),
 
     handleFieldChange: (key, value) => {
         const state = get();
@@ -220,6 +234,8 @@ export const useClientStore = create<ClientState>((set, get) => ({
         formData: defaultFormData,
         changedFields: {},
         tagChanges: { tagsToAdd: [], tagsToRemove: [] },
+        activityDialogOpen: false,
+        activityType: 'note',
     }),
 
     resetForm: () => {

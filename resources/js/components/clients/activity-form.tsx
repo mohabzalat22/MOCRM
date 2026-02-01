@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { Phone, Mail, Users, FileText, CreditCard, Plus } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { route } from 'ziggy-js';
 import { Button } from '@/components/ui/button';
@@ -22,9 +22,9 @@ import type { Activity, ActivityType, ActivityData, ActionItem } from '@/types';
 export interface AddActivityFormProps {
     clientId: number | string;
     activity?: Activity;
+    initialType?: ActivityType;
     onSuccess?: () => void;
 }
-
 
 interface ActivityFormData {
     type: ActivityType;
@@ -35,14 +35,21 @@ interface ActivityFormData {
 export default function ActivityForm({
     clientId,
     activity,
+    initialType,
     onSuccess,
 }: AddActivityFormProps) {
     const { data, setData, post, patch, reset, processing } =
         useForm<ActivityFormData>({
-            type: activity?.type || 'note',
+            type: initialType || activity?.type || 'note',
             summary: activity?.summary || '',
             data: activity?.data || {},
         });
+
+    useEffect(() => {
+        if (initialType && !activity) {
+            setData('type', initialType);
+        }
+    }, [initialType, activity, setData]);
 
     const [actionItems, setActionItems] = useState<ActionItem[]>(
         activity?.data?.action_items || [],
@@ -116,7 +123,11 @@ export default function ActivityForm({
         }
     };
 
-    const activityTypes: { type: ActivityType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    const activityTypes: {
+        type: ActivityType;
+        label: string;
+        icon: React.ComponentType<{ className?: string }>;
+    }[] = [
         { type: 'note', label: 'Note', icon: FileText },
         { type: 'call', label: 'Call', icon: Phone },
         { type: 'email', label: 'Email', icon: Mail },

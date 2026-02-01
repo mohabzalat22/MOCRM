@@ -6,16 +6,29 @@ import ActivityTimeline from '@/components/clients/activity-timeline';
 import ClientForm from '@/components/clients/client-form';
 import ClientImageUpload from '@/components/clients/client-image';
 import CustomFieldsView from '@/components/clients/custom-fields-view';
+import QuickActions from '@/components/clients/quick-actions';
 import SettingButton from '@/components/clients/setting-button';
 import StatusButton from '@/components/clients/status-button';
 import TagInput from '@/components/clients/tag-input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
 import { useClientStore } from '@/stores/useClientStore';
-import type { Client, CustomField, Activity, Tag, BreadcrumbItem } from '@/types';
+import type {
+    Client,
+    CustomField,
+    Activity,
+    Tag,
+    BreadcrumbItem,
+} from '@/types';
 
 interface ClientPageProps {
     client: Client;
@@ -110,6 +123,9 @@ export default function Show({
         setEditMode,
         setChangedFields,
         setTagChanges,
+        activityDialogOpen,
+        activityType,
+        setActivityDialogOpen,
     } = useClientStore();
 
     // Initialize store on mount or prop change
@@ -375,16 +391,9 @@ export default function Show({
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-2 self-start md:self-center">
+                    <div className="flex gap-4 self-start md:self-center">
+                        <QuickActions client={client} />
                         <SettingButton />
-                    </div>
-                </div>
-
-                {/* Add Activity Form and Timeline */}
-                <div className="my-6">
-                    <ActivityForm clientId={client.id} />
-                    <div className="mt-6">
-                        <ActivityTimeline activities={activities} />
                     </div>
                 </div>
 
@@ -435,8 +444,35 @@ export default function Show({
                         </div>
                     )}
                 </form>
+
+                {/* Add Activity Timeline */}
+                <div className="my-6">
+                    <div className="mt-6">
+                        <ActivityTimeline activities={activities} />
+                    </div>
+                </div>
             </div>
             <ConfirmDialog />
+
+            <Dialog
+                open={activityDialogOpen}
+                onOpenChange={setActivityDialogOpen}
+            >
+                <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                        <DialogTitle>
+                            {activityType === 'meeting'
+                                ? 'Schedule Meeting'
+                                : 'Add Activity'}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <ActivityForm
+                        clientId={client.id}
+                        initialType={activityType}
+                        onSuccess={() => setActivityDialogOpen(false)}
+                    />
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }
