@@ -374,23 +374,23 @@ export default function Show({
                     {/* Decorative background pattern */}
                     <div className="bg-grid-pattern absolute inset-0 opacity-[0.02]" />
 
-                    <div className="relative flex flex-col items-center gap-8 p-8 md:flex-row md:items-start md:p-10">
+                    <div className="relative flex flex-col items-center gap-6 p-6 md:flex-row md:items-start md:gap-8 md:p-10">
                         {/* Profile Image Section */}
                         <div className="shrink-0">
                             <ClientImageUpload />
                         </div>
 
                         {/* Client Information */}
-                        <div className="flex-1 space-y-6 text-center md:text-left">
+                        <div className="flex-1 space-y-4 text-center md:space-y-6 md:text-left">
                             {/* Name and Company */}
-                            <div className="space-y-2">
-                                <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl">
+                            <div className="space-y-1 md:space-y-2">
+                                <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl">
                                     {client.name}
                                 </h1>
                                 {client.company_name && (
                                     <div className="flex items-center justify-center gap-2 md:justify-start">
-                                        <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                                        <p className="text-2xl font-semibold text-muted-foreground">
+                                        <div className="h-1 w-1 rounded-full bg-primary md:h-1.5 md:w-1.5" />
+                                        <p className="text-lg font-semibold text-muted-foreground md:text-xl lg:text-2xl">
                                             {client.company_name}
                                         </p>
                                     </div>
@@ -398,13 +398,13 @@ export default function Show({
                             </div>
 
                             {/* Status and Member Info */}
-                            <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+                            <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start md:gap-4">
                                 <StatusButton />
                                 <Separator
                                     orientation="vertical"
                                     className="hidden h-5 md:block"
                                 />
-                                <div className="flex items-center gap-2 text-base text-muted-foreground">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground md:text-base">
                                     <span className="font-medium">Joined</span>
                                     <span className="font-semibold text-foreground">
                                         {new Date(
@@ -420,13 +420,13 @@ export default function Show({
                             </div>
 
                             {/* Quick Actions */}
-                            <div className="pt-2">
+                            <div className="pt-1 md:pt-2">
                                 <QuickActions client={client} />
                             </div>
                         </div>
 
                         {/* Settings Button */}
-                        <div className="absolute top-6 right-6 md:relative md:top-0 md:right-0">
+                        <div className="absolute top-4 right-4 md:relative md:top-0 md:right-0 md:mt-0">
                             <SettingButton />
                         </div>
                     </div>
