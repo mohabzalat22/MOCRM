@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateActivityRequest;
 use App\Models\Activity;
 use App\Models\Client;
 use Illuminate\Http\Request;
@@ -11,13 +12,9 @@ class ActivityController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Client $client)
+    public function store(CreateActivityRequest $request, Client $client)
     {
-        $validated = $request->validate([
-            'type' => 'required|string|in:call,email,meeting,note,transaction',
-            'summary' => 'nullable|string|max:255',
-            'data' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $client->activities()->create([
             'user_id' => auth()->id(),
@@ -42,11 +39,7 @@ class ActivityController extends Controller
      */
     public function update(Request $request, Activity $activity)
     {
-        $validated = $request->validate([
-            'type' => 'required|string|in:call,email,meeting,note,transaction',
-            'summary' => 'nullable|string|max:255',
-            'data' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $activity->update([
             'type' => $validated['type'],
