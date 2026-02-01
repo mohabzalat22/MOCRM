@@ -4,6 +4,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../css/app.css';
 import { initializeTheme } from './hooks/use-appearance';
+import { Ziggy } from './ziggy';
+
+// Make Ziggy available globally for the ziggy-js library
+(window as unknown as { Ziggy: typeof Ziggy }).Ziggy = Ziggy;
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 

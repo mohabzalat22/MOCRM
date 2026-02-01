@@ -1,9 +1,6 @@
 import { useState } from 'react';
 
-export type CustomField = {
-    key: string;
-    value: string;
-};
+import type { CustomField } from '@/types';
 
 type Props = {
     initialFields?: CustomField[];

@@ -1,9 +1,9 @@
 import { Head } from '@inertiajs/react';
 import { columns } from '@/components/clients/Columns';
-import type { Client } from '@/components/clients/Columns';
 import { DataTable } from '@/components/clients/DataTable';
 import { ClientDialog } from '@/components/clients/dialog';
 import AppLayout from '@/layouts/app-layout';
+import type { Client } from '@/types';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [

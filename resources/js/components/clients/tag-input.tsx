@@ -134,10 +134,10 @@ export default function TagInput({
     );
 
     const filteredSuggestions = allTags.filter(
-        (tag) =>
+        (tag: Tag) =>
             tag.name.toLowerCase().includes(inputValue.toLowerCase()) &&
-            !existingTags.find((t) => t.id === tag.id) &&
-            !tagsToAdd.find((t) => t.name.toLowerCase() === tag.name.toLowerCase()),
+            !existingTags.find((t: Tag) => t.id === tag.id) &&
+            !tagsToAdd.find((t: { name: string }) => t.name.toLowerCase() === tag.name.toLowerCase()),
     );
 
     const handleInputChange = useCallback(
@@ -197,9 +197,8 @@ export default function TagInput({
         [],
     );
 
-    // Compute display tags: existing tags minus removed ones, plus pending additions
     const displayTags: Array<Tag & { isPending?: boolean }> = [
-        ...existingTags.filter((tag) => !tagsToRemove.includes(tag.id)),
+        ...existingTags.filter((tag: Tag) => !tagsToRemove.includes(tag.id)),
         ...tagsToAdd.map((tag, idx) => ({
             id: -idx - 1, // Temporary negative ID for pending tags
             name: tag.name,

@@ -1,10 +1,10 @@
 import { Head, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import ActivityForm from '@/components/clients/activity-form';
+import ActivityTimeline from '@/components/clients/activity-timeline';
 import ClientForm from '@/components/clients/client-form';
 import ClientImageUpload from '@/components/clients/client-image';
-import type { Client } from '@/components/clients/Columns';
-import type { CustomField } from '@/components/clients/custom-fields';
 import CustomFieldsView from '@/components/clients/custom-fields-view';
 import SettingButton from '@/components/clients/setting-button';
 import StatusButton from '@/components/clients/status-button';
@@ -15,12 +15,12 @@ import { Separator } from '@/components/ui/separator';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
 import { useClientStore } from '@/stores/useClientStore';
-import type { Tag } from '@/types';
-import type { BreadcrumbItem } from '@/types';
+import type { Client, CustomField, Activity, Tag, BreadcrumbItem } from '@/types';
 
 interface ClientPageProps {
     client: Client;
     allTags?: Tag[];
+    activities?: Activity[];
 }
 
 const buildFormData = (
@@ -70,7 +70,7 @@ const buildFormData = (
     return formData;
 };
 
-const showErrorToasts = (errors: Record<string, unknown>) => {
+const showErrorToasts = (errors: Record<string, string | string[]>) => {
     if (errors && Object.keys(errors).length > 0) {
         Object.values(errors).forEach((message) => {
             if (typeof message === 'string') {
@@ -82,7 +82,11 @@ const showErrorToasts = (errors: Record<string, unknown>) => {
     }
 };
 
-export default function Show({ client, allTags = [] }: ClientPageProps) {
+export default function Show({
+    client,
+    allTags = [],
+    activities = [],
+}: ClientPageProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Clients',
@@ -93,19 +97,19 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
             href: `/clients/${client.id}`,
         },
     ];
-    
+
     // Use Store
-    const { 
-        initialize, 
-        editMode, 
-        changedFields, 
-        tagChanges, 
+    const {
+        initialize,
+        editMode,
+        changedFields,
+        tagChanges,
         resetForm,
         setIsSaving,
         isSaving,
         setEditMode,
         setChangedFields,
-        setTagChanges
+        setTagChanges,
     } = useClientStore();
 
     // Initialize store on mount or prop change
@@ -118,7 +122,9 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const hasTagChanges = tagChanges.tagsToAdd.length > 0 || tagChanges.tagsToRemove.length > 0;
+        const hasTagChanges =
+            tagChanges.tagsToAdd.length > 0 ||
+            tagChanges.tagsToRemove.length > 0;
         const hasFieldChanges = Object.keys(changedFields).length > 0;
 
         if (!hasFieldChanges && !hasTagChanges) {
@@ -128,28 +134,37 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
 
         // Separate custom field changes from other field changes
         const hasCustomFieldChanges = 'custom_fields' in changedFields;
-        const customFieldsValue = changedFields.custom_fields as CustomField[] | undefined;
-        
+        const customFieldsValue = changedFields.custom_fields as
+            | CustomField[]
+            | undefined;
+
         // Check if custom fields have real changes
-        const validCustomFields = Array.isArray(customFieldsValue) 
-            ? customFieldsValue.filter(field => field && field.key && field.key.trim() !== '')
+        const validCustomFields = Array.isArray(customFieldsValue)
+            ? customFieldsValue.filter(
+                  (field) => field && field.key && field.key.trim() !== '',
+              )
             : [];
-        
+
         // We need initialData custom fields to check if we cleared them
         const initialCustomFields = client.custom_fields || [];
 
-        const hasRealCustomFieldChanges = hasCustomFieldChanges && (
-            (validCustomFields.length === 0 && initialCustomFields.length > 0) ||
-            validCustomFields.length > 0
-        );
+        const hasRealCustomFieldChanges =
+            hasCustomFieldChanges &&
+            ((validCustomFields.length === 0 &&
+                initialCustomFields.length > 0) ||
+                validCustomFields.length > 0);
 
         // Check if there are any real client data changes (excluding custom fields)
         const clientDataChanges = Object.entries(changedFields).filter(
-            ([key]) => key !== 'custom_fields'
+            ([key]) => key !== 'custom_fields',
         );
         const hasRealClientChanges = clientDataChanges.length > 0;
 
-        if (!hasRealClientChanges && !hasRealCustomFieldChanges && !hasTagChanges) {
+        if (
+            !hasRealClientChanges &&
+            !hasRealCustomFieldChanges &&
+            !hasTagChanges
+        ) {
             toast.info('No changes to save.');
             return;
         }
@@ -162,15 +177,20 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                 // Define steps
                 const submitTags = () => {
                     if (hasTagChanges) {
-                        handleTagSubmission(() => {
-                            if (!hasErrors) toast.success('Client has been updated.');
-                            finishSubmission();
-                        }, () => {
-                            hasErrors = true;
-                            finishSubmission();
-                        });
+                        handleTagSubmission(
+                            () => {
+                                if (!hasErrors)
+                                    toast.success('Client has been updated.');
+                                finishSubmission();
+                            },
+                            () => {
+                                hasErrors = true;
+                                finishSubmission();
+                            },
+                        );
                     } else {
-                        if (!hasErrors) toast.success('Client has been updated.');
+                        if (!hasErrors)
+                            toast.success('Client has been updated.');
                         finishSubmission();
                     }
                 };
@@ -178,11 +198,14 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                 const submitCustomFields = () => {
                     if (hasRealCustomFieldChanges) {
                         const customFieldsFormData = new FormData();
-                        
+
                         if (Array.isArray(customFieldsValue)) {
                             // Filter valid fields again to be sure
                             const fieldsToSend = customFieldsValue.filter(
-                                field => field && field.key && field.key.trim() !== ''
+                                (field) =>
+                                    field &&
+                                    field.key &&
+                                    field.key.trim() !== '',
                             );
 
                             fieldsToSend.forEach((field, idx) => {
@@ -197,22 +220,29 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                             });
 
                             if (fieldsToSend.length === 0) {
-                                customFieldsFormData.append('custom_fields', '');
+                                customFieldsFormData.append(
+                                    'custom_fields',
+                                    '',
+                                );
                             }
                         }
 
-                        router.post(`/clients/${client.id}/custom-fields`, customFieldsFormData, {
-                            preserveScroll: true,
-                            preserveState: true,
-                            onSuccess: () => {
-                                submitTags();
+                        router.post(
+                            `/clients/${client.id}/custom-fields`,
+                            customFieldsFormData,
+                            {
+                                preserveScroll: true,
+                                preserveState: true,
+                                onSuccess: () => {
+                                    submitTags();
+                                },
+                                onError: (errors) => {
+                                    hasErrors = true;
+                                    showErrorToasts(errors);
+                                    submitTags();
+                                },
                             },
-                            onError: (errors) => {
-                                hasErrors = true;
-                                showErrorToasts(errors);
-                                submitTags(); 
-                            },
-                        });
+                        );
                     } else {
                         submitTags();
                     }
@@ -228,7 +258,7 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                 // Start with client data
                 if (hasRealClientChanges) {
                     const formData = buildFormData(changedFields, true);
-                    
+
                     router.post(`/clients/${client.id}`, formData, {
                         preserveScroll: true,
                         preserveState: true,
@@ -253,33 +283,40 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
         );
     };
 
-    const handleTagSubmission = (onComplete: () => void, onError: () => void) => {
+    const handleTagSubmission = (
+        onComplete: () => void,
+        onError: () => void,
+    ) => {
         // Queue operations to run sequentially
         const operations: Array<() => void> = [];
 
         // Add tag additions to queue
-        tagChanges.tagsToAdd.forEach(tag => {
+        tagChanges.tagsToAdd.forEach((tag) => {
             operations.push(() => {
-                router.post('/tags', {
-                    name: tag.name,
-                    color: tag.color,
-                    taggable_id: client.id,
-                    taggable_type: 'App\\Models\\Client',
-                }, {
-                    preserveScroll: true,
-                    preserveState: true,
-                    onSuccess: processNext,
-                    onError: (err) => {
-                        console.error('Tag add failed', err);
-                        onError();
-                        processNext();
-                    }
-                });
+                router.post(
+                    '/tags',
+                    {
+                        name: tag.name,
+                        color: tag.color,
+                        taggable_id: client.id,
+                        taggable_type: 'App\\Models\\Client',
+                    },
+                    {
+                        preserveScroll: true,
+                        preserveState: true,
+                        onSuccess: processNext,
+                        onError: (err) => {
+                            console.error('Tag add failed', err);
+                            onError();
+                            processNext();
+                        },
+                    },
+                );
             });
         });
 
         // Add tag removals to queue
-        tagChanges.tagsToRemove.forEach(tagId => {
+        tagChanges.tagsToRemove.forEach((tagId) => {
             operations.push(() => {
                 router.delete(`/client/${client.id}/tags/${tagId}`, {
                     preserveScroll: true,
@@ -289,7 +326,7 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                         console.error('Tag remove failed', err);
                         onError();
                         processNext();
-                    }
+                    },
                 });
             });
         });
@@ -315,18 +352,25 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
             <Head title="Clients" />
             <div className="flex flex-col gap-6 p-4 md:p-8">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-lg border bg-card p-6 shadow-sm text-card-foreground">
-                    <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="flex flex-col items-center justify-between gap-6 rounded-lg border bg-card p-6 text-card-foreground shadow-sm md:flex-row">
+                    <div className="flex flex-col items-center gap-6 md:flex-row">
                         <ClientImageUpload />
-                        <div className="text-center md:text-left space-y-2">
-                            <h1 className="text-3xl font-bold tracking-tight">{client.name}</h1>
+                        <div className="space-y-2 text-center md:text-left">
+                            <h1 className="text-3xl font-bold tracking-tight">
+                                {client.name}
+                            </h1>
                             {client.company_name && (
-                                <p className="text-lg text-muted-foreground">{client.company_name}</p>
+                                <p className="text-lg text-muted-foreground">
+                                    {client.company_name}
+                                </p>
                             )}
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-1">
+                            <div className="mt-1 flex flex-wrap items-center justify-center gap-3 md:justify-start">
                                 <StatusButton />
                                 <span className="text-sm text-muted-foreground">
-                                    Member since {new Date(client.created_at).toLocaleDateString()}
+                                    Member since{' '}
+                                    {new Date(
+                                        client.created_at,
+                                    ).toLocaleDateString()}
                                 </span>
                             </div>
                         </div>
@@ -336,10 +380,18 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                     </div>
                 </div>
 
+                {/* Add Activity Form and Timeline */}
+                <div className="my-6">
+                    <ActivityForm clientId={client.id} />
+                    <div className="mt-6">
+                        <ActivityTimeline activities={activities} />
+                    </div>
+                </div>
+
                 <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                         {/* Left Column - 2 spans */}
-                        <div className="md:col-span-2 space-y-6">
+                        <div className="space-y-6 md:col-span-2">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Contact Details</CardTitle>
@@ -368,7 +420,7 @@ export default function Show({ client, allTags = [] }: ClientPageProps) {
                     </div>
 
                     {editMode && (
-                        <div className="fixed bottom-6 left-0 right-0 z-50 mx-auto flex w-full max-w-2xl items-center justify-between rounded-lg border bg-background/95 p-4 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                        <div className="fixed right-0 bottom-6 left-0 z-50 mx-auto flex w-full max-w-2xl items-center justify-between rounded-lg border bg-background/95 p-4 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/60">
                             <Button
                                 variant="outline"
                                 type="button"

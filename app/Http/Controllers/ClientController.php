@@ -60,7 +60,9 @@ class ClientController extends Controller
     {
         $client = Client::forUser()
             ->where('id', $client->id)
-            ->with(['customFields', 'tags'])
+            ->with(['customFields', 'tags', 'activities' => function ($query) {
+                $query->with('user')->latest();
+            }])
             ->firstOrFail();
 
         // Get all tags for tag input/filter
@@ -69,6 +71,7 @@ class ClientController extends Controller
         return Inertia::render('clients/show', [
             'client' => $client,
             'allTags' => $allTags,
+            'activities' => $client->activities,
         ]);
     }
 

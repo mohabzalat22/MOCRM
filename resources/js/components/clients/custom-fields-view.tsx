@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { useClientStore } from '@/stores/useClientStore';
-import type { CustomField } from './custom-fields';
+import type { CustomField } from '@/types';
 
 export default function CustomFieldsView() {
     const { formData, updateFormData, editMode } = useClientStore();

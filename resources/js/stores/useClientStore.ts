@@ -1,8 +1,6 @@
 import { create } from 'zustand';
-import type { Client } from '@/components/clients/Columns';
-import type { CustomField } from '@/components/clients/custom-fields';
 import type { TagChange } from '@/components/clients/tag-input';
-import type { Tag } from '@/types';
+import type { Client, CustomField, Tag } from '@/types';
 
 interface ClientFormData {
     name: string;

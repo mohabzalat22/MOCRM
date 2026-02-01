@@ -36,6 +36,11 @@ class Client extends Model
         return $this->morphToMany(Tag::class, 'taggable')->withTimestamps();
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class)->latest();
+    }
+
     public function scopeForUser($query)
     {
         $user_id = auth()->id();

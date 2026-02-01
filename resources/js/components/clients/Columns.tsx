@@ -2,8 +2,7 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { Tag } from '@/types';
-import type { CustomField } from './custom-fields';
+import type { Client } from '@/types';
 
 // Define custom filter function
 const multiSelectFilter: FilterFn<Client> = (row, columnId, filterValue: string[]) => {
@@ -26,30 +25,15 @@ const multiSelectFilter: FilterFn<Client> = (row, columnId, filterValue: string[
     }
 
     if (filterHasNone) {
-        return rowHasNoTags || matchesTags;
+        return !!(rowHasNoTags || matchesTags);
     }
     
     return matchesTags;
 };
 
-export type Client = {
-    id: string;
-    name: string;
-    company_name?: string;
-    email: string;
-    phone?: string;
-    website?: string;
-    address?: string;
-    image?: string;
-    created_at: string;
-    custom_fields: CustomField[];
-    status: string;
-    tags: Tag[];
-};
-
 export const columns: ColumnDef<Client>[] = [
     {
-        accessorKey: 'name',
+        accessorKey: 'name' as const,
         header: ({ column }) => {
             return (
                 <Button
@@ -65,7 +49,7 @@ export const columns: ColumnDef<Client>[] = [
         },
     },
     {
-        accessorKey: 'status',
+        accessorKey: 'status' as const,
         header: ({ column }) => {
             return (
                 <Button
@@ -108,7 +92,7 @@ export const columns: ColumnDef<Client>[] = [
         },
     },
     {
-        accessorKey: 'tags',
+        accessorKey: 'tags' as const,
         header: 'Tags',
         filterFn: multiSelectFilter, // Use the function reference directly
         cell: ({ row }) => {
@@ -131,23 +115,23 @@ export const columns: ColumnDef<Client>[] = [
         },
     },
     {
-        accessorKey: 'company_name',
+        accessorKey: 'company_name' as const,
         header: 'Company Name',
     },
     {
-        accessorKey: 'email',
+        accessorKey: 'email' as const,
         header: 'Email',
     },
     {
-        accessorKey: 'phone',
+        accessorKey: 'phone' as const,
         header: 'Phone',
     },
     {
-        accessorKey: 'website',
+        accessorKey: 'website' as const,
         header: 'Website',
     },
     {
-        accessorKey: 'address',
+        accessorKey: 'address' as const,
         header: 'Address',
     },
 ];
