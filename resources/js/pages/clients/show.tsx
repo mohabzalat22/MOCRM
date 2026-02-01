@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import { LayoutDashboard, History as HistoryIcon } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import ActivityForm from '@/components/clients/activity-form';
@@ -19,6 +20,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
 import { useClientStore } from '@/stores/useClientStore';
@@ -367,90 +369,212 @@ export default function Show({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Clients" />
             <div className="flex flex-col gap-6 p-4 md:p-8">
-                {/* Header Section */}
-                <div className="flex flex-col items-center justify-between gap-6 rounded-lg border bg-card p-6 text-card-foreground shadow-sm md:flex-row">
-                    <div className="flex flex-col items-center gap-6 md:flex-row">
-                        <ClientImageUpload />
-                        <div className="space-y-2 text-center md:text-left">
-                            <h1 className="text-3xl font-bold tracking-tight">
-                                {client.name}
-                            </h1>
-                            {client.company_name && (
-                                <p className="text-lg text-muted-foreground">
-                                    {client.company_name}
-                                </p>
-                            )}
-                            <div className="mt-1 flex flex-wrap items-center justify-center gap-3 md:justify-start">
+                {/* Enhanced Modern Header Section */}
+                <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-card via-card to-muted/20 shadow-xl">
+                    {/* Decorative background pattern */}
+                    <div className="bg-grid-pattern absolute inset-0 opacity-[0.02]" />
+
+                    <div className="relative flex flex-col items-center gap-8 p-8 md:flex-row md:items-start md:p-10">
+                        {/* Profile Image Section */}
+                        <div className="shrink-0">
+                            <ClientImageUpload />
+                        </div>
+
+                        {/* Client Information */}
+                        <div className="flex-1 space-y-6 text-center md:text-left">
+                            {/* Name and Company */}
+                            <div className="space-y-2">
+                                <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl">
+                                    {client.name}
+                                </h1>
+                                {client.company_name && (
+                                    <div className="flex items-center justify-center gap-2 md:justify-start">
+                                        <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                                        <p className="text-2xl font-semibold text-muted-foreground">
+                                            {client.company_name}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Status and Member Info */}
+                            <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
                                 <StatusButton />
-                                <span className="text-sm text-muted-foreground">
-                                    Member since{' '}
-                                    {new Date(
-                                        client.created_at,
-                                    ).toLocaleDateString()}
-                                </span>
+                                <Separator
+                                    orientation="vertical"
+                                    className="hidden h-5 md:block"
+                                />
+                                <div className="flex items-center gap-2 text-base text-muted-foreground">
+                                    <span className="font-medium">Joined</span>
+                                    <span className="font-semibold text-foreground">
+                                        {new Date(
+                                            client.created_at,
+                                        ).toLocaleDateString('en-US', {
+                                            weekday: 'short',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric',
+                                        })}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Quick Actions */}
+                            <div className="pt-2">
+                                <QuickActions client={client} />
                             </div>
                         </div>
-                    </div>
-                    <div className="flex gap-4 self-start md:self-center">
-                        <QuickActions client={client} />
-                        <SettingButton />
+
+                        {/* Settings Button */}
+                        <div className="absolute top-6 right-6 md:relative md:top-0 md:right-0">
+                            <SettingButton />
+                        </div>
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                        {/* Left Column - 2 spans */}
-                        <div className="space-y-6 md:col-span-2">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Contact Details</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <ClientForm />
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        {/* Right Column - 1 span */}
-                        <div className="space-y-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Additional Info</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    <div>
-                                        <TagInput />
-                                    </div>
-                                    <Separator />
-                                    <CustomFieldsView />
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </div>
-
-                    {editMode && (
-                        <div className="fixed right-0 bottom-6 left-0 z-50 mx-auto flex w-full max-w-2xl items-center justify-between rounded-lg border bg-background/95 p-4 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                            <Button
-                                variant="outline"
-                                type="button"
-                                onClick={resetForm}
-                                disabled={isSaving}
+                <Tabs defaultValue="overview" className="w-full space-y-8">
+                    <div className="flex items-center justify-center">
+                        <TabsList className="h-12 gap-2 rounded-2xl border border-border/40 bg-muted/50 p-1.5 shadow-inner">
+                            <TabsTrigger
+                                value="overview"
+                                className="flex items-center gap-2 rounded-xl px-6 py-2 text-sm font-bold transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"
                             >
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isSaving}>
-                                {isSaving ? 'Saving...' : 'Save changes'}
-                            </Button>
-                        </div>
-                    )}
-                </form>
-
-                {/* Add Activity Timeline */}
-                <div className="my-6">
-                    <div className="mt-6">
-                        <ActivityTimeline activities={activities} />
+                                <LayoutDashboard className="h-4 w-4" />
+                                Overview
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="activity"
+                                className="flex items-center gap-2 rounded-xl px-6 py-2 text-sm font-bold transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"
+                            >
+                                <HistoryIcon className="h-4 w-4" />
+                                Activity History
+                            </TabsTrigger>
+                        </TabsList>
                     </div>
-                </div>
+
+                    <form onSubmit={handleSubmit} className="mt-6">
+                        <TabsContent
+                            value="overview"
+                            className="mt-0 focus-visible:outline-none"
+                        >
+                            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                                {/* Main Content - 2 spans */}
+                                <div className="space-y-6 lg:col-span-2">
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>
+                                                Contact Information
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <ClientForm />
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>
+                                                Additional Details
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <CustomFieldsView />
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                                {/* Sidebar - 1 span */}
+                                <div className="space-y-6">
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Organization</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-6">
+                                            <div className="space-y-2">
+                                                <h3 className="text-sm font-medium text-muted-foreground">
+                                                    Tags
+                                                </h3>
+                                                <TagInput />
+                                            </div>
+
+                                            <Separator />
+
+                                            <div className="space-y-3">
+                                                <h3 className="text-sm font-medium text-muted-foreground">
+                                                    System Info
+                                                </h3>
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-muted-foreground">
+                                                        ID
+                                                    </span>
+                                                    <span className="font-mono">
+                                                        #{client.id}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-muted-foreground">
+                                                        Updated
+                                                    </span>
+                                                    <span>
+                                                        {new Date(
+                                                            client.updated_at,
+                                                        ).toLocaleDateString(
+                                                            'en-US',
+                                                            {
+                                                                weekday:
+                                                                    'short',
+                                                                month: 'short',
+                                                                day: 'numeric',
+                                                                year: 'numeric',
+                                                            },
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent
+                            value="activity"
+                            className="mt-0 focus-visible:outline-none"
+                        >
+                            <div className="mx-auto max-w-3xl">
+                                <ActivityTimeline activities={activities} />
+                            </div>
+                        </TabsContent>
+
+                        {editMode && (
+                            <div className="fixed right-0 bottom-6 left-0 z-50 flex justify-center px-4">
+                                <div className="flex w-full max-w-2xl items-center justify-between gap-4 rounded-lg border bg-background p-4 shadow-lg">
+                                    <Button
+                                        variant="outline"
+                                        type="button"
+                                        onClick={resetForm}
+                                        disabled={isSaving}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <div className="flex items-center gap-3">
+                                        {isSaving && (
+                                            <span className="text-sm text-muted-foreground">
+                                                Saving...
+                                            </span>
+                                        )}
+                                        <Button
+                                            type="submit"
+                                            disabled={isSaving}
+                                        >
+                                            Save Changes
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </form>
+                </Tabs>
             </div>
             <ConfirmDialog />
 

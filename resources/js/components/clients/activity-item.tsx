@@ -173,14 +173,14 @@ export default function ActivityItem({ activity }: ActivityItemProps) {
                 <div className="absolute top-6 bottom-0 left-[15px] w-px bg-border last:hidden" />
 
                 {/* Timeline Node */}
-                <div className="absolute top-1 left-0 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-background shadow-sm transition-colors group-hover:bg-muted">
+                <div className="absolute top-1 left-0 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-background shadow-sm">
                     {getIcon()}
                 </div>
 
                 <div className="group relative">
                     <div className="mb-1 flex items-start justify-between p-2">
                         <div>
-                            <h4 className="text-sm leading-none font-semibold text-foreground">
+                            <h4 className="text-sm font-semibold text-foreground">
                                 {activity.summary}
                             </h4>
                             <div className="mt-1.5 flex items-center gap-2">
@@ -233,7 +233,7 @@ export default function ActivityItem({ activity }: ActivityItemProps) {
                     {formatData()}
 
                     {activity.data?.notes && (
-                        <p className="mt-2 rounded-md border border-dashed bg-muted/30 p-2 text-sm text-muted-foreground">
+                        <p className="mt-2 rounded-md border border-dashed bg-muted/30 p-2 text-sm text-muted-foreground whitespace-pre-wrap">
                             {activity.data.notes}
                         </p>
                     )}

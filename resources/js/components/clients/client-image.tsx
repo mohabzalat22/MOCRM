@@ -1,17 +1,14 @@
-import { Camera, Trash } from 'lucide-react';
-import { useRef, useEffect } from 'react';
+import { Camera, Upload, X } from 'lucide-react';
+import { useRef, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useClientStore } from '@/stores/useClientStore';
 
 export default function ClientImageUpload() {
-    const { 
-        image, 
-        editMode, 
-        setImage, 
-        updateFormData 
-    } = useClientStore();
-    
+    const { image, editMode, setImage, updateFormData } = useClientStore();
+
     const inputRef = useRef<HTMLInputElement>(null);
+    const [isHovered, setIsHovered] = useState(false);
 
     // Reset input when editMode changes to false
     useEffect(() => {
@@ -26,7 +23,7 @@ export default function ClientImageUpload() {
             // Update store
             // updateFormData handles updating changedFields
             updateFormData('image', file);
-            
+
             // Preview
             const reader = new FileReader();
             reader.onload = () => setImage(reader.result as string);
@@ -34,7 +31,8 @@ export default function ClientImageUpload() {
         }
     };
 
-    const handleRemoveImage = () => {
+    const handleRemoveImage = (e: React.MouseEvent) => {
+        e.stopPropagation();
         setImage(null);
         updateFormData('image', ''); // Start sending empty string to signal removal
         if (inputRef.current) {
@@ -51,34 +49,77 @@ export default function ClientImageUpload() {
     return (
         <>
             {image ? (
-                <div className="flex flex-col items-center gap-2">
-                    <img
-                        src={image}
-                        alt="Client profile"
-                        className="h-40 w-40 cursor-pointer rounded-full border object-cover lg:h-60 lg:w-60 dark:border-zinc-700"
-                        onClick={handleClick}
-                    />
-                    {editMode && (
-                        <Button
-                            type="button"
-                            variant="destructive"
-                            onClick={handleRemoveImage}
-                            size="icon"
-                            aria-label="Remove image"
-                        >
-                            <Trash />
-                        </Button>
-                    )}
+                <div
+                    className="group relative"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                >
+                    <div className="relative h-48 w-48 lg:h-56 lg:w-56">
+                        <img
+                            src={image}
+                            alt="Client profile"
+                            className={cn(
+                                'h-full w-full rounded-full border-4 border-background object-cover shadow-xl ring-2 ring-border transition-all duration-300',
+                                editMode &&
+                                    'cursor-pointer hover:ring-primary/50',
+                            )}
+                            onClick={handleClick}
+                        />
+
+                        {/* Overlay for edit mode */}
+                        {editMode && isHovered && (
+                            <div
+                                className="absolute inset-0 flex items-center justify-center rounded-full bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+                                onClick={handleClick}
+                            >
+                                <Upload className="h-8 w-8 text-white" />
+                            </div>
+                        )}
+
+                        {/* Remove button */}
+                        {editMode && (
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                onClick={handleRemoveImage}
+                                className="absolute -top-2 -right-2 h-10 w-10 rounded-full shadow-lg transition-transform duration-200 hover:scale-110"
+                                aria-label="Remove image"
+                            >
+                                <X className="h-5 w-5" />
+                            </Button>
+                        )}
+                    </div>
                 </div>
             ) : (
                 <div
-                    className="flex h-40 w-40 cursor-pointer items-center justify-center rounded-full bg-gray-800 dark:bg-zinc-800"
+                    className={cn(
+                        'group relative flex h-48 w-48 items-center justify-center rounded-full border-4 border-dashed border-border bg-muted/50 shadow-inner transition-all duration-300 lg:h-56 lg:w-56',
+                        editMode &&
+                            'cursor-pointer hover:border-primary hover:bg-muted hover:shadow-lg',
+                    )}
                     onClick={handleClick}
                     role="button"
-                    tabIndex={0}
+                    tabIndex={editMode ? 0 : -1}
                     aria-label="Upload image"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
                 >
-                    <Camera className="h-10 w-10 text-white" />
+                    <div className="flex flex-col items-center gap-2">
+                        <Camera
+                            className={cn(
+                                'h-12 w-12 text-muted-foreground transition-all duration-300',
+                                editMode &&
+                                    isHovered &&
+                                    'scale-110 text-primary',
+                            )}
+                        />
+                        {editMode && (
+                            <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
+                                Upload
+                            </span>
+                        )}
+                    </div>
                 </div>
             )}
             <input

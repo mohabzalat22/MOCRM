@@ -1,12 +1,11 @@
-import { Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import { useClientStore } from '@/stores/useClientStore';
 
 enum Status {
@@ -20,27 +19,9 @@ interface StatusButtonProps {
     className?: string;
 }
 
-export default function StatusButton({
-    className,
-}: StatusButtonProps) {
+export default function StatusButton({ className }: StatusButtonProps) {
     const { editMode, formData, updateFormData } = useClientStore();
     const status = formData.status;
-
-    // Map status to button color class
-    const getStatusBtnClass = (s: string) => {
-        switch (s) {
-            case Status.ACTIVE:
-                return 'status-btn-active';
-            case Status.LEAD:
-                return 'status-btn-lead';
-            case Status.AT_RISK:
-                return 'status-btn-at-risk';
-            case Status.IN_ACTIVE:
-                return 'status-btn-in-active';
-            default:
-                return '';
-        }
-    };
 
     const handleSelect = (newStatus: string) => {
         updateFormData('status', newStatus);
@@ -48,18 +29,23 @@ export default function StatusButton({
 
     if (!editMode) {
         return (
-            <Button
-                variant="outline"
-                disabled
-                className={
-                    className
-                        ? `${getStatusBtnClass(status)} ${className}`
-                        : getStatusBtnClass(status)
-                }
+            <div
+                className={cn(
+                    'flex items-center gap-2 rounded-full border bg-muted/50 px-3 py-1 text-xs font-medium',
+                    className,
+                )}
             >
-                <Activity />
+                <div
+                    className={cn(
+                        'h-2 w-2 rounded-full',
+                        status === Status.ACTIVE && 'bg-green-500',
+                        status === Status.LEAD && 'bg-yellow-500',
+                        status === Status.AT_RISK && 'bg-red-500',
+                        status === Status.IN_ACTIVE && 'bg-slate-500',
+                    )}
+                />
                 {status}
-            </Button>
+            </div>
         );
     }
 
@@ -68,45 +54,40 @@ export default function StatusButton({
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="outline"
-                    className={
-                        className
-                            ? `${getStatusBtnClass(status)} ${className}`
-                            : getStatusBtnClass(status)
-                    }
+                    size="sm"
+                    className={cn('h-8 gap-2 rounded-full', className)}
                 >
-                    <Activity />
+                    <div
+                        className={cn(
+                            'h-2 w-2 rounded-full',
+                            status === Status.ACTIVE && 'bg-green-500',
+                            status === Status.LEAD && 'bg-yellow-500',
+                            status === Status.AT_RISK && 'bg-red-500',
+                            status === Status.IN_ACTIVE && 'bg-slate-500',
+                        )}
+                    />
                     {status}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-40" align="center">
-                <DropdownMenuGroup>
-                    {Object.values(Status).map((e) => (
-                        <DropdownMenuItem
-                            onClick={() => handleSelect(e)}
-                            key={e}
-                        >
-                            <span
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                }}
-                            >
-                                <span
-                                    className={getStatusBtnClass(e)}
-                                    style={{
-                                        display: 'inline-block',
-                                        width: '12px',
-                                        height: '12px',
-                                        borderRadius: '50%',
-                                        marginRight: '0.5rem',
-                                    }}
-                                />
-                                {e}
-                            </span>
-                        </DropdownMenuItem>
-                    ))}
-                </DropdownMenuGroup>
+            <DropdownMenuContent align="start">
+                {Object.values(Status).map((e) => (
+                    <DropdownMenuItem
+                        key={e}
+                        onClick={() => handleSelect(e)}
+                        className="gap-2"
+                    >
+                        <div
+                            className={cn(
+                                'h-2 w-2 rounded-full',
+                                e === Status.ACTIVE && 'bg-green-500',
+                                e === Status.LEAD && 'bg-yellow-500',
+                                e === Status.AT_RISK && 'bg-red-500',
+                                e === Status.IN_ACTIVE && 'bg-slate-500',
+                            )}
+                        />
+                        {e}
+                    </DropdownMenuItem>
+                ))}
             </DropdownMenuContent>
         </DropdownMenu>
     );
