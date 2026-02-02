@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::resource('/clients', ClientController::class);
+    Route::post('/clients/bulk-update', [ClientController::class, 'bulkUpdate'])->name('clients.bulk-update');
 
     // Custom field routes
     Route::post('/clients/{client}/custom-fields', [CustomFieldController::class, 'update'])

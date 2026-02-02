@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Clients\BulkUpdateClients;
+use App\Http\Requests\BulkUpdateRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Activity;
@@ -26,6 +28,7 @@ class ClientController extends Controller
 
         return Inertia::render('clients/index', [
             'clients' => $clients,
+            'allTags' => Tag::orderBy('name')->get(),
         ]);
     }
 
@@ -126,5 +129,14 @@ class ClientController extends Controller
         $client->delete();
 
         return to_route('clients.index')->with('success', 'Client Deleted successfully.');
+    }
+
+    public function bulkUpdate(BulkUpdateRequest $request, BulkUpdateClients $bulkUpdateAction): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        $bulkUpdateAction->execute($validated['ids'], $validated);
+
+        return back()->with('success', 'Bulk action completed successfully.');
     }
 }

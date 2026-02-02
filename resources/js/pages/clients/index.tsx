@@ -3,7 +3,7 @@ import { columns } from '@/components/clients/Columns';
 import { DataTable } from '@/components/clients/DataTable';
 import { ClientDialog } from '@/components/clients/dialog';
 import AppLayout from '@/layouts/app-layout';
-import type { Client } from '@/types';
+import type { Client, Tag } from '@/types';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -15,9 +15,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface ClientsPageProps {
     clients: Client[];
+    allTags: Tag[];
 }
 
-export default function clients({ clients }: ClientsPageProps) {
+export default function clients({ clients, allTags }: ClientsPageProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Clients" />
@@ -27,7 +28,7 @@ export default function clients({ clients }: ClientsPageProps) {
                     <h2>My Clients</h2>
                     <ClientDialog></ClientDialog>
                 </div>
-                <DataTable columns={columns} data={clients} />
+                <DataTable columns={columns} data={clients} allTags={allTags} />
             </div>
         </AppLayout>
     );

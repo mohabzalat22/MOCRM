@@ -16,8 +16,12 @@ import {
     ChevronDown,
     Search,
     Filter,
+    CheckCircle2,
+    Tag as TagIcon,
+    Download,
 } from 'lucide-react';
 import * as React from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -46,6 +50,8 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { clientService } from '@/services/clientService';
+import type { Client, Tag } from '@/types';
 
 interface WithId {
     id: string | number;
@@ -55,11 +61,13 @@ interface WithId {
 interface DataTableProps<TData extends WithId, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    allTags?: Tag[];
 }
 
 export function DataTable<TData extends WithId, TValue>({
     columns,
     data,
+    allTags = [],
 }: DataTableProps<TData, TValue>) {
     "use no memo";
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -106,6 +114,60 @@ export function DataTable<TData extends WithId, TValue>({
             globalFilter,
         },
     });
+
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const hasSelection = selectedRows.length > 0;
+
+    const handleBulkAction = (action: string, value?: string | number) => {
+        const ids = selectedRows.map((row) => row.original.id);
+        
+        clientService.bulkUpdate({
+            ids,
+            action,
+            status: action === 'change_status' ? value as string : undefined,
+            tag_id: action === 'add_tag' ? value as number : undefined,
+            onSuccess: () => {
+                table.resetRowSelection();
+                toast.success('Bulk action completed successfully.');
+            },
+            onError: () => {
+                toast.error('Failed to complete bulk action.');
+            }
+        });
+    };
+
+    const handleExport = () => {
+        const rowsToExport = hasSelection 
+            ? selectedRows.map(r => r.original) 
+            : data;
+            
+        const headers = ["Name", "Company", "Email", "Phone", "Status", "Tags"];
+        const csvData = [
+            headers.join(","),
+            ...rowsToExport.map((row) => {
+                const client = row as unknown as Client;
+                const tags = (client.tags || []).map((t) => t.name).join("; ");
+                return [
+                    `"${client.name || ''}"`,
+                    `"${client.company_name || ''}"`,
+                    `"${client.email || ''}"`,
+                    `"${client.phone || ''}"`,
+                    `"${client.status || ''}"`,
+                    `"${tags}"`
+                ].join(",");
+            })
+        ].join("\n");
+
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "clients_export.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     return (
         <div className="w-full">
@@ -211,6 +273,53 @@ export function DataTable<TData extends WithId, TValue>({
                         )}
                     </DropdownMenuContent>
                 </DropdownMenu>
+
+                {/* Bulk Actions */}
+                {hasSelection && (
+                    <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-200">
+                        <div className="h-8 w-[1px] bg-border mx-2" />
+                        
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="secondary" size="sm" className="h-8">
+                                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                                    Change Status
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onClick={() => handleBulkAction('change_status', 'Active')}>Active</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleBulkAction('change_status', 'Lead')}>Lead</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleBulkAction('change_status', 'At Risk')}>At Risk</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleBulkAction('change_status', 'In Active')}>In Active</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="secondary" size="sm" className="h-8">
+                                    <TagIcon className="mr-2 h-4 w-4" />
+                                    Add Tag
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="max-h-[300px] overflow-y-auto">
+                                {allTags.map(tag => (
+                                    <DropdownMenuItem key={tag.id} onClick={() => handleBulkAction('add_tag', tag.id)}>
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-2 w-2 rounded-full" style={{ backgroundColor: tag.color }} />
+                                            {tag.name}
+                                        </div>
+                                    </DropdownMenuItem>
+                                ))}
+                                {allTags.length === 0 && <DropdownMenuItem disabled>No tags available</DropdownMenuItem>}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <Button variant="secondary" size="sm" className="h-8" onClick={handleExport}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Export ({selectedRows.length})
+                        </Button>
+                    </div>
+                )}
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>

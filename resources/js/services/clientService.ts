@@ -253,4 +253,34 @@ export const clientService = {
             onError,
         });
     },
+
+    /**
+     * Bulk update clients
+     */
+    bulkUpdate({
+        ids,
+        action,
+        status,
+        tag_id,
+        onSuccess,
+        onError,
+    }: {
+        ids: (string | number)[];
+        action: string;
+        status?: string;
+        tag_id?: number | string;
+        onSuccess?: () => void;
+        onError?: (errors: Record<string, string | string[]>) => void;
+    }): void {
+        router.post('/clients/bulk-update', {
+            ids,
+            action,
+            status,
+            tag_id,
+        } as never, {
+            preserveScroll: true,
+            onSuccess,
+            onError,
+        });
+    },
 };
