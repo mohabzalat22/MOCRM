@@ -12,6 +12,8 @@ import {
     Edit2,
     CheckCircle2,
     Circle,
+    ChevronDown,
+    ChevronRight,
 } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
@@ -36,9 +38,15 @@ import ActivityForm from './activity-form';
 
 interface ActivityItemProps {
     activity: Activity;
+    isExpanded?: boolean;
+    onToggleExpand?: () => void;
 }
 
-export default function ActivityItem({ activity }: ActivityItemProps) {
+export default function ActivityItem({ 
+    activity, 
+    isExpanded = false,
+    onToggleExpand,
+}: ActivityItemProps) {
     const { addActivityChange, editMode } = useClientStore();
     const [isEditing, setIsEditing] = React.useState(false);
 
@@ -176,25 +184,46 @@ export default function ActivityItem({ activity }: ActivityItemProps) {
 
                 <div className="group relative">
                     <div className="mb-1 flex items-start justify-between p-2">
-                        <div>
-                            <h4 className="text-sm font-semibold text-foreground">
-                                {activity.summary}
-                            </h4>
-                            <div className="mt-1.5 flex items-center gap-2">
-                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                    <Clock className="h-3 w-3" />
-                                    {new Date(
-                                        activity.created_at,
-                                    ).toLocaleString([], {
-                                        dateStyle: 'medium',
-                                        timeStyle: 'short',
-                                    })}
-                                </span>
-                                {activity.user && (
-                                    <span className="text-xs text-muted-foreground">
-                                        • by {activity.user.name}
-                                    </span>
+                        <div className="flex-1">
+                            <div className="flex items-start gap-2">
+                                {onToggleExpand && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6 flex-shrink-0"
+                                        onClick={() => {
+                                            onToggleExpand();
+                                        }}
+                                    >
+                                        {isExpanded ? (
+                                            <ChevronDown className="h-4 w-4" />
+                                        ) : (
+                                            <ChevronRight className="h-4 w-4" />
+                                        )}
+                                    </Button>
                                 )}
+                                <div className="flex-1">
+                                    <h4 className="text-sm font-semibold text-foreground">
+                                        {activity.summary}
+                                    </h4>
+                                    <div className="mt-1.5 flex items-center gap-2">
+                                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                            <Clock className="h-3 w-3" />
+                                            {new Date(
+                                                activity.created_at,
+                                            ).toLocaleString([], {
+                                                dateStyle: 'medium',
+                                                timeStyle: 'short',
+                                            })}
+                                        </span>
+                                        {activity.user && (
+                                            <span className="text-xs text-muted-foreground">
+                                                • by {activity.user.name}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -229,12 +258,16 @@ export default function ActivityItem({ activity }: ActivityItemProps) {
                         )}
                     </div>
 
-                    {formatData()}
+                    {isExpanded && (
+                        <div className="animate-in slide-in-from-top-2 duration-200">
+                            {formatData()}
 
-                    {activity.data?.notes && (
-                        <p className="mt-2 rounded-md border border-dashed bg-muted/30 p-2 text-sm whitespace-pre-wrap text-muted-foreground">
-                            {activity.data.notes}
-                        </p>
+                            {activity.data?.notes && (
+                                <p className="mt-2 rounded-md border border-dashed bg-muted/30 p-2 text-sm whitespace-pre-wrap text-muted-foreground">
+                                    {activity.data.notes}
+                                </p>
+                            )}
+                        </div>
                     )}
                 </div>
 

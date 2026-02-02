@@ -5,6 +5,7 @@ import type { Activity, ActivityData, ActivityType } from '@/types';
 
 interface ClientActivityTabProps {
     activities: Activity[];
+    clientName?: string;
 }
 
 type DisplayActivity = Activity & { isPending?: boolean };
@@ -81,6 +82,7 @@ function mergeActivitiesWithChanges(
 
 export default function ClientActivityTab({
     activities,
+    clientName,
 }: ClientActivityTabProps) {
     const activityChanges = useClientStore((state) => state.activityChanges);
 
@@ -91,7 +93,10 @@ export default function ClientActivityTab({
 
     return (
         <div className="mx-auto max-w-3xl">
-            <ActivityTimeline activities={displayActivities} />
+            <ActivityTimeline 
+                activities={displayActivities} 
+                clientName={clientName}
+            />
         </div>
     );
 }

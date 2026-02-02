@@ -114,7 +114,10 @@ export default function Show({
                             value="activity"
                             className="mt-0 focus-visible:outline-none"
                         >
-                            <ClientActivityTab activities={activities} />
+                            <ClientActivityTab 
+                                activities={activities} 
+                                clientName={client.name}
+                            />
                         </TabsContent>
 
                         {editMode && (
