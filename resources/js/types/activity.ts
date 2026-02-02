@@ -3,7 +3,8 @@ export type ActivityType =
     | 'call'
     | 'email'
     | 'meeting'
-    | 'transaction';
+    | 'transaction'
+    | 'status_change';
 
 export interface ActionItem {
     text: string;

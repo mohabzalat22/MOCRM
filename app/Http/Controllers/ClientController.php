@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
@@ -72,7 +73,10 @@ class ClientController extends Controller
      */
     public function update(UpdateClientRequest $request, Client $client): RedirectResponse
     {
+        $client = Client::forUser()->where('id', $client->id)->firstOrFail();
+        $oldStatus = $client->status;
         $validated = $request->validated();
+
         // user wants to remove client image
         if ($request->has('image') && $request->input('image') === null || $request->input('image') === '') {
             if ($client->image) {
@@ -90,7 +94,20 @@ class ClientController extends Controller
             $validated['image'] = $path;
         }
 
-        Client::forUser()->where('id', $client->id)->update($validated);
+        $client->update($validated);
+
+        if (isset($validated['status']) && $oldStatus !== $client->status) {
+            Activity::create([
+                'client_id' => $client->id,
+                'user_id' => auth()->id(),
+                'type' => 'status_change',
+                'summary' => "Status updated from {$oldStatus} to {$client->status}",
+                'data' => [
+                    'old_status' => $oldStatus,
+                    'new_status' => $client->status,
+                ],
+            ]);
+        }
 
         return to_route('clients.show', $client->id)->with('success', 'Client Updated successfully.');
     }

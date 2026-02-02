@@ -14,6 +14,7 @@ import {
     Circle,
     ChevronDown,
     ChevronRight,
+    RefreshCcw,
 } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
@@ -67,6 +68,8 @@ export default function ActivityItem({
                 return <Users className="h-4 w-4 text-purple-500" />;
             case 'transaction':
                 return <CreditCard className="h-4 w-4 text-amber-500" />;
+            case 'status_change':
+                return <RefreshCcw className="h-4 w-4 text-orange-500" />;
             default:
                 return <FileText className="h-4 w-4 text-gray-500" />;
         }
