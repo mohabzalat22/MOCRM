@@ -1,13 +1,29 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { TagChange } from '@/components/clients/tag-input';
-import type { Client, CustomField, Tag, ActivityType } from '@/types';
+import type {
+    Client,
+    CustomField,
+    Tag,
+    ActivityType,
+    ActivityData,
+} from '@/types';
 import {
     getImageUrl,
     customFieldsChanged,
     filterEmptyCustomFields,
     clientToFormData,
 } from '@/utils/clientUtils';
+
+export interface ActivityChange {
+    type: 'create' | 'update' | 'delete';
+    activityId?: number; // For update and delete
+    activityData?: {
+        type: ActivityType;
+        summary: string;
+        data: ActivityData;
+    };
+}
 
 interface ClientFormData {
     name: string;
@@ -35,6 +51,7 @@ interface ClientState {
     formData: ClientFormData;
     changedFields: Record<string, string | File | CustomField[] | null>;
     tagChanges: TagChange;
+    activityChanges: ActivityChange[];
 
     // Activity State
     activityDialogOpen: boolean;
@@ -70,6 +87,13 @@ interface ClientState {
         changes: TagChange | ((prev: TagChange) => TagChange),
     ) => void;
 
+    setActivityChanges: (
+        changes:
+            | ActivityChange[]
+            | ((prev: ActivityChange[]) => ActivityChange[]),
+    ) => void;
+    addActivityChange: (change: ActivityChange) => void;
+
     setActivityDialogOpen: (open: boolean) => void;
     setActivityType: (type: ActivityType) => void;
 
@@ -100,6 +124,7 @@ export const useClientStore = create<ClientState>()(
         formData: defaultFormData,
         changedFields: {},
         tagChanges: { tagsToAdd: [], tagsToRemove: [] },
+        activityChanges: [],
         activityDialogOpen: false,
         activityType: 'note',
 
@@ -113,6 +138,7 @@ export const useClientStore = create<ClientState>()(
                 state.editMode = false;
                 state.changedFields = {};
                 state.tagChanges = { tagsToAdd: [], tagsToRemove: [] };
+                state.activityChanges = [];
                 state.activityDialogOpen = false;
                 state.activityType = 'note';
             });
@@ -152,6 +178,21 @@ export const useClientStore = create<ClientState>()(
                 } else {
                     state.tagChanges = updater;
                 }
+            }),
+
+        setActivityChanges: (updater) =>
+            set((state) => {
+                if (typeof updater === 'function') {
+                    const result = updater(state.activityChanges);
+                    state.activityChanges = result;
+                } else {
+                    state.activityChanges = updater;
+                }
+            }),
+
+        addActivityChange: (change) =>
+            set((state) => {
+                state.activityChanges.push(change);
             }),
 
         setActivityDialogOpen: (open) => set({ activityDialogOpen: open }),
@@ -238,6 +279,7 @@ export const useClientStore = create<ClientState>()(
                 formData: defaultFormData,
                 changedFields: {},
                 tagChanges: { tagsToAdd: [], tagsToRemove: [] },
+                activityChanges: [],
                 activityDialogOpen: false,
                 activityType: 'note',
             }),
@@ -250,6 +292,7 @@ export const useClientStore = create<ClientState>()(
                 state.editMode = false;
                 state.changedFields = {};
                 state.tagChanges = { tagsToAdd: [], tagsToRemove: [] };
+                state.activityChanges = [];
                 state.image = getImageUrl(client.image ?? null);
                 state.formData = clientToFormData(client);
             });

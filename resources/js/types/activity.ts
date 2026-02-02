@@ -1,5 +1,9 @@
-
-export type ActivityType = 'note' | 'call' | 'email' | 'meeting' | 'transaction';
+export type ActivityType =
+    | 'note'
+    | 'call'
+    | 'email'
+    | 'meeting'
+    | 'transaction';
 
 export interface ActionItem {
     text: string;
@@ -15,6 +19,7 @@ export interface ActivityData {
     transaction_type?: string;
     amount?: string;
     notes?: string;
+    [key: string]: unknown;
 }
 
 export interface Activity {

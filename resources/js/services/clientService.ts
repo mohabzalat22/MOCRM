@@ -192,4 +192,65 @@ export const clientService = {
 
         processNext();
     },
+
+    /**
+     * Create a new activity for a client
+     */
+    createActivity({
+        clientId,
+        activityData,
+        onSuccess,
+        onError,
+    }: {
+        clientId: number | string;
+        activityData: Record<string, unknown>;
+        onSuccess?: () => void;
+        onError?: (errors: Record<string, string | string[]>) => void;
+    }): void {
+        router.post(`/clients/${clientId}/activities`, activityData as never, {
+            preserveScroll: true,
+            onSuccess,
+            onError,
+        });
+    },
+
+    /**
+     * Update an existing activity
+     */
+    updateActivity({
+        activityId,
+        activityData,
+        onSuccess,
+        onError,
+    }: {
+        activityId: number;
+        activityData: Record<string, unknown>;
+        onSuccess?: () => void;
+        onError?: (errors: Record<string, string | string[]>) => void;
+    }): void {
+        router.patch(`/activities/${activityId}`, activityData as never, {
+            preserveScroll: true,
+            onSuccess,
+            onError,
+        });
+    },
+
+    /**
+     * Delete an activity
+     */
+    deleteActivity({
+        activityId,
+        onSuccess,
+        onError,
+    }: {
+        activityId: number;
+        onSuccess?: () => void;
+        onError?: (errors: Record<string, string | string[]>) => void;
+    }): void {
+        router.delete(`/activities/${activityId}`, {
+            preserveScroll: true,
+            onSuccess,
+            onError,
+        });
+    },
 };

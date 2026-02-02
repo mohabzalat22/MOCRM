@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import {
     Phone,
     Mail,
@@ -15,8 +14,6 @@ import {
     Circle,
 } from 'lucide-react';
 import React from 'react';
-import { toast } from 'sonner';
-import { route } from 'ziggy-js';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -33,6 +30,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { useClientStore } from '@/stores/useClientStore';
 import type { Activity, ActionItem } from '@/types';
 import ActivityForm from './activity-form';
 
@@ -41,15 +39,14 @@ interface ActivityItemProps {
 }
 
 export default function ActivityItem({ activity }: ActivityItemProps) {
+    const { addActivityChange, editMode } = useClientStore();
     const [isEditing, setIsEditing] = React.useState(false);
 
     const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this activity?')) {
-            router.delete(route('activities.destroy', activity.id), {
-                preserveScroll: true,
-                onSuccess: () => toast.success('Activity deleted'),
-            });
-        }
+        addActivityChange({
+            type: 'delete',
+            activityId: activity.id,
+        });
     };
 
     const getIcon = () => {
@@ -201,39 +198,41 @@ export default function ActivityItem({ activity }: ActivityItemProps) {
                             </div>
                         </div>
 
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-                                >
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DialogTrigger asChild>
-                                    <DropdownMenuItem
-                                        className="gap-2"
-                                        onSelect={(e) => e.preventDefault()}
+                        {editMode && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
                                     >
-                                        <Edit2 className="h-4 w-4" /> Edit
+                                        <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DialogTrigger asChild>
+                                        <DropdownMenuItem
+                                            className="gap-2"
+                                            onSelect={(e) => e.preventDefault()}
+                                        >
+                                            <Edit2 className="h-4 w-4" /> Edit
+                                        </DropdownMenuItem>
+                                    </DialogTrigger>
+                                    <DropdownMenuItem
+                                        className="gap-2 text-destructive"
+                                        onClick={handleDelete}
+                                    >
+                                        <Trash2 className="h-4 w-4" /> Delete
                                     </DropdownMenuItem>
-                                </DialogTrigger>
-                                <DropdownMenuItem
-                                    className="gap-2 text-destructive"
-                                    onClick={handleDelete}
-                                >
-                                    <Trash2 className="h-4 w-4" /> Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
                     </div>
 
                     {formatData()}
 
                     {activity.data?.notes && (
-                        <p className="mt-2 rounded-md border border-dashed bg-muted/30 p-2 text-sm text-muted-foreground whitespace-pre-wrap">
+                        <p className="mt-2 rounded-md border border-dashed bg-muted/30 p-2 text-sm whitespace-pre-wrap text-muted-foreground">
                             {activity.data.notes}
                         </p>
                     )}

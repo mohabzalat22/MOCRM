@@ -1,8 +1,5 @@
-import { useForm } from '@inertiajs/react';
 import { Phone, Mail, Users, FileText, CreditCard, Plus } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { route } from 'ziggy-js';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -17,10 +14,11 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
+import { useClientStore } from '@/stores/useClientStore';
 import type { Activity, ActivityType, ActivityData, ActionItem } from '@/types';
 
 export interface AddActivityFormProps {
-    clientId: number | string;
+    clientId?: number | string; // Optional now since we don't use it directly
     activity?: Activity;
     initialType?: ActivityType;
     onSuccess?: () => void;
@@ -33,23 +31,18 @@ interface ActivityFormData {
 }
 
 export default function ActivityForm({
-    clientId,
     activity,
     initialType,
     onSuccess,
 }: AddActivityFormProps) {
-    const { data, setData, post, patch, reset, processing } =
-        useForm<ActivityFormData>({
-            type: initialType || activity?.type || 'note',
-            summary: activity?.summary || '',
-            data: activity?.data || {},
-        });
+    const { addActivityChange } = useClientStore();
 
-    useEffect(() => {
-        if (initialType && !activity) {
-            setData('type', initialType);
-        }
-    }, [initialType, activity, setData]);
+    const [data, setData] = useState<ActivityFormData>({
+        type: initialType || activity?.type || 'note',
+        summary: activity?.summary || '',
+        data: activity?.data || {},
+    });
+    const [processing, setProcessing] = useState(false);
 
     const [actionItems, setActionItems] = useState<ActionItem[]>(
         activity?.data?.action_items || [],
@@ -72,10 +65,13 @@ export default function ActivityForm({
         key: K,
         value: ActivityData[K],
     ) => {
-        setData('data', {
-            ...data.data,
-            [key]: value,
-        });
+        setData((prev) => ({
+            ...prev,
+            data: {
+                ...prev.data,
+                [key]: value,
+            },
+        }));
     };
 
     const addActionItem = () => {
@@ -99,28 +95,37 @@ export default function ActivityForm({
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        e.stopPropagation(); // Prevent event from bubbling to parent form
+        setProcessing(true);
 
-        const options = {
-            onSuccess: () => {
-                if (!activity) {
-                    reset();
-                    setActionItems([]);
-                }
-                toast.success(
-                    activity
-                        ? 'Activity updated successfully'
-                        : 'Activity added successfully',
-                );
-                onSuccess?.();
-            },
-            preserveScroll: true,
-        };
-
+        // Add the activity change to the store instead of submitting immediately
         if (activity) {
-            patch(route('activities.update', activity.id), options);
+            // Update existing activity
+            addActivityChange({
+                type: 'update',
+                activityId: activity.id,
+                activityData: data,
+            });
         } else {
-            post(route('clients.activities.store', clientId), options);
+            // Create new activity
+            addActivityChange({
+                type: 'create',
+                activityData: data,
+            });
         }
+
+        // Reset form for new activities
+        if (!activity) {
+            setData({
+                type: initialType || 'note',
+                summary: '',
+                data: {},
+            });
+            setActionItems([]);
+        }
+
+        setProcessing(false);
+        onSuccess?.();
     };
 
     const activityTypes: {
@@ -175,7 +180,10 @@ export default function ActivityForm({
                                 }
                                 value={data.summary}
                                 onChange={(e) =>
-                                    setData('summary', e.target.value)
+                                    setData((prev) => ({
+                                        ...prev,
+                                        summary: e.target.value,
+                                    }))
                                 }
                                 required
                             />
@@ -392,9 +400,13 @@ export default function ActivityForm({
                         </div>
                     </div>
 
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-2 pt-2">
                         <Button type="submit" disabled={processing}>
-                            {processing ? 'Logging...' : 'Log Activity'}
+                            {processing
+                                ? 'Adding...'
+                                : activity
+                                  ? 'Update Activity'
+                                  : 'Add Activity'}
                         </Button>
                     </div>
                 </form>
