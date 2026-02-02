@@ -147,6 +147,7 @@ export default function Show({
                         clientId={client.id}
                         initialType={activityType}
                         onSuccess={() => setActivityDialogOpen(false)}
+                        enableImmediateSave={true}
                     />
                 </DialogContent>
             </Dialog>

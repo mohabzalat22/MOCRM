@@ -1,5 +1,6 @@
 import { Phone, Mail, Users, FileText, CreditCard, Plus } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
+import { clientService } from '@/services/clientService';
 import { useClientStore } from '@/stores/useClientStore';
 import type { Activity, ActivityType, ActivityData, ActionItem } from '@/types';
 
@@ -22,6 +24,7 @@ export interface AddActivityFormProps {
     activity?: Activity;
     initialType?: ActivityType;
     onSuccess?: () => void;
+    enableImmediateSave?: boolean;
 }
 
 interface ActivityFormData {
@@ -34,6 +37,8 @@ export default function ActivityForm({
     activity,
     initialType,
     onSuccess,
+    enableImmediateSave = false,
+    clientId,
 }: AddActivityFormProps) {
     const { addActivityChange } = useClientStore();
 
@@ -97,6 +102,41 @@ export default function ActivityForm({
         e.preventDefault();
         e.stopPropagation(); // Prevent event from bubbling to parent form
         setProcessing(true);
+
+        if (enableImmediateSave && clientId) {
+            clientService.createActivity({
+                clientId,
+                activityData: data as unknown as Record<string, unknown>,
+                onSuccess: () => {
+                    setProcessing(false);
+                    toast.success('Activity added successfully.');
+                    onSuccess?.();
+                    // Reset form
+                    if (!activity) {
+                        setData({
+                            type: initialType || 'note',
+                            summary: '',
+                            data: {},
+                        });
+                        setActionItems([]);
+                    }
+                },
+                onError: (errors) => {
+                    setProcessing(false);
+                    // Show error toast
+                    if (errors && Object.keys(errors).length > 0) {
+                        Object.values(errors).forEach((message) => {
+                            if (typeof message === 'string') {
+                                toast.error(message);
+                            }
+                        });
+                    } else {
+                        toast.error('Failed to add activity.');
+                    }
+                },
+            });
+            return;
+        }
 
         // Add the activity change to the store instead of submitting immediately
         if (activity) {
