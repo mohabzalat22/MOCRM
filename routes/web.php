@@ -24,8 +24,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Custom field routes
     Route::post('/clients/{client}/custom-fields', [CustomFieldController::class, 'update'])
         ->name('clients.custom-fields.update');
-    Route::delete('/clients/{client}/custom-fields', [CustomFieldController::class, 'destroy'])
-        ->name('clients.custom-fields.destroy');
 
     // Tags routes
     Route::post('/tags', [TagController::class, 'store'])->name('tags.store');

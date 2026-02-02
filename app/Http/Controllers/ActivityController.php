@@ -3,16 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateActivityRequest;
+use App\Http\Requests\UpdateActivityRequest;
 use App\Models\Activity;
 use App\Models\Client;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 class ActivityController extends Controller
 {
     /**
-     * Store a newly created resource in storage.
+     * Summary of store
      */
-    public function store(CreateActivityRequest $request, Client $client)
+    public function store(CreateActivityRequest $request, Client $client): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -27,17 +29,17 @@ class ActivityController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Summary of show
      */
-    public function show(Activity $activity)
+    public function show(Activity $activity): JsonResponse
     {
         return response()->json($activity->load('user'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Summary of update
      */
-    public function update(Request $request, Activity $activity)
+    public function update(UpdateActivityRequest $request, Activity $activity): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -51,9 +53,9 @@ class ActivityController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Summary of destroy
      */
-    public function destroy(Activity $activity)
+    public function destroy(Activity $activity): RedirectResponse
     {
         $activity->delete();
 

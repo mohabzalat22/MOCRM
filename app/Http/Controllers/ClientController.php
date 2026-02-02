@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
+use App\Models\Tag;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ClientController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Summary of index
      */
-    public function index()
+    public function index(): Response
     {
         $clients = Client::forUser()->with([
             'customFields',
@@ -26,9 +29,9 @@ class ClientController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Summary of store
      */
-    public function store(CreateClientRequest $request)
+    public function store(CreateClientRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -37,26 +40,15 @@ class ClientController extends Controller
             $validated['image'] = $path;
         }
 
-        $client = Client::create(
-            collect($validated)->except('custom_fields')->toArray()
-        );
+        Client::create($validated);
 
-        if (isset($validated['custom_fields']) && is_array($validated['custom_fields'])) {
-            foreach ($validated['custom_fields'] as $field) {
-                $client->customFields()->create([
-                    'key' => $field['key'],
-                    'value' => $field['value'],
-                ]);
-            }
-        }
-
-        return to_route('clients.index');
+        return back()->with('success', 'Client Created successfully.');
     }
 
     /**
-     * Display the specified resource.
+     * Summary of show
      */
-    public function show(Client $client)
+    public function show(Client $client): Response
     {
         $client = Client::forUser()
             ->where('id', $client->id)
@@ -66,7 +58,7 @@ class ClientController extends Controller
             ->firstOrFail();
 
         // Get all tags for tag input/filter
-        $allTags = \App\Models\Tag::orderBy('name')->get();
+        $allTags = Tag::orderBy('name')->get();
 
         return Inertia::render('clients/show', [
             'client' => $client,
@@ -76,9 +68,9 @@ class ClientController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Summary of update
      */
-    public function update(UpdateClientRequest $request, Client $client)
+    public function update(UpdateClientRequest $request, Client $client): RedirectResponse
     {
         $validated = $request->validated();
         // user wants to remove client image
@@ -98,15 +90,15 @@ class ClientController extends Controller
             $validated['image'] = $path;
         }
 
-        Client::forUser()->where('id', $client->id)->update(collect($validated)->except('custom_fields')->toArray());
+        Client::forUser()->where('id', $client->id)->update($validated);
 
-        return to_route('clients.show', $client->id);
+        return to_route('clients.show', $client->id)->with('success', 'Client Updated successfully.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Summary of destroy
      */
-    public function destroy(Client $client)
+    public function destroy(Client $client): RedirectResponse
     {
         $client = Client::forUser()->where('id', $client->id)->firstOrFail();
 
@@ -116,6 +108,6 @@ class ClientController extends Controller
 
         $client->delete();
 
-        return to_route('clients.index');
+        return to_route('clients.index')->with('success', 'Client Deleted successfully.');
     }
 }

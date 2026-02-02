@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('color');
-            $table->integer('usage_count');
+            $table->integer('usage_count')->default(0);
             $table->timestamps();
         });
 

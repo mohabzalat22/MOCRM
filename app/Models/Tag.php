@@ -3,22 +3,44 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class Tag extends Model
 {
+    /**
+     * Summary of fillable
+     *
+     * @var array
+     */
     protected $fillable = ['name', 'color', 'usage_count'];
 
-    public function clients()
+    /**
+     * Summary of clients
+     */
+    public function clients(): void
     {
         $this->morphedByMany(Client::class, 'taggable');
     }
 
-    public static function getPopular($limit = 10)
+    /**
+     * Summary of getPopular
+     *
+     * @param  mixed  $limit
+     * @return \Illuminate\Database\Eloquent\Collection<int, Tag>|\Illuminate\Support\Collection<int, \stdClass>
+     */
+    public static function getPopular($limit = 10): Collection
     {
         return self::orderBy('usage_count', 'desc')->limit($limit)->get();
     }
 
-    public static function getByType($type, $limit = 10)
+    /**
+     * Summary of getByType
+     *
+     * @param  mixed  $type
+     * @param  mixed  $limit
+     * @return \Illuminate\Database\Eloquent\Collection<int, Tag>|\Illuminate\Support\Collection<int, \stdClass>
+     */
+    public static function getByType($type, $limit = 10): Collection
     {
         return self::whereHas('taggables', function ($query) use ($type) {
             $query->where('taggable_type', $type);
@@ -28,6 +50,9 @@ class Tag extends Model
             ->get();
     }
 
+    /**
+     * Summary of randomColor
+     */
     public static function randomColor(): string
     {
         $colors = [

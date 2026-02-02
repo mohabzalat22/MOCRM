@@ -2,62 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Tags\AttachTagToModel;
+use App\Actions\Tags\DetachTagFromModel;
+use App\Http\Requests\CreateTagRequest;
 use App\Models\Tag;
-use Illuminate\Http\Request;
+use App\Services\TaggableResolver;
+use Illuminate\Http\RedirectResponse;
 
 class TagController extends Controller
 {
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
-            'taggable_id' => 'required|integer',
-            'taggable_type' => 'required|string|in:App\Models\Client,App\Models\Project,App\Models\Task',
-        ]);
+    /**
+     * Summary of __construct
+     */
+    public function __construct(
+        private readonly TaggableResolver $taggableResolver,
+        private readonly AttachTagToModel $attachTagAction,
+        private readonly DetachTagFromModel $detachTagAction
+    ) {}
 
-        // Create or get existing tag
-        $tag = Tag::firstOrCreate(
-            ['name' => $validated['name']],
-            [
-                'color' => $validated['color'] ?? Tag::randomColor(),
-                'usage_count' => 0,
-            ]
+    /**
+     * Summary of store
+     */
+    public function store(CreateTagRequest $request): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        $taggable = $this->taggableResolver->resolve(
+            $validated['taggable_type'],
+            $validated['taggable_id']
         );
 
-        // Get the taggable model instance
-        $taggableModel = $validated['taggable_type'];
-        $taggable = $taggableModel::findOrFail($validated['taggable_id']);
-
-        // Attach tag if not already attached
-        if (! $taggable->tags()->where('tag_id', $tag->id)->exists()) {
-            $taggable->tags()->attach($tag->id);
-            $tag->increment('usage_count');
-        }
+        $this->attachTagAction->execute(
+            $taggable,
+            $validated['name'],
+            $validated['color'] ?? null
+        );
 
         return back()->with('success', 'Tag added successfully');
     }
 
-    public function destroy(string $taggableType, int $taggableId, Tag $tag)
+    /**
+     * Summary of destroy
+     */
+    public function destroy(string $taggableType, int $taggableId, Tag $tag): RedirectResponse
     {
-        // Build full model class name
-        $taggableModel = 'App\\Models\\'.ucfirst($taggableType);
+        $taggable = $this->taggableResolver->resolve($taggableType, $taggableId);
 
-        // Validate model exists
-        if (! class_exists($taggableModel)) {
-            return back()->withErrors(['error' => 'Invalid model type']);
-        }
-
-        // Find the taggable instance
-        $taggable = $taggableModel::findOrFail($taggableId);
-
-        // Detach the tag
-        $taggable->tags()->detach($tag->id);
-
-        // Decrement usage count
-        if ($tag->usage_count > 0) {
-            $tag->decrement('usage_count');
-        }
+        $this->detachTagAction->execute($taggable, $tag);
 
         return back()->with('success', 'Tag removed successfully');
     }
