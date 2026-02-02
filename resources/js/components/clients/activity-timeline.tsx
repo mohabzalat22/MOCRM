@@ -1,24 +1,24 @@
 import { History } from 'lucide-react';
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
+import { toast } from 'sonner';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import {
-    processActivities,
-    getDefaultExpandedIds,
-} from '@/lib/activity-utils';
+import { processActivities, getDefaultExpandedIds } from '@/lib/activity-utils';
 import { exportTimelineToPDF } from '@/lib/timeline-pdf-exporter';
-import type { Activity, ActivityType } from '@/types';
+import type { Activity, ActivityType, Client } from '@/types';
 import ActivityItem from './activity-item';
 import DateGroupHeader from './date-group-header';
 import TimelineFilters from './timeline-filters';
 
 interface ActivityTimelineProps {
     activities: Activity[];
-    clientName?: string;
+    savedActivities?: Activity[];
+    client: Client;
 }
 
 export default function ActivityTimeline({
     activities,
-    clientName = 'Client',
+    savedActivities,
+    client,
 }: ActivityTimelineProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTypes, setSelectedTypes] = useState<Set<ActivityType>>(
@@ -75,18 +75,33 @@ export default function ActivityTimeline({
     };
 
     const handleExport = () => {
-        // Get the filtered activities for export
-        const activitiesToExport = groupedActivities.flatMap(
+        const sourceActivities = savedActivities || [];
+
+        // We need to apply the same filters to the source activities
+        // processActivities returns groups, so we flatten them back
+        const processedGroups = processActivities(
+            sourceActivities,
+            selectedTypes,
+            searchQuery,
+        );
+
+        const activitiesToExport = processedGroups.flatMap(
             (group) => group.activities,
         );
-        exportTimelineToPDF(activitiesToExport, clientName);
+
+        if (activitiesToExport.length === 0) {
+            toast.error('No activities to export matching current filters.');
+            return;
+        }
+
+        exportTimelineToPDF(activitiesToExport, client);
     };
 
     if (!activities || activities.length === 0) {
         return (
             <Card className="border-dashed">
                 <CardContent className="flex flex-col items-center justify-center py-10 text-muted-foreground">
-                    <History className="h-10 w-10 mb-2 opacity-20" />
+                    <History className="mb-2 h-10 w-10 opacity-20" />
                     <p>No activity recorded yet.</p>
                 </CardContent>
             </Card>
@@ -94,14 +109,14 @@ export default function ActivityTimeline({
     }
 
     return (
-        <Card className="border-none shadow-none bg-transparent">
+        <Card className="border-none bg-transparent shadow-none">
             <CardHeader className="px-0 pt-0">
-                <CardTitle className="text-lg flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
                     <History className="h-5 w-5" />
                     Activity Timeline
                 </CardTitle>
             </CardHeader>
-            <CardContent className="px-0 space-y-4">
+            <CardContent className="space-y-4 px-0">
                 {/* Filters */}
                 <TimelineFilters
                     searchQuery={searchQuery}
@@ -118,7 +133,7 @@ export default function ActivityTimeline({
                 {groupedActivities.length === 0 ? (
                     <Card className="border-dashed">
                         <CardContent className="flex flex-col items-center justify-center py-10 text-muted-foreground">
-                            <History className="h-10 w-10 mb-2 opacity-20" />
+                            <History className="mb-2 h-10 w-10 opacity-20" />
                             <p>No activities match your filters.</p>
                         </CardContent>
                     </Card>

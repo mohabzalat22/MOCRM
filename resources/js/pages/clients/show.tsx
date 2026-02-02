@@ -116,7 +116,7 @@ export default function Show({
                         >
                             <ClientActivityTab 
                                 activities={activities} 
-                                clientName={client.name}
+                                client={client}
                             />
                         </TabsContent>
 

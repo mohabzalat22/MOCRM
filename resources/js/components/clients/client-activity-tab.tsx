@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import ActivityTimeline from '@/components/clients/activity-timeline';
 import { useClientStore, type ActivityChange } from '@/stores/useClientStore';
-import type { Activity, ActivityData, ActivityType } from '@/types';
+import type { Activity, ActivityData, ActivityType, Client } from '@/types';
 
 interface ClientActivityTabProps {
     activities: Activity[];
-    clientName?: string;
+    client: Client;
 }
 
 type DisplayActivity = Activity & { isPending?: boolean };
@@ -82,7 +82,7 @@ function mergeActivitiesWithChanges(
 
 export default function ClientActivityTab({
     activities,
-    clientName,
+    client,
 }: ClientActivityTabProps) {
     const activityChanges = useClientStore((state) => state.activityChanges);
 
@@ -95,7 +95,8 @@ export default function ClientActivityTab({
         <div className="mx-auto max-w-3xl">
             <ActivityTimeline 
                 activities={displayActivities} 
-                clientName={clientName}
+                savedActivities={activities}
+                client={client}
             />
         </div>
     );
