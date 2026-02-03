@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import React from 'react';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { getColumns } from '@/components/reminders/Columns';
 import { DataTable } from '@/components/reminders/DataTable';
@@ -41,10 +42,10 @@ export default function RemindersIndex({ reminders, clients }: RemindersPageProp
         });
     };
 
-    const columns = getColumns({
+    const columns = useMemo(() => getColumns({
         onEdit: (reminder) => setEditingReminder(reminder),
         onDelete: (reminder) => setDeletingReminder(reminder),
-    });
+    }), []);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

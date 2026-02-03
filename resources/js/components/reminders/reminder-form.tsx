@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog';
@@ -35,7 +36,7 @@ export function ReminderForm({
         description: reminder?.description || '',
         priority: reminder?.priority || 'medium',
         reminder_at: reminder?.reminder_at 
-            ? new Date(reminder.reminder_at).toISOString().slice(0, 16) 
+            ? format(new Date(reminder.reminder_at), "yyyy-MM-dd'T'HH:mm")
             : '',
         remindable_id: clientId || reminder?.remindable_id || '',
         remindable_type: 'App\\Models\\Client',
@@ -55,10 +56,15 @@ export function ReminderForm({
             },
         };
 
+        const submissionData = {
+            ...data,
+            reminder_at: new Date(data.reminder_at).toISOString()
+        };
+
         if (reminder) {
-            reminderService.update(reminder.id, data as UpdateReminderData, options);
+            reminderService.update(reminder.id, submissionData as UpdateReminderData, options);
         } else {
-            reminderService.create(data as CreateReminderData, options);
+            reminderService.create(submissionData as CreateReminderData, options);
         }
     };
 

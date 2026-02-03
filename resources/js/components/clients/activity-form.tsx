@@ -123,7 +123,7 @@ export default function ActivityForm({
                     if (reminderEnabled && reminderData.reminder_at) {
                         reminderService.create({
                             title: reminderData.title || `Follow up: ${data.summary}`,
-                            reminder_at: reminderData.reminder_at,
+                            reminder_at: new Date(reminderData.reminder_at).toISOString(),
                             priority: reminderData.priority,
                             remindable_id: clientId,
                             remindable_type: 'App\\Models\\Client',
