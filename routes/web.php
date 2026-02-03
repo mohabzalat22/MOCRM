@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomFieldController;
+use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -38,6 +39,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     )->name('clients.activities.store');
     Route::patch('/activities/{activity}', [ActivityController::class, 'update'])->name('activities.update');
     Route::delete('/activities/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
+
+    // Reminder routes
+    Route::resource('/reminders', ReminderController::class);
 });
 
 require __DIR__.'/settings.php';

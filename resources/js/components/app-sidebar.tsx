@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, User } from 'lucide-react';
+import { LayoutGrid, User, Bell } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -27,6 +27,11 @@ const mainNavItems: NavItem[] = [
         title: 'Clients',
         href: '/clients',
         icon: User,
+    },
+    {
+        title: 'Reminders',
+        href: '/reminders',
+        icon: Bell,
     },
 ];
 

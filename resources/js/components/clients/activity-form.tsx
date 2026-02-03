@@ -16,8 +16,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 
 import { clientService } from '@/services/clientService';
+import { reminderService } from '@/services/reminderService';
 import { useClientStore } from '@/stores/useClientStore';
-import type { Activity, ActivityType, ActivityData, ActionItem } from '@/types';
+import type { Activity, ActivityType, ActivityData, ActionItem, Reminder } from '@/types';
 
 export interface AddActivityFormProps {
     clientId?: number | string; // Optional now since we don't use it directly
@@ -48,6 +49,13 @@ export default function ActivityForm({
         data: activity?.data || {},
     });
     const [processing, setProcessing] = useState(false);
+
+    const [reminderEnabled, setReminderEnabled] = useState(false);
+    const [reminderData, setReminderData] = useState({
+        title: '',
+        reminder_at: '',
+        priority: 'low' as Reminder['priority'],
+    });
 
     const [actionItems, setActionItems] = useState<ActionItem[]>(
         activity?.data?.action_items || [],
@@ -110,6 +118,18 @@ export default function ActivityForm({
                 onSuccess: () => {
                     setProcessing(false);
                     toast.success('Activity added successfully.');
+
+                    // Create reminder if enabled
+                    if (reminderEnabled && reminderData.reminder_at) {
+                        reminderService.create({
+                            title: reminderData.title || `Follow up: ${data.summary}`,
+                            reminder_at: reminderData.reminder_at,
+                            priority: reminderData.priority,
+                            remindable_id: clientId,
+                            remindable_type: 'App\\Models\\Client',
+                        });
+                    }
+
                     onSuccess?.();
                     // Reset form
                     if (!activity) {
@@ -438,6 +458,62 @@ export default function ActivityForm({
                                 }
                             />
                         </div>
+                    </div>
+
+                    <div className="space-y-4 border-t pt-4">
+                        <div className="flex items-center space-x-2">
+                            <Checkbox 
+                                id="set-reminder" 
+                                checked={reminderEnabled}
+                                onCheckedChange={(checked) => setReminderEnabled(!!checked)}
+                            />
+                            <Label htmlFor="set-reminder" className="text-sm font-medium cursor-pointer">
+                                Set a follow-up reminder
+                            </Label>
+                        </div>
+
+                        {reminderEnabled && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-1">
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Reminder Date & Time</Label>
+                                    <Input
+                                        type="datetime-local"
+                                        value={reminderData.reminder_at}
+                                        onChange={(e) => setReminderData({ ...reminderData, reminder_at: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Priority</Label>
+                                    <div className="flex gap-2">
+                                        {[
+                                            { value: 'low', label: 'Low', color: 'bg-green-500 hover:bg-green-600' },
+                                            { value: 'medium', label: 'Medium', color: 'bg-yellow-500 hover:bg-yellow-600 text-yellow-950' },
+                                            { value: 'high', label: 'High', color: 'bg-red-500 hover:bg-red-600' },
+                                        ].map((p) => (
+                                            <Button
+                                                key={p.value}
+                                                type="button"
+                                                variant={reminderData.priority === p.value ? 'default' : 'outline'}
+                                                size="sm"
+                                                className={`flex-1 h-8 text-[10px] ${reminderData.priority === p.value ? p.color : ''}`}
+                                                onClick={() => setReminderData({ ...reminderData, priority: p.value as Reminder['priority'] })}
+                                            >
+                                                {p.label}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="sm:col-span-2 space-y-2">
+                                    <Label className="text-xs">Reminder Subject (Optional)</Label>
+                                    <Input
+                                        placeholder="Defaults to activity subject..."
+                                        value={reminderData.title}
+                                        onChange={(e) => setReminderData({ ...reminderData, title: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex justify-end gap-2 pt-2">

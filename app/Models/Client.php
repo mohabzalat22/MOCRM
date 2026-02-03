@@ -68,6 +68,16 @@ class Client extends Model
     }
 
     /**
+     * Get all of the client's reminders.
+     *
+     * @return MorphMany<Reminder, Client>
+     */
+    public function reminders(): MorphMany
+    {
+        return $this->morphMany(Reminder::class, 'remindable');
+    }
+
+    /**
      * Summary of scopeForUser
      *
      * @param  mixed  $query
