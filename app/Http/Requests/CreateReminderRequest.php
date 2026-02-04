@@ -26,8 +26,8 @@ class CreateReminderRequest extends FormRequest
             'description' => 'nullable|string',
             'priority' => 'required|in:low,medium,high',
             'reminder_at' => 'required|date',
-            'remindable_id' => 'required|integer',
-            'remindable_type' => 'required|string',
+            'remindable_id' => 'sometimes|nullable|integer',
+            'remindable_type' => 'sometimes|nullable|string|required_with:remindable_id',
         ];
     }
 }

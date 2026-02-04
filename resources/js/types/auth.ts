@@ -10,8 +10,25 @@ export type User = {
     [key: string]: unknown;
 };
 
+export interface Notification {
+    id: string;
+    type: string;
+    notifiable_type: string;
+    notifiable_id: number;
+    data: {
+        message?: string;
+        title?: string;
+        url?: string;
+        [key: string]: unknown;
+    };
+    read_at: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
 export type Auth = {
     user: User;
+    notifications: Notification[];
 };
 
 export type TwoFactorSetupData = {

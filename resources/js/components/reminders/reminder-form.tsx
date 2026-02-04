@@ -20,6 +20,7 @@ interface ReminderFormProps {
     reminder?: Reminder;
     clientId?: number | string;
     clients?: { id: number; name: string }[];
+    activities?: { id: number; type: string; summary: string }[];
     onSuccess?: () => void;
 }
 
@@ -27,10 +28,15 @@ export function ReminderForm({
     reminder,
     clientId,
     clients = [],
+    activities = [],
     onSuccess,
 }: ReminderFormProps) {
     const [processing, setProcessing] = useState(false);
     const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
+    
+    // Determine initial type
+    const initialType = reminder?.remindable_type || (clientId ? 'App\\Models\\Client' : 'none');
+    
     const [data, setData] = useState({
         title: reminder?.title || '',
         description: reminder?.description || '',
@@ -39,10 +45,14 @@ export function ReminderForm({
             ? format(new Date(reminder.reminder_at), "yyyy-MM-dd'T'HH:mm")
             : '',
         remindable_id: clientId || reminder?.remindable_id || '',
-        remindable_type: 'App\\Models\\Client',
+        remindable_type: initialType,
     });
 
     const performSubmit = () => {
+        const rid = data.remindable_id && data.remindable_id !== 'none' && data.remindable_id !== ''
+            ? (typeof data.remindable_id === 'string' ? parseInt(data.remindable_id, 10) : data.remindable_id)
+            : null;
+        
         setProcessing(true);
         const options: ServiceOptions = {
             onSuccess: () => {
@@ -58,6 +68,8 @@ export function ReminderForm({
 
         const submissionData = {
             ...data,
+            remindable_id: rid,
+            remindable_type: rid ? data.remindable_type : null,
             reminder_at: new Date(data.reminder_at).toISOString()
         };
 
@@ -80,25 +92,70 @@ export function ReminderForm({
 
     return (
         <form onSubmit={submit} className="space-y-4 max-w-full overflow-hidden">
-            {!clientId && !reminder && clients.length > 0 && (
-                <div className="space-y-2">
-                    <Label htmlFor="client">Client</Label>
-                    <Select
-                        value={data.remindable_id.toString()}
-                        onValueChange={(val) => setData({ ...data, remindable_id: val })}
-                        required
-                    >
-                        <SelectTrigger id="client">
-                            <SelectValue placeholder="Select a client" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {clients.map((client) => (
-                                <SelectItem key={client.id} value={client.id.toString()}>
-                                    {client.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+            {!clientId && (
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label>Relate to</Label>
+                        <Select
+                            value={data.remindable_type || 'none'}
+                            onValueChange={(val) => setData({ 
+                                ...data, 
+                                remindable_type: val,
+                                remindable_id: '' 
+                            })}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">None (General)</SelectItem>
+                                <SelectItem value="App\Models\Client">Client</SelectItem>
+                                <SelectItem value="App\Models\Activity">Activity</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {data.remindable_type === 'App\\Models\\Client' && (
+                        <div className="space-y-2">
+                            <Label htmlFor="client">Client</Label>
+                            <Select
+                                value={data.remindable_id?.toString() || ''}
+                                onValueChange={(val) => setData({ ...data, remindable_id: val })}
+                            >
+                                <SelectTrigger id="client">
+                                    <SelectValue placeholder="Select client" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {clients.map((client) => (
+                                        <SelectItem key={client.id} value={client.id.toString()}>
+                                            {client.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    {data.remindable_type === 'App\\Models\\Activity' && (
+                        <div className="space-y-2">
+                            <Label htmlFor="activity">Activity</Label>
+                            <Select
+                                value={data.remindable_id?.toString() || ''}
+                                onValueChange={(val) => setData({ ...data, remindable_id: val })}
+                            >
+                                <SelectTrigger id="activity">
+                                    <SelectValue placeholder="Select activity" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {activities.map((activity) => (
+                                        <SelectItem key={activity.id} value={activity.id.toString()}>
+                                            {activity.type}: {activity.summary}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
                 </div>
             )}
 

@@ -11,6 +11,7 @@ class Reminder extends Model
      * @var array
      */
     protected $fillable = [
+        'user_id',
         'title',
         'description',
         'priority',
@@ -27,9 +28,15 @@ class Reminder extends Model
     ];
 
     /**
+     * Get the user that owns the reminder.
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
      * Summary of remindable
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<Model, Reminder>
      */
     public function remindable(): MorphTo
     {

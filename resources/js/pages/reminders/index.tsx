@@ -21,6 +21,7 @@ import type { BreadcrumbItem, Reminder } from '@/types';
 interface RemindersPageProps {
     reminders: Reminder[];
     clients: { id: number; name: string }[];
+    activities: { id: number; type: string; summary: string }[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -30,7 +31,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function RemindersIndex({ reminders, clients }: RemindersPageProps) {
+export default function RemindersIndex({ reminders, clients, activities }: RemindersPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
     const [deletingReminder, setDeletingReminder] = useState<Reminder | null>(null);
@@ -70,12 +71,13 @@ export default function RemindersIndex({ reminders, clients }: RemindersPageProp
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle>Add New Reminder</DialogTitle>
-                        <DialogDescription>
-                            Create a standalone reminder for a client.
-                        </DialogDescription>
+                    <DialogDescription>
+                        Create a reminder for a client, activity, or as a general task.
+                    </DialogDescription>
                     </DialogHeader>
                     <ReminderForm 
                         clients={clients} 
+                        activities={activities}
                         onSuccess={() => setIsCreateOpen(false)} 
                     />
                 </DialogContent>
@@ -93,6 +95,8 @@ export default function RemindersIndex({ reminders, clients }: RemindersPageProp
                     {editingReminder && (
                         <ReminderForm 
                             reminder={editingReminder} 
+                            clients={clients}
+                            activities={activities}
                             onSuccess={() => setEditingReminder(null)} 
                         />
                     )}

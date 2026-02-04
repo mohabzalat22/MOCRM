@@ -19,8 +19,8 @@ export interface CreateReminderData {
     description?: string;
     priority: Reminder['priority'];
     reminder_at: string;
-    remindable_id: number | string;
-    remindable_type: string;
+    remindable_id?: number | string | null;
+    remindable_type?: string | null;
 }
 
 export interface UpdateReminderData {
@@ -28,6 +28,8 @@ export interface UpdateReminderData {
     description?: string;
     priority: Reminder['priority'];
     reminder_at: string;
+    remindable_id?: number | string | null;
+    remindable_type?: string | null;
 }
 
 export interface ServiceOptions {
