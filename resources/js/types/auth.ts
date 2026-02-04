@@ -18,6 +18,9 @@ export interface Notification {
     data: {
         message?: string;
         title?: string;
+        description?: string;
+        priority?: 'low' | 'medium' | 'high';
+        remindable_type?: string;
         url?: string;
         [key: string]: unknown;
     };
@@ -29,6 +32,7 @@ export interface Notification {
 export type Auth = {
     user: User;
     notifications: Notification[];
+    today_reminders_count?: number;
 };
 
 export type TwoFactorSetupData = {

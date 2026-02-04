@@ -5,6 +5,7 @@ use App\Actions\Reminders\MarksAllNotificationsAsRead;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomFieldController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
@@ -18,9 +19,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::resource('/clients', ClientController::class);
     Route::post('/clients/bulk-update', [ClientController::class, 'bulkUpdate'])->name('clients.bulk-update');

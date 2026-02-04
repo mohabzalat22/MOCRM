@@ -26,28 +26,29 @@ import type { NavItem, SharedData } from '@/types';
 
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Clients',
-        href: '/clients',
-        icon: User,
-    },
-    {
-        title: 'Reminders',
-        href: '/reminders',
-        icon: Bell,
-    },
-];
-
-const footerNavItems: NavItem[] = [];
-
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
+
+    const mainNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+        {
+            title: 'Clients',
+            href: '/clients',
+            icon: User,
+        },
+        {
+            title: 'Reminders',
+            href: '/reminders',
+            icon: Bell,
+            badge: auth.today_reminders_count && auth.today_reminders_count > 0 ? auth.today_reminders_count : undefined,
+        },
+    ];
+
+    const footerNavItems: NavItem[] = [];
 
     // Set up polling for live notifications every 30 seconds
     useEffect(() => {
