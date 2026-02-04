@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Models\Reminder;
+use App\Notifications\ReminderNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -10,17 +12,19 @@ class SendReminderJob implements ShouldQueue
     use Queueable;
 
     /**
-     * Create a new job instance.
+     * Summary of __construct
+     * create a job instance
      */
     public function __construct(
-        public \App\Models\Reminder $reminder,
+        public Reminder $reminder,
         public string $scheduledAt
     ) {
         //
     }
 
     /**
-     * Execute the job.
+     * Summary of handle
+     * execute the job
      */
     public function handle(): void
     {
@@ -30,7 +34,7 @@ class SendReminderJob implements ShouldQueue
         // Check if the reminder still exists and the time matches the one this job was scheduled for
         // This ensures that if a reminder is updated, old scheduled jobs won't trigger.
         if ($this->reminder && $this->reminder->reminder_at->toDateTimeString() === $this->scheduledAt) {
-            $this->reminder->user->notify(new \App\Notifications\ReminderNotification($this->reminder));
+            $this->reminder->user->notify(new ReminderNotification($this->reminder));
         }
     }
 }

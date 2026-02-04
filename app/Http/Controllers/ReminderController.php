@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateReminderRequest;
 use App\Http\Requests\UpdateReminderRequest;
+use App\Jobs\SendReminderJob;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Reminder;
 use Illuminate\Http\RedirectResponse;
@@ -23,7 +25,7 @@ class ReminderController extends Controller
             ->get();
 
         $clients = Client::orderBy('name')->get(['id', 'name']);
-        $activities = \App\Models\Activity::where('user_id', auth()->id())
+        $activities = Activity::where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
             ->get(['id', 'type', 'summary']);
 
@@ -46,7 +48,7 @@ class ReminderController extends Controller
 
         // Schedule the notification job
         if ($reminder->reminder_at->isFuture()) {
-            \App\Jobs\SendReminderJob::dispatch($reminder, $reminder->reminder_at->toDateTimeString())
+            SendReminderJob::dispatch($reminder, $reminder->reminder_at->toDateTimeString())
                 ->delay($reminder->reminder_at);
         }
 
@@ -65,7 +67,7 @@ class ReminderController extends Controller
         // Schedule a new notification job if the time is in the future
         // The job itself will check if it's the latest scheduled time
         if ($reminder->reminder_at->isFuture()) {
-            \App\Jobs\SendReminderJob::dispatch($reminder, $reminder->reminder_at->toDateTimeString())
+            SendReminderJob::dispatch($reminder, $reminder->reminder_at->toDateTimeString())
                 ->delay($reminder->reminder_at);
         }
 
@@ -80,26 +82,5 @@ class ReminderController extends Controller
         $reminder->delete();
 
         return back()->with('success', 'Reminder deleted successfully.');
-    }
-
-    /**
-     * Mark all notifications as read
-     */
-    public function markAsRead(): RedirectResponse
-    {
-        auth()->user()->unreadNotifications->markAsRead();
-
-        return back();
-    }
-
-    /**
-     * Mark a specific notification as read
-     */
-    public function markNotificationAsRead(string $id): RedirectResponse
-    {
-        $notification = auth()->user()->notifications()->findOrFail($id);
-        $notification->markAsRead();
-
-        return back();
     }
 }

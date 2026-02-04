@@ -1,5 +1,7 @@
 <?php
 
+use App\Actions\Reminders\MarkNotificationAsRead;
+use App\Actions\Reminders\MarksAllNotificationsAsRead;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomFieldController;
@@ -42,8 +44,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Reminder routes
     Route::resource('/reminders', ReminderController::class);
-    Route::post('/notifications/mark-as-read', [ReminderController::class, 'markAsRead'])->name('notifications.mark-as-read');
-    Route::post('/notifications/{id}/mark-as-read', [ReminderController::class, 'markNotificationAsRead'])->name('notifications.mark-one-as-read');
+
+    // Notifications actions
+    Route::post('/notifications/mark-as-read', [MarksAllNotificationsAsRead::class, 'execute'])->name('notifications.mark-as-read');
+    Route::post('/notifications/{id}/mark-as-read', [MarkNotificationAsRead::class, 'execute'])->name('notifications.mark-one-as-read');
 });
 
 require __DIR__.'/settings.php';
