@@ -28,6 +28,10 @@ class UpdateReminderRequest extends FormRequest
             'reminder_at' => 'required|date',
             'remindable_id' => 'sometimes|nullable|integer',
             'remindable_type' => 'sometimes|nullable|string|required_with:remindable_id',
+            'is_recurring' => 'boolean',
+            'recurrence_pattern' => 'nullable|required_if:is_recurring,true|in:daily,weekly,monthly,quarterly,yearly,custom',
+            'recurrence_interval' => 'nullable|integer|min:1',
+            'recurrence_end_date' => 'nullable|date|after:reminder_at',
         ];
     }
 }

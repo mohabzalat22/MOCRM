@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -46,6 +47,10 @@ export function ReminderForm({
             : '',
         remindable_id: clientId || reminder?.remindable_id || '',
         remindable_type: initialType,
+        is_recurring: reminder?.is_recurring || false,
+        recurrence_pattern: (reminder?.recurrence_pattern || 'weekly') as Reminder['recurrence_pattern'],
+        recurrence_interval: reminder?.recurrence_interval || 1,
+        recurrence_end_date: reminder?.recurrence_end_date || '',
     });
 
     const performSubmit = () => {
@@ -70,7 +75,11 @@ export function ReminderForm({
             ...data,
             remindable_id: rid,
             remindable_type: rid ? data.remindable_type : null,
-            reminder_at: new Date(data.reminder_at).toISOString()
+            reminder_at: new Date(data.reminder_at).toISOString(),
+            // Ensure recurrence fields are null if not recurring
+            recurrence_pattern: data.is_recurring ? data.recurrence_pattern : null,
+            recurrence_interval: data.is_recurring ? data.recurrence_interval : null,
+            recurrence_end_date: data.is_recurring && data.recurrence_end_date ? data.recurrence_end_date : null,
         };
 
         if (reminder) {
@@ -203,6 +212,59 @@ export function ReminderForm({
                         ))}
                     </div>
                 </div>
+            </div>
+
+            <div className="border rounded-md p-4 space-y-4">
+                <div className="flex items-center space-x-2">
+                    <Checkbox 
+                        id="is_recurring" 
+                        checked={data.is_recurring}
+                        onCheckedChange={(checked) => setData({ ...data, is_recurring: checked === true })}
+                    />
+                    <Label htmlFor="is_recurring">Repeat this reminder</Label>
+                </div>
+
+                {data.is_recurring && (
+                    <div className="grid grid-cols-2 gap-4 pl-6 border-l-2 border-muted ml-1.5">
+                        <div className="space-y-2">
+                            <Label htmlFor="recurrence_pattern">Pattern</Label>
+                            <Select
+                                value={data.recurrence_pattern || 'weekly'}
+                                onValueChange={(val) => setData({ ...data, recurrence_pattern: val as Reminder['recurrence_pattern'] })}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select pattern" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="daily">Daily</SelectItem>
+                                    <SelectItem value="weekly">Weekly</SelectItem>
+                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                                    <SelectItem value="yearly">Yearly</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                             <Label htmlFor="recurrence_interval">Every (Interval)</Label>
+                             <Input
+                                id="recurrence_interval"
+                                type="number"
+                                min={1}
+                                value={data.recurrence_interval}
+                                onChange={(e) => setData({ ...data, recurrence_interval: parseInt(e.target.value) || 1 })}
+                             />
+                        </div>
+                         <div className="space-y-2 col-span-2">
+                            <Label htmlFor="recurrence_end_date">End Date (Optional)</Label>
+                            <Input
+                                id="recurrence_end_date"
+                                type="date"
+                                value={data.recurrence_end_date}
+                                onChange={(e) => setData({ ...data, recurrence_end_date: e.target.value })}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="space-y-2 max-w-full">

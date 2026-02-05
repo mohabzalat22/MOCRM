@@ -19,6 +19,10 @@ class Reminder extends Model
         'remindable_id',
         'remindable_type',
         'completed_at',
+        'is_recurring',
+        'recurrence_pattern',
+        'recurrence_interval',
+        'recurrence_end_date',
     ];
 
     /**
@@ -27,6 +31,9 @@ class Reminder extends Model
     protected $casts = [
         'reminder_at' => 'datetime',
         'completed_at' => 'datetime',
+        'is_recurring' => 'boolean',
+        'recurrence_interval' => 'integer',
+        'recurrence_end_date' => 'date',
     ];
 
     /**
