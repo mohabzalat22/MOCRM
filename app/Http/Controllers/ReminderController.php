@@ -9,6 +9,7 @@ use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Reminder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,11 +18,21 @@ class ReminderController extends Controller
     /**
      * Summary of index
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $reminders = Reminder::with('remindable')
-            ->where('user_id', auth()->id())
-            ->orderBy('reminder_at', 'asc')
+        $status = $request->input('status', 'incomplete');
+
+        $remindersQuery = Reminder::with('remindable')
+            ->where('user_id', auth()->id());
+
+        if ($status === 'completed') {
+            $remindersQuery->whereNotNull('completed_at');
+        } elseif ($status === 'incomplete') {
+            $remindersQuery->whereNull('completed_at');
+        }
+        // if status is 'all', we don't apply any filter on completed_at
+
+        $reminders = $remindersQuery->orderBy('reminder_at', 'asc')
             ->get();
 
         $clients = Client::orderBy('name')->get(['id', 'name']);
@@ -33,6 +44,7 @@ class ReminderController extends Controller
             'reminders' => $reminders,
             'clients' => $clients,
             'activities' => $activities,
+            'filters' => ['status' => $status],
         ]);
     }
 

@@ -46,7 +46,7 @@ export function DataTable<TData, TValue>({
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [globalFilter, setGlobalFilter] = React.useState('');
 
-    /* eslint-disable react-hooks/incompatible-library */
+     
     const table = useReactTable({
         data,
         columns,
@@ -105,6 +105,50 @@ export function DataTable<TData, TValue>({
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
+
+            {table.getFilteredSelectedRowModel().rows.length > 0 && (
+                 <div className="flex items-center gap-2 mb-4 p-2 bg-muted/50 rounded-md animate-in fade-in slide-in-from-left-2 duration-200">
+                    <span className="text-sm font-medium text-muted-foreground pl-2">
+                        {table.getFilteredSelectedRowModel().rows.length} selected
+                    </span>
+                    <div className="h-4 w-[1px] bg-border mx-2" />
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        className="h-8 gap-2"
+                        onClick={() => {
+                             const ids = table.getFilteredSelectedRowModel().rows.map(row => (row.original as { id: number }).id);
+                             // Dispatched via custom event or prop? 
+                             // NOTE: The previous DataTable didn't accept onBulkAction param. 
+                             // I should emit an event or better yet, since I can't easily change props without updating parent,
+                             // I will import reminderService directly here.
+                             import('@/services/reminderService').then(({ reminderService }) => {
+                                 reminderService.bulkAction('complete', ids, {
+                                     onSuccess: () => table.resetRowSelection(),
+                                 });
+                             });
+                        }}
+                    >
+                        Mark as Complete
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        size="sm"
+                        className="h-8 gap-2"
+                        onClick={() => {
+                            if (!window.confirm('Are you sure you want to delete selected reminders?')) return;
+                             const ids = table.getFilteredSelectedRowModel().rows.map(row => (row.original as { id: number }).id);
+                             import('@/services/reminderService').then(({ reminderService }) => {
+                                 reminderService.bulkAction('delete', ids, {
+                                     onSuccess: () => table.resetRowSelection(),
+                                 });
+                             });
+                        }}
+                    >
+                        Delete
+                    </Button>
+                </div>
+            )}
             <div className="rounded-md border bg-card shadow-sm overflow-hidden">
                 <Table>
                     <TableHeader className="bg-muted/50">

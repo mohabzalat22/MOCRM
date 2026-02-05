@@ -32,8 +32,11 @@ class SendReminderJob implements ShouldQueue
         $this->reminder->refresh();
 
         // Check if the reminder still exists and the time matches the one this job was scheduled for
-        // This ensures that if a reminder is updated, old scheduled jobs won't trigger.
-        if ($this->reminder && $this->reminder->reminder_at->toDateTimeString() === $this->scheduledAt) {
+        // Also check if the reminder is already completed
+        if ($this->reminder &&
+            $this->reminder->reminder_at->toDateTimeString() === $this->scheduledAt &&
+            is_null($this->reminder->completed_at)
+        ) {
             $this->reminder->user->notify(new ReminderNotification($this->reminder));
         }
     }

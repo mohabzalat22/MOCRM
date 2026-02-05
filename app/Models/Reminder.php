@@ -18,6 +18,7 @@ class Reminder extends Model
         'reminder_at',
         'remindable_id',
         'remindable_type',
+        'completed_at',
     ];
 
     /**
@@ -25,6 +26,7 @@ class Reminder extends Model
      */
     protected $casts = [
         'reminder_at' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
     /**

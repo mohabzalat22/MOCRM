@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import React from 'react';
@@ -6,6 +6,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { getColumns } from '@/components/reminders/Columns';
 import { DataTable } from '@/components/reminders/DataTable';
 import { ReminderForm } from '@/components/reminders/reminder-form';
+import { SnoozeDialog } from '@/components/reminders/snooze-dialog';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -14,6 +15,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { reminderService } from '@/services/reminderService';
 import type { BreadcrumbItem, Reminder } from '@/types';
@@ -22,6 +24,7 @@ interface RemindersPageProps {
     reminders: Reminder[];
     clients: { id: number; name: string }[];
     activities: { id: number; type: string; summary: string }[];
+    filters: { status?: string };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -31,10 +34,31 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function RemindersIndex({ reminders, clients, activities }: RemindersPageProps) {
+export default function RemindersIndex({ reminders, clients, activities, filters }: RemindersPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    
+    // Derived from filters prop, defaults to 'incomplete'
+    const status = filters.status || 'incomplete';
+
+    const handleStatusChange = (value: string) => {
+        router.get('/reminders', { status: value }, {
+            preserveState: true,
+            replace: true,
+        });
+    };
     const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
     const [deletingReminder, setDeletingReminder] = useState<Reminder | null>(null);
+    const [snoozingReminder, setSnoozingReminder] = useState<Reminder | null>(null);
+
+    const handleComplete = (reminder: Reminder) => {
+        reminderService.complete(reminder.id);
+    };
+
+    const handleSnooze = (date: Date) => {
+        if (!snoozingReminder) return;
+        reminderService.snooze(snoozingReminder.id, date);
+        setSnoozingReminder(null);
+    };
 
     const handleDelete = () => {
         if (!deletingReminder) return;
@@ -46,6 +70,8 @@ export default function RemindersIndex({ reminders, clients, activities }: Remin
     const columns = useMemo(() => getColumns({
         onEdit: (reminder) => setEditingReminder(reminder),
         onDelete: (reminder) => setDeletingReminder(reminder),
+        onComplete: (reminder) => handleComplete(reminder),
+        onSnooze: (reminder) => setSnoozingReminder(reminder),
     }), []);
 
     return (
@@ -61,6 +87,20 @@ export default function RemindersIndex({ reminders, clients, activities }: Remin
                     <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
                         <Plus className="h-4 w-4" /> Add Reminder
                     </Button>
+                </div>
+                
+                <div className="flex items-center space-x-4">
+                    <Tabs 
+                        value={status} 
+                        onValueChange={handleStatusChange} 
+                        className="w-[400px]"
+                    >
+                        <TabsList>
+                            <TabsTrigger value="incomplete">Incomplete</TabsTrigger>
+                            <TabsTrigger value="completed">Completed</TabsTrigger>
+                            <TabsTrigger value="all">All</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
                 </div>
 
                 <DataTable columns={columns} data={reminders} />
@@ -102,6 +142,13 @@ export default function RemindersIndex({ reminders, clients, activities }: Remin
                     )}
                 </DialogContent>
             </Dialog>
+
+            {/* Snooze Dialog */}
+            <SnoozeDialog
+                open={!!snoozingReminder}
+                onOpenChange={(open) => !open && setSnoozingReminder(null)}
+                onSnooze={handleSnooze}
+            />
 
             {/* Delete Confirmation */}
             <ConfirmDialog

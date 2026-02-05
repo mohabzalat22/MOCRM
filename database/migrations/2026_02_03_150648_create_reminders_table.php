@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('priority')->default('low');
             $table->dateTime('reminder_at');
+            $table->timestamp('completed_at')->nullable();
             $table->nullableMorphs('remindable');
             $table->timestamps();
         });

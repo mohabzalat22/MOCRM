@@ -1,13 +1,16 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Calendar, Clock, Edit2, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Calendar, Check, Clock, Edit2, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import type { Reminder } from '@/types';
 
 
 interface ColumnProps {
     onEdit: (reminder: Reminder) => void;
     onDelete: (reminder: Reminder) => void;
+    onComplete: (reminder: Reminder) => void;
+    onSnooze: (reminder: Reminder) => void;
 }
 
 const priorityWeights: Record<string, number> = {
@@ -16,7 +19,30 @@ const priorityWeights: Record<string, number> = {
     high: 3,
 };
 
-export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Reminder>[] => [
+export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnProps): ColumnDef<Reminder>[] => [
+    {
+        id: 'select',
+        header: ({ table }) => (
+            <div className="px-4">
+                <Checkbox
+                    checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    aria-label="Select all"
+                />
+            </div>
+        ),
+        cell: ({ row }) => (
+            <div className="px-4">
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                />
+            </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+    },
     {
         accessorKey: 'remindable.name',
         header: ({ column }) => {
@@ -147,24 +173,52 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Reminde
         id: 'actions',
         accessorKey: 'actions',
         header: () => <div className="text-right pr-4">Actions</div>,
-        cell: ({ row }) => (
-            <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity pr-4">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(row.original)}
-                >
-                    <Edit2 className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => onDelete(row.original)}
-                >
-                    <Trash2 className="h-4 w-4" />
-                </Button>
-            </div>
-        ),
+        cell: ({ row }) => {
+            const isCompleted = !!row.original.completed_at;
+            
+            return (
+                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity pr-4">
+                    {!isCompleted && (
+                        <>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                onClick={() => onComplete(row.original)}
+                                title="Mark as Complete"
+                            >
+                                <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                onClick={() => onSnooze(row.original)}
+                                title="Snooze"
+                            >
+                                <Clock className="h-4 w-4" />
+                            </Button>
+                        </>
+                    )}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(row.original)}
+                        title="Edit"
+                    >
+                        <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => onDelete(row.original)}
+                        title="Delete"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            );
+        },
     },
 ];

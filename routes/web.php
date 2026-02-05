@@ -1,7 +1,10 @@
 <?php
 
+use App\Actions\Reminders\BulkActionReminder;
+use App\Actions\Reminders\CompleteReminder;
 use App\Actions\Reminders\MarkNotificationAsRead;
 use App\Actions\Reminders\MarksAllNotificationsAsRead;
+use App\Actions\Reminders\SnoozeReminder;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomFieldController;
@@ -42,6 +45,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/activities/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
 
     // Reminder routes
+    Route::put('/reminders/{reminder}/complete', [CompleteReminder::class, 'execute'])->name('reminders.complete');
+    Route::put('/reminders/{reminder}/snooze', [SnoozeReminder::class, 'execute'])->name('reminders.snooze');
+    Route::post('/reminders/bulk-action', [BulkActionReminder::class, 'execute'])->name('reminders.bulk-action');
     Route::resource('/reminders', ReminderController::class);
 
     // Notifications actions

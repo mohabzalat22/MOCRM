@@ -10,6 +10,7 @@ export interface Reminder {
     };
     remindable_id?: number | string;
     remindable_type?: string;
+    completed_at?: string;
     created_at?: string;
     updated_at?: string;
 }
