@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('reminders', function (Blueprint $table) {
             $table->boolean('is_recurring')->default(false);
             $table->string('recurrence_pattern')->nullable()->after('is_recurring'); // daily, weekly, monthly, quarterly, yearly, custom
-            $table->integer('recurrence_interval')->default(1)->after('recurrence_pattern');
+            $table->integer('recurrence_interval')->nullable()->default(1)->after('recurrence_pattern');
             $table->date('recurrence_end_date')->nullable()->after('recurrence_interval');
         });
     }
