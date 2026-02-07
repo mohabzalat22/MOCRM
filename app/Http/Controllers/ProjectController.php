@@ -18,6 +18,9 @@ class ProjectController extends Controller
     public function index(): Response
     {
         $projects = Project::with('client')
+            ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
+                $query->where('completed', true);
+            }])
             ->whereHas('client', function ($query) {
                 $query->where('user_id', auth()->id());
             })
@@ -29,6 +32,24 @@ class ProjectController extends Controller
         return Inertia::render('projects/index', [
             'projects' => $projects,
             'clients' => $clients,
+        ]);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Project $project): Response
+    {
+        $project->load(['client', 'tasks' => function ($query) {
+            $query->ordered();
+        }]);
+
+        if ($project->client->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return Inertia::render('projects/show', [
+            'project' => $project,
         ]);
     }
 

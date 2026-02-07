@@ -1,5 +1,5 @@
 import { Link, usePage, router } from '@inertiajs/react';
-import { LayoutGrid, User, Bell, Check } from 'lucide-react';
+import { ListChecks, LayoutGrid, User, Bell, Check } from 'lucide-react';
 import { useEffect } from 'react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -43,7 +43,7 @@ export function AppSidebar() {
         {
             title: 'Projects',
             href: '/projects',
-            icon: LayoutGrid,
+            icon: ListChecks,
         },
         {
             title: 'Reminders',

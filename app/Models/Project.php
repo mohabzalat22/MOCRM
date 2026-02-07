@@ -40,4 +40,12 @@ class Project extends Model
             'end_date' => 'date',
         ];
     }
+
+    /**
+     * Get the tasks for the project.
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 }

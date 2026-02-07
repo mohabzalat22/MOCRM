@@ -1,5 +1,6 @@
+import { router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Calendar, Edit2, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Calendar, Edit2, Trash2, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -77,6 +78,31 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
         cell: ({ row }) => <span className="px-4">{row.original.client?.name || 'N/A'}</span>
     },
     {
+        accessorKey: 'tasks_count',
+        header: 'Tasks',
+        cell: ({ row }) => {
+            const project = row.original;
+            const total = project.tasks_count || 0;
+            const completed = project.completed_tasks_count || 0;
+            
+            if (total === 0) return <span className="text-muted-foreground text-xs px-4">No tasks</span>;
+            
+            return (
+                <div className="flex items-center gap-2 px-4 whitespace-nowrap">
+                    <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div 
+                            className="h-full bg-primary" 
+                            style={{ width: `${Math.round((completed / total) * 100)}%` }} 
+                        />
+                    </div>
+                    <span className="text-[10px] font-medium">
+                        {completed}/{total}
+                    </span>
+                </div>
+            );
+        },
+    },
+    {
         accessorKey: 'status',
         header: ({ column }) => {
             return (
@@ -94,7 +120,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
         cell: ({ row }) => {
             const status = row.getValue('status') as string;
             const config = statusConfig[status] || { label: status, variant: 'secondary' as const };
-            return <Badge variant={config.variant}>{config.label}</Badge>;
+            return <Badge variant={config.variant} className="ml-4">{config.label}</Badge>;
         },
     },
     {
@@ -150,15 +176,23 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
     },
     {
         id: 'actions',
-        accessorKey: 'actions',
         header: () => <div className="text-right pr-4">Actions</div>,
         cell: ({ row }) => {
+            const project = row.original;
             return (
                 <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity pr-4">
                     <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => onEdit(row.original)}
+                        onClick={() => router.get(`/projects/${project.id}`)}
+                        title="View Project"
+                    >
+                        <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(project)}
                         title="Edit"
                     >
                         <Edit2 className="h-4 w-4" />
@@ -167,7 +201,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
                         variant="ghost"
                         size="icon"
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => onDelete(row.original)}
+                        onClick={() => onDelete(project)}
                         title="Delete"
                     >
                         <Trash2 className="h-4 w-4" />

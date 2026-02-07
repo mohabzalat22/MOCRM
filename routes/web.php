@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -52,7 +53,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('/reminders', ReminderController::class);
 
     // Project routes
-    Route::resource('/projects', ProjectController::class)->except(['show', 'create', 'edit']);
+    Route::resource('/projects', ProjectController::class)->except(['create', 'edit']);
+
+    // Task routes
+    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::patch('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::put('/tasks/{task}/toggle-complete', [TaskController::class, 'toggleComplete'])->name('tasks.toggle-complete');
+    Route::post('/tasks/reorder', [TaskController::class, 'reorder'])->name('tasks.reorder');
+    Route::post('/tasks/bulk-complete', [TaskController::class, 'bulkComplete'])->name('tasks.bulk-complete');
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
     // Notifications actions
     Route::post('/notifications/mark-as-read', [MarksAllNotificationsAsRead::class, 'execute'])->name('notifications.mark-as-read');
