@@ -9,6 +9,7 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +50,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/reminders/{reminder}/snooze', [SnoozeReminder::class, 'execute'])->name('reminders.snooze');
     Route::post('/reminders/bulk-action', [BulkActionReminder::class, 'execute'])->name('reminders.bulk-action');
     Route::resource('/reminders', ReminderController::class);
+
+    // Project routes
+    Route::resource('/projects', ProjectController::class)->except(['show', 'create', 'edit']);
 
     // Notifications actions
     Route::post('/notifications/mark-as-read', [MarksAllNotificationsAsRead::class, 'execute'])->name('notifications.mark-as-read');

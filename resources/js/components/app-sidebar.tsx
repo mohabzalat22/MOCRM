@@ -41,6 +41,11 @@ export function AppSidebar() {
             icon: User,
         },
         {
+            title: 'Projects',
+            href: '/projects',
+            icon: LayoutGrid,
+        },
+        {
             title: 'Reminders',
             href: '/reminders',
             icon: Bell,

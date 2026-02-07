@@ -4,6 +4,7 @@ export type * from './ui';
 export type * from './activity';
 export type * from './client';
 export type * from './reminder';
+export type * from './project';
 
 import type { Auth } from './auth';
 

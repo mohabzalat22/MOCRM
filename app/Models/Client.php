@@ -78,6 +78,16 @@ class Client extends Model
     }
 
     /**
+     * Get all of the client's projects.
+     *
+     * @return HasMany<Project, Client>
+     */
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    /**
      * Summary of scopeForUser
      *
      * @param  mixed  $query
