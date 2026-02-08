@@ -24,9 +24,12 @@ class UpdateTaskRequest extends FormRequest
         return [
             'description' => 'sometimes|required|string|max:1000',
             'due_date' => 'nullable|date',
+            'start_date' => 'nullable|date',
             'assigned_to' => 'nullable|exists:users,id',
             'completed' => 'boolean',
             'order' => 'integer',
+            'is_milestone' => 'boolean',
+            'parent_id' => 'nullable|exists:tasks,id',
         ];
     }
 }

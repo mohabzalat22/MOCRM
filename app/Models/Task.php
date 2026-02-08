@@ -19,6 +19,9 @@ class Task extends Model
         'completed',
         'order',
         'completed_at',
+        'is_milestone',
+        'parent_id',
+        'start_date',
     ];
 
     /**
@@ -30,6 +33,8 @@ class Task extends Model
         'due_date' => 'date',
         'completed' => 'boolean',
         'completed_at' => 'datetime',
+        'is_milestone' => 'boolean',
+        'start_date' => 'date',
     ];
 
     /**
@@ -46,6 +51,22 @@ class Task extends Model
     public function assignee()
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /**
+     * Get the parent task.
+     */
+    public function parent()
+    {
+        return $this->belongsTo(Task::class, 'parent_id');
+    }
+
+    /**
+     * Get the child tasks.
+     */
+    public function children()
+    {
+        return $this->hasMany(Task::class, 'parent_id');
     }
 
     /**

@@ -25,8 +25,11 @@ class CreateTaskRequest extends FormRequest
             'project_id' => 'required|exists:projects,id',
             'description' => 'required|string|max:1000',
             'due_date' => 'nullable|date',
+            'start_date' => 'nullable|date',
             'assigned_to' => 'nullable|exists:users,id',
             'order' => 'integer',
+            'is_milestone' => 'boolean',
+            'parent_id' => 'nullable|exists:tasks,id',
         ];
     }
 }

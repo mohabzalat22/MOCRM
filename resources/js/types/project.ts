@@ -7,9 +7,12 @@ export interface Task {
     project_id: number;
     description: string;
     due_date?: string;
+    start_date?: string;
     assigned_to?: number;
     completed: boolean;
     order: number;
+    is_milestone: boolean;
+    parent_id?: number;
     completed_at?: string;
     created_at: string;
     updated_at: string;
