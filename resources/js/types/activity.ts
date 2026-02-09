@@ -1,8 +1,11 @@
+import type { Attachment } from './attachment';
+import type { User } from './auth';
+
 export type ActivityType =
-    | 'note'
     | 'call'
     | 'email'
     | 'meeting'
+    | 'note'
     | 'transaction'
     | 'status_change';
 
@@ -17,20 +20,24 @@ export interface ActivityData {
     meeting_type?: string;
     attendees?: string;
     action_items?: ActionItem[];
-    transaction_type?: string;
     amount?: string;
-    notes?: string;
+    transaction_type?: string;
+    old_status?: string;
+    new_status?: string;
+    is_project_update?: boolean;
     [key: string]: unknown;
 }
 
 export interface Activity {
     id: number;
-    client_id: string | number;
+    client_id: number;
+    project_id?: number;
+    user_id: number;
     type: ActivityType;
-    summary: string;
-    data: ActivityData;
+    summary: string | null;
+    data: ActivityData | null;
     created_at: string;
-    user?: {
-        name: string;
-    };
+    updated_at: string;
+    user?: User;
+    attachments?: Attachment[];
 }

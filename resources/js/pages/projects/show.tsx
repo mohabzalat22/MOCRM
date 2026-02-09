@@ -2,7 +2,10 @@ import { Head, Link } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { ArrowLeft, Calendar, FileText, User } from 'lucide-react';
 import { useState } from 'react';
+import ActivityTimeline from '@/components/clients/activity-timeline';
+import { ProjectFiles } from '@/components/projects/ProjectFiles';
 import { ProjectTimeline } from '@/components/projects/ProjectTimeline';
+import { ProjectUpdates } from '@/components/projects/ProjectUpdates';
 import { TaskList } from '@/components/projects/TaskList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,7 +26,7 @@ const statusMap = {
 };
 
 export default function ProjectShow({ project }: ProjectShowProps) {
-    const [activeTab, setActiveTab] = useState<'tasks' | 'timeline'>('tasks');
+    const [activeTab, setActiveTab] = useState<'tasks' | 'timeline' | 'updates' | 'activity' | 'files'>('tasks');
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Projects', href: '/projects' },
         { title: project.name, href: `/projects/${project.id}` },
@@ -75,6 +78,22 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                                     >
                                         Timeline
                                     </Button>
+                                    <Button
+                                        variant={activeTab === 'activity' ? 'default' : 'ghost'}
+                                        size="sm"
+                                        onClick={() => setActiveTab('activity')}
+                                        className="rounded-md"
+                                    >
+                                        Activity
+                                    </Button>
+                                    <Button
+                                        variant={activeTab === 'files' ? 'default' : 'ghost'}
+                                        size="sm"
+                                        onClick={() => setActiveTab('files')}
+                                        className="rounded-md"
+                                    >
+                                        Files
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -95,7 +114,7 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                                 <Calendar className="h-4 w-4 text-muted-foreground" />
                                 <span className="font-medium text-muted-foreground">Start:</span>
                                 <span className="font-semibold text-foreground">
-                                    {format(new Date(project.start_date), 'MMM d, yyyy')}
+                                    {project.start_date ? format(new Date(project.start_date), 'MMM d, yyyy') : 'N/A'}
                                 </span>
                             </div>
 
@@ -126,10 +145,25 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                                 projectId={project.id}
                                 tasks={project.tasks || []}
                             />
-                        ) : (
+                        ) : activeTab === 'timeline' ? (
                             <ProjectTimeline
                                 tasks={project.tasks || []}
-                                projectStartDate={project.start_date}
+                                projectStartDate={project.start_date || new Date().toISOString()}
+                            />
+                        ) : activeTab === 'activity' ? (
+                            <div className="space-y-6">
+                                <ProjectUpdates project={project} />
+                                <ActivityTimeline
+                                    activities={project.activities || []}
+                                    client={project.client!}
+                                    hideFilters={true}
+                                    hideExport={true}
+                                    allowedTypes={new Set(['note'])}
+                                />
+                            </div>
+                        ) : (
+                            <ProjectFiles
+                                project={project}
                             />
                         )}
                     </div>

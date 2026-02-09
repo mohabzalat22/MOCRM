@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Activity extends Model
 {
@@ -14,6 +15,7 @@ class Activity extends Model
      */
     protected $fillable = [
         'client_id',
+        'project_id',
         'user_id',
         'type',
         'summary',
@@ -47,5 +49,20 @@ class Activity extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Summary of project
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Project, Activity>
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
     }
 }

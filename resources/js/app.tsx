@@ -3,13 +3,22 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../css/app.css';
+import { route } from 'ziggy-js';
 import { initializeTheme } from './hooks/use-appearance';
 import { Ziggy } from './ziggy';
 
-// Make Ziggy available globally for the ziggy-js library
-(window as unknown as { Ziggy: typeof Ziggy }).Ziggy = Ziggy;
+declare global {
+    interface Window {
+        route: typeof route;
+        Ziggy: typeof Ziggy;
+    }
+}
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+// Make Ziggy and route available globally
+window.Ziggy = Ziggy;
+window.route = route;
+
+const appName = import.meta.env.VITE_APP_NAME || 'MOCRM';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

@@ -15,8 +15,11 @@ import {
     ChevronDown,
     ChevronRight,
     RefreshCcw,
+    Download,
+    FileIcon,
 } from 'lucide-react';
 import React from 'react';
+import { route } from 'ziggy-js';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -170,8 +173,40 @@ export default function ActivityItem({
                     </div>
                 );
             default:
+                if (activity.data?.is_project_update) {
+                    return (
+                        <div className="mt-1 text-sm text-muted-foreground italic">
+                            Project Update
+                        </div>
+                    );
+                }
                 return null;
         }
+    };
+
+    const renderAttachments = () => {
+        if (!activity.attachments || activity.attachments.length === 0) return null;
+
+        return (
+            <div className="mt-4 space-y-2">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Attachments
+                </p>
+                <div className="flex flex-wrap gap-2">
+                    {activity.attachments.map((file) => (
+                        <a
+                            key={file.id}
+                            href={route('attachments.download', file.id)}
+                            className="flex items-center gap-2 rounded-md border bg-card px-2 py-1.5 text-[11px] transition-colors hover:bg-muted"
+                        >
+                            <FileIcon className="h-3 w-3 text-primary" />
+                            <span className="font-medium truncate max-w-[120px]">{file.file_name}</span>
+                            <Download className="h-3 w-3 text-muted-foreground" />
+                        </a>
+                    ))}
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -265,11 +300,11 @@ export default function ActivityItem({
                         <div className="animate-in slide-in-from-top-2 duration-200">
                             {formatData()}
 
-                            {activity.data?.notes && (
-                                <p className="mt-2 rounded-md border border-dashed bg-muted/30 p-2 text-sm whitespace-pre-wrap text-muted-foreground">
-                                    {activity.data.notes}
-                                </p>
-                            )}
+                            <div className="mt-2 rounded-md border border-dashed bg-muted/30 p-3 text-sm whitespace-pre-wrap text-muted-foreground">
+                                {activity.summary}
+                            </div>
+
+                            {renderAttachments()}
                         </div>
                     )}
                 </div>

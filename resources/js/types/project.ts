@@ -1,3 +1,5 @@
+import type { Activity } from './activity';
+import type { Attachment } from './attachment';
 import type { Client } from './client';
 
 export type ProjectStatus = 'not_started' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled';
@@ -20,16 +22,20 @@ export interface Task {
 
 export interface Project {
     id: number;
-    client_id: number;
-    client?: Client;
     name: string;
-    description?: string;
+    description: string | null;
+    client_id: number;
+    user_id: number;
+    status: string;
     start_date: string;
-    end_date?: string;
-    status: ProjectStatus;
-    tasks?: Task[];
-    tasks_count?: number;
-    completed_tasks_count?: number;
+    end_date: string | null;
+    completed_at: string | null;
     created_at: string;
     updated_at: string;
+
+    // Relationships
+    client?: Client;
+    tasks?: Task[];
+    activities?: Activity[];
+    attachments?: Attachment[];
 }

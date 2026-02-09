@@ -13,25 +13,38 @@ interface ActivityTimelineProps {
     activities: Activity[];
     savedActivities?: Activity[];
     client: Client;
+    hideFilters?: boolean;
+    hideExport?: boolean;
+    allowedTypes?: Set<ActivityType>;
 }
 
 export default function ActivityTimeline({
     activities,
     savedActivities,
     client,
+    hideFilters,
+    hideExport,
+    allowedTypes,
 }: ActivityTimelineProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTypes, setSelectedTypes] = useState<Set<ActivityType>>(
         new Set(),
     );
+
+    // Filter activities by allowed types if specified
+    const displayActivities = useMemo(() => {
+        if (!allowedTypes) return activities;
+        return activities.filter((a) => allowedTypes.has(a.type));
+    }, [activities, allowedTypes]);
+
     const [expandedIds, setExpandedIds] = useState<Set<number>>(() =>
-        getDefaultExpandedIds(activities),
+        getDefaultExpandedIds(displayActivities),
     );
 
     // Process activities (filter, search, group)
     const groupedActivities = useMemo(
-        () => processActivities(activities, selectedTypes, searchQuery),
-        [activities, selectedTypes, searchQuery],
+        () => processActivities(displayActivities, selectedTypes, searchQuery),
+        [displayActivities, selectedTypes, searchQuery],
     );
 
     // Calculate filtered count
@@ -124,9 +137,11 @@ export default function ActivityTimeline({
                     selectedTypes={selectedTypes}
                     onTypeToggle={handleTypeToggle}
                     onClearFilters={handleClearFilters}
-                    onExport={handleExport}
-                    totalActivities={activities.length}
+                    onExport={!hideExport ? handleExport : undefined}
+                    totalActivities={displayActivities.length}
                     filteredCount={filteredCount}
+                    hideFilters={hideFilters}
+                    hideExport={hideExport}
                 />
 
                 {/* Grouped Timeline */}

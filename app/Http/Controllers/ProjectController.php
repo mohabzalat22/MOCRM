@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Projects\CreateProjectUpdate;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -40,9 +42,15 @@ class ProjectController extends Controller
      */
     public function show(Project $project): Response
     {
-        $project->load(['client', 'tasks' => function ($query) {
-            $query->ordered();
-        }]);
+        $project->load([
+            'client',
+            'tasks' => function ($query) {
+                $query->ordered();
+            },
+            'activities' => function ($query) {
+                $query->with(['user', 'attachments'])->latest();
+            },
+        ]);
 
         if ($project->client->user_id !== auth()->id()) {
             abort(403);
@@ -96,5 +104,25 @@ class ProjectController extends Controller
         $project->delete();
 
         return back()->with('success', 'Project deleted successfully.');
+    }
+
+    /**
+     * Store a project update (activity with attachments).
+     */
+    public function storeUpdate(Request $request, Project $project, CreateProjectUpdate $createProjectUpdate): RedirectResponse
+    {
+        $project->load('client');
+        if ($project->client->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'content' => 'required|string',
+            'files.*' => 'nullable|file|max:10240', // 10MB limit
+        ]);
+
+        $createProjectUpdate->execute($project, $request->all());
+
+        return back()->with('success', 'Project update added successfully.');
     }
 }

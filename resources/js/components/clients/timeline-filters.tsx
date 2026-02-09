@@ -29,9 +29,11 @@ interface TimelineFiltersProps {
     selectedTypes: Set<ActivityType>;
     onTypeToggle: (type: ActivityType) => void;
     onClearFilters: () => void;
-    onExport: () => void;
+    onExport?: () => void;
     totalActivities: number;
     filteredCount: number;
+    hideFilters?: boolean;
+    hideExport?: boolean;
 }
 
 const activityTypes: {
@@ -61,6 +63,8 @@ export default function TimelineFilters({
     onExport,
     totalActivities,
     filteredCount,
+    hideFilters,
+    hideExport,
 }: TimelineFiltersProps) {
     const hasActiveFilters = searchQuery || selectedTypes.size > 0;
     const activeFilterCount = selectedTypes.size + (searchQuery ? 1 : 0);
@@ -92,89 +96,93 @@ export default function TimelineFilters({
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button type="button" variant="outline" className="gap-2">
-                                <Filter className="h-4 w-4" />
-                                Filter
-                                {activeFilterCount > 0 && (
-                                    <Badge
-                                        variant="secondary"
-                                        className="ml-1 h-5 rounded-full px-1.5 text-xs"
-                                    >
-                                        {activeFilterCount}
-                                    </Badge>
-                                )}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-64" align="end">
-                            <div className="space-y-4">
-                                <div>
-                                    <h4 className="mb-3 text-sm font-semibold">
-                                        Activity Types
-                                    </h4>
-                                    <div className="space-y-2">
-                                        {activityTypes.map((item) => {
-                                            const Icon = item.icon;
-                                            const isSelected = selectedTypes.has(
-                                                item.type,
-                                            );
-                                            return (
-                                                <div
-                                                    key={item.type}
-                                                    className="flex items-center gap-2"
-                                                >
-                                                    <Checkbox
-                                                        id={`filter-${item.type}`}
-                                                        checked={isSelected}
-                                                        onCheckedChange={() =>
-                                                            onTypeToggle(item.type)
-                                                        }
-                                                    />
-                                                    <Label
-                                                        htmlFor={`filter-${item.type}`}
-                                                        className="flex flex-1 cursor-pointer items-center gap-2 text-sm font-normal"
-                                                    >
-                                                        <Icon
-                                                            className={`h-4 w-4 ${item.color}`}
-                                                        />
-                                                        {item.label}
-                                                    </Label>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {hasActiveFilters && (
-                                    <>
-                                        <Separator />
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            className="w-full"
-                                            onClick={onClearFilters}
+                    {!hideFilters && (
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button type="button" variant="outline" className="gap-2">
+                                    <Filter className="h-4 w-4" />
+                                    Filter
+                                    {activeFilterCount > 0 && (
+                                        <Badge
+                                            variant="secondary"
+                                            className="ml-1 h-5 rounded-full px-1.5 text-xs"
                                         >
-                                            Clear All Filters
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                        </PopoverContent>
-                    </Popover>
+                                            {activeFilterCount}
+                                        </Badge>
+                                    )}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64" align="end">
+                                <div className="space-y-4">
+                                    <div>
+                                        <h4 className="mb-3 text-sm font-semibold">
+                                            Activity Types
+                                        </h4>
+                                        <div className="space-y-2">
+                                            {activityTypes.map((item) => {
+                                                const Icon = item.icon;
+                                                const isSelected = selectedTypes.has(
+                                                    item.type,
+                                                );
+                                                return (
+                                                    <div
+                                                        key={item.type}
+                                                        className="flex items-center gap-2"
+                                                    >
+                                                        <Checkbox
+                                                            id={`filter-${item.type}`}
+                                                            checked={isSelected}
+                                                            onCheckedChange={() =>
+                                                                onTypeToggle(item.type)
+                                                            }
+                                                        />
+                                                        <Label
+                                                            htmlFor={`filter-${item.type}`}
+                                                            className="flex flex-1 cursor-pointer items-center gap-2 text-sm font-normal"
+                                                        >
+                                                            <Icon
+                                                                className={`h-4 w-4 ${item.color}`}
+                                                            />
+                                                            {item.label}
+                                                        </Label>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
 
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="default"
-                        onClick={onExport}
-                        className="gap-2"
-                        disabled={filteredCount === 0}
-                    >
-                        <Download className="h-4 w-4" />
-                        <span className="hidden sm:inline">Export PDF</span>
-                    </Button>
+                                    {hasActiveFilters && (
+                                        <>
+                                            <Separator />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="w-full"
+                                                onClick={onClearFilters}
+                                            >
+                                                Clear All Filters
+                                            </Button>
+                                        </>
+                                    )}
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    )}
+
+                    {!hideExport && onExport && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="default"
+                            onClick={onExport}
+                            className="gap-2"
+                            disabled={filteredCount === 0}
+                        >
+                            <Download className="h-4 w-4" />
+                            <span className="hidden sm:inline">Export PDF</span>
+                        </Button>
+                    )}
                 </div>
             </div>
 
