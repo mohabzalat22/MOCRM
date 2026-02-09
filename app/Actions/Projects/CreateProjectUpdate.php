@@ -30,7 +30,7 @@ class CreateProjectUpdate
             // Handle attachments
             if (isset($data['files']) && ! empty($data['files'])) {
                 foreach ($data['files'] as $file) {
-                    $path = $file->store('attachments/' . $project->id, 'public');
+                    $path = $file->store('attachments/'.$project->id, 'public');
 
                     Attachment::create([
                         'attachable_id' => $activity->id,

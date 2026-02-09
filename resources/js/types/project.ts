@@ -38,4 +38,8 @@ export interface Project {
     tasks?: Task[];
     activities?: Activity[];
     attachments?: Attachment[];
+    
+    // Aggregates
+    tasks_count?: number;
+    completed_tasks_count?: number;
 }

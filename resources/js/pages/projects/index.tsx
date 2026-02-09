@@ -13,12 +13,19 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem, Project } from '@/types';
 
 interface ProjectsPageProps {
     projects: Project[];
     clients: { id: number; name: string }[];
+    filters?: { status: string };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -31,6 +38,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function ProjectsIndex({
     projects,
     clients,
+    filters = { status: 'active' },
 }: ProjectsPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -54,6 +62,18 @@ export default function ProjectsIndex({
         [],
     );
 
+    const handleTabChange = (value: string) => {
+        router.get(
+            '/projects',
+            { status: value },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Projects" />
@@ -76,7 +96,20 @@ export default function ProjectsIndex({
                     </Button>
                 </div>
 
-                <DataTable columns={columns} data={projects} />
+                <Tabs
+                    defaultValue={filters.status}
+                    onValueChange={handleTabChange}
+                    className="w-full"
+                >
+                    <TabsList className="mb-4">
+                        <TabsTrigger value="active">Active Projects</TabsTrigger>
+                        <TabsTrigger value="archived">Archived</TabsTrigger>
+                        <TabsTrigger value="all">All Projects</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value={filters.status} className="mt-0">
+                        <DataTable columns={columns} data={projects} />
+                    </TabsContent>
+                </Tabs>
             </div>
 
             {/* Create Dialog */}

@@ -6,6 +6,7 @@ use App\Actions\Reminders\MarkNotificationAsRead;
 use App\Actions\Reminders\MarksAllNotificationsAsRead;
 use App\Actions\Reminders\SnoozeReminder;
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\DashboardController;
@@ -16,7 +17,6 @@ use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use App\Http\Controllers\AttachmentController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -73,4 +73,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/notifications/{id}/mark-as-read', [MarkNotificationAsRead::class, 'execute'])->name('notifications.mark-one-as-read');
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

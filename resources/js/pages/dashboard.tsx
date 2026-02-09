@@ -1,9 +1,10 @@
 import { Head } from '@inertiajs/react';
+import { ActiveProjectsList } from '@/components/dashboard/active-projects-list';
 import { TodayReminders } from '@/components/reminders/today-reminders';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import type { BreadcrumbItem, Reminder } from '@/types';
+import type { BreadcrumbItem, Reminder, Project } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -14,9 +15,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface DashboardProps {
     todayReminders: Reminder[];
+    activeProjects: Project[];
 }
 
-export default function Dashboard({ todayReminders }: DashboardProps) {
+export default function Dashboard({ todayReminders, activeProjects }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -25,14 +27,12 @@ export default function Dashboard({ todayReminders }: DashboardProps) {
                     <div className="min-h-[200px] overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <TodayReminders reminders={todayReminders} />
                     </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                    <div className="col-span-1 md:col-span-2 min-h-[200px] overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-card">
+                        <ActiveProjectsList projects={activeProjects} />
                     </div>
                 </div>
                 <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
+                {/* Future widgets can go here */}
                     <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                 </div>
             </div>

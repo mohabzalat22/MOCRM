@@ -18,18 +18,20 @@ import type { Project, ProjectStatus } from '@/types';
 interface ProjectFormProps {
     project?: Project;
     clients: { id: number; name: string }[];
+    defaultClientId?: number;
     onSuccess?: () => void;
 }
 
 export function ProjectForm({
     project,
     clients,
+    defaultClientId,
     onSuccess,
 }: ProjectFormProps) {
     const [processing, setProcessing] = useState(false);
     
     const [data, setData] = useState({
-        client_id: project?.client_id?.toString() || '',
+        client_id: project?.client_id?.toString() || defaultClientId?.toString() || '',
         name: project?.name || '',
         description: project?.description || '',
         start_date: project?.start_date 
@@ -43,6 +45,7 @@ export function ProjectForm({
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         setProcessing(true);
 
         const url = project ? `/projects/${project.id}` : '/projects';
@@ -63,25 +66,27 @@ export function ProjectForm({
 
     return (
         <form onSubmit={submit} className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="client_id">Client *</Label>
-                <Select
-                    value={data.client_id}
-                    onValueChange={(val) => setData({ ...data, client_id: val })}
-                    required
-                >
-                    <SelectTrigger id="client_id">
-                        <SelectValue placeholder="Select client" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {clients.map((client) => (
-                            <SelectItem key={client.id} value={client.id.toString()}>
-                                {client.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
+            {!defaultClientId && (
+                <div className="space-y-2">
+                    <Label htmlFor="client_id">Client *</Label>
+                    <Select
+                        value={data.client_id}
+                        onValueChange={(val) => setData({ ...data, client_id: val })}
+                        required
+                    >
+                        <SelectTrigger id="client_id">
+                            <SelectValue placeholder="Select client" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {clients.map((client) => (
+                                <SelectItem key={client.id} value={client.id.toString()}>
+                                    {client.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
 
             <div className="space-y-2">
                 <Label htmlFor="name">Project Name *</Label>

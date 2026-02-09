@@ -58,6 +58,10 @@ class ClientController extends Controller
             ->where('id', $client->id)
             ->with(['customFields', 'tags', 'activities' => function ($query) {
                 $query->with('user')->latest();
+            }, 'projects' => function ($query) {
+                $query->withCount(['tasks', 'tasks as completed_tasks_count' => function ($q) {
+                    $q->where('completed', true);
+                }])->latest();
             }])
             ->firstOrFail();
 
@@ -68,6 +72,7 @@ class ClientController extends Controller
             'client' => $client,
             'allTags' => $allTags,
             'activities' => $client->activities,
+            'projects' => $client->projects,
         ]);
     }
 

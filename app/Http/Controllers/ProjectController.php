@@ -17,14 +17,22 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $status = $request->input('status', 'active'); // active, archived, all
+
         $projects = Project::with('client')
             ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
                 $query->where('completed', true);
             }])
             ->whereHas('client', function ($query) {
                 $query->where('user_id', auth()->id());
+            })
+            ->when($status === 'active', function ($query) {
+                $query->whereIn('status', ['not_started', 'in_progress', 'on_hold']);
+            })
+            ->when($status === 'archived', function ($query) {
+                $query->whereIn('status', ['completed', 'cancelled']);
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -34,6 +42,7 @@ class ProjectController extends Controller
         return Inertia::render('projects/index', [
             'projects' => $projects,
             'clients' => $clients,
+            'filters' => ['status' => $status],
         ]);
     }
 
@@ -56,8 +65,16 @@ class ProjectController extends Controller
             abort(403);
         }
 
+        // Get sibling projects for quick switcher
+        $siblingProjects = Project::where('client_id', $project->client_id)
+            ->where('id', '!=', $project->id)
+            ->whereIn('status', ['not_started', 'in_progress', 'on_hold']) // Only active siblings
+            ->select('id', 'name', 'status')
+            ->get();
+
         return Inertia::render('projects/show', [
             'project' => $project,
+            'siblingProjects' => $siblingProjects,
         ]);
     }
 

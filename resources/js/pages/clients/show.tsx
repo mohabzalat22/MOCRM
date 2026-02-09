@@ -1,10 +1,11 @@
 import { Head } from '@inertiajs/react';
-import { LayoutDashboard, History as HistoryIcon } from 'lucide-react';
+import { LayoutDashboard, History as HistoryIcon, Book } from 'lucide-react';
 import { useEffect } from 'react';
 import ActivityForm from '@/components/clients/activity-form';
 import ClientActivityTab from '@/components/clients/client-activity-tab';
 import ClientHeader from '@/components/clients/client-header';
 import ClientOverviewTab from '@/components/clients/client-overview-tab';
+import ClientProjectsTab from '@/components/clients/client-projects-tab';
 import SaveButtonFooter from '@/components/clients/save-button-footer';
 import {
     Dialog,
@@ -17,18 +18,20 @@ import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import { useClientSubmit } from '@/hooks/useClientSubmit';
 import AppLayout from '@/layouts/app-layout';
 import { useClientStore } from '@/stores/useClientStore';
-import type { Client, Activity, Tag, BreadcrumbItem } from '@/types';
+import type { Client, Activity, Tag, BreadcrumbItem, Project } from '@/types';
 
 interface ClientPageProps {
     client: Client;
     allTags?: Tag[];
     activities?: Activity[];
+    projects?: Project[];
 }
 
 export default function Show({
     client,
     allTags = [],
     activities = [],
+    projects = [],
 }: ClientPageProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -93,6 +96,13 @@ export default function Show({
                                 Overview
                             </TabsTrigger>
                             <TabsTrigger
+                                value="projects"
+                                className="flex items-center gap-2 rounded-xl px-6 py-2 text-sm font-bold transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"
+                            >
+                                <Book className="h-4 w-4" />
+                                Projects
+                            </TabsTrigger>
+                            <TabsTrigger
                                 value="activity"
                                 className="flex items-center gap-2 rounded-xl px-6 py-2 text-sm font-bold transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"
                             >
@@ -108,6 +118,16 @@ export default function Show({
                             className="mt-0 focus-visible:outline-none"
                         >
                             <ClientOverviewTab client={client} />
+                        </TabsContent>
+
+                        <TabsContent
+                            value="projects"
+                            className="mt-0 focus-visible:outline-none"
+                        >
+                            <ClientProjectsTab 
+                                projects={projects}
+                                client={client}
+                            />
                         </TabsContent>
 
                         <TabsContent
