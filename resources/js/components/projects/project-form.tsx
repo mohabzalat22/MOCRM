@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -13,6 +12,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { projectService } from '@/services/projectService';
 import type { Project, ProjectStatus } from '@/types';
 
 interface ProjectFormProps {
@@ -48,20 +48,23 @@ export function ProjectForm({
         e.stopPropagation();
         setProcessing(true);
 
-        const url = project ? `/projects/${project.id}` : '/projects';
-        const method = project ? 'put' : 'post';
-
-        router[method](url, data, {
+        const options = {
             onSuccess: () => {
                 setProcessing(false);
                 toast.success(project ? 'Project updated successfully' : 'Project created successfully');
                 onSuccess?.();
             },
-            onError: (errors) => {
+            onError: (errors: Record<string, string>) => {
                 setProcessing(false);
                 Object.values(errors).forEach((error) => toast.error(error as string));
             },
-        });
+        };
+
+        if (project) {
+            projectService.updateProject(project.id, data, options);
+        } else {
+            projectService.createProject(data, options);
+        }
     };
 
     return (

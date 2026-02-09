@@ -44,8 +44,3 @@ export interface UpdateReminderData {
     recurrence_interval?: number;
     recurrence_end_date?: string | null;
 }
-
-export interface ServiceOptions {
-    onSuccess?: () => void;
-    onError?: (errors: Record<string, string>) => void;
-}

@@ -25,3 +25,8 @@ export interface Tag {
 }
 
 export type TaggableType = 'client' | 'project' | 'task';
+
+export interface ServiceOptions {
+    onSuccess?: () => void;
+    onError?: (errors: Record<string, string>) => void;
+}
