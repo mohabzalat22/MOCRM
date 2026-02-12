@@ -38,4 +38,31 @@ export const projectService = {
             ...options,
         });
     },
+
+    /**
+     * Update project status
+     */
+    updateStatus(id: number, status: string, options: ServiceOptions = {}): void {
+        router.put(
+            `/projects/${id}`,
+            { status } as unknown as RequestPayload,
+            {
+                ...options,
+            },
+        );
+    },
+
+    /**
+     * Archive a project
+     */
+    archiveProject(id: number, options: ServiceOptions = {}): void {
+        this.updateStatus(id, 'archived', options);
+    },
+
+    /**
+     * Restore a project
+     */
+    restoreProject(id: number, options: ServiceOptions = {}): void {
+        this.updateStatus(id, 'in_progress', options);
+    },
 };

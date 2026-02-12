@@ -17,6 +17,7 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'second
     on_hold: { label: 'On Hold', variant: 'outline' },
     completed: { label: 'Completed', variant: 'default' },
     cancelled: { label: 'Cancelled', variant: 'destructive' },
+    archived: { label: 'Archived', variant: 'outline' },
 };
 
 export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project>[] => [

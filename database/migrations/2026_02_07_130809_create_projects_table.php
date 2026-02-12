@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ProjectStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('start_date');
             $table->date('end_date')->nullable();
-            $table->enum('status', ['not_started', 'in_progress', 'on_hold', 'completed', 'cancelled'])->default('not_started');
+            $table->string('status')->default(ProjectStatus::NOT_STARTED->value);
             $table->timestamps();
         });
     }

@@ -150,6 +150,7 @@ export function ProjectForm({
                         <SelectItem value="on_hold">On Hold</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>
                         <SelectItem value="cancelled">Cancelled</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

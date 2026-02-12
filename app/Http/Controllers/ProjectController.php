@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Projects\CreateProjectUpdate;
+use App\Enums\ProjectStatus;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Client;
@@ -19,7 +20,7 @@ class ProjectController extends Controller
      */
     public function index(Request $request): Response
     {
-        $status = $request->input('status', 'active'); // active, archived, all
+        $status = $request->input('status', 'active');
 
         $projects = Project::with('client')
             ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
@@ -29,10 +30,14 @@ class ProjectController extends Controller
                 $query->where('user_id', auth()->id());
             })
             ->when($status === 'active', function ($query) {
-                $query->whereIn('status', ['not_started', 'in_progress', 'on_hold']);
+                $query->whereIn('status', [
+                    ProjectStatus::NOT_STARTED->value,
+                    ProjectStatus::IN_PROGRESS->value,
+                    ProjectStatus::ON_HOLD->value,
+                ]);
             })
             ->when($status === 'archived', function ($query) {
-                $query->whereIn('status', ['completed', 'cancelled']);
+                $query->where('status', ProjectStatus::Archived->value);
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -68,7 +73,11 @@ class ProjectController extends Controller
         // Get sibling projects for quick switcher
         $siblingProjects = Project::where('client_id', $project->client_id)
             ->where('id', '!=', $project->id)
-            ->whereIn('status', ['not_started', 'in_progress', 'on_hold']) // Only active siblings
+            ->whereIn('status', [
+                ProjectStatus::NOT_STARTED->value,
+                ProjectStatus::IN_PROGRESS->value,
+                ProjectStatus::ON_HOLD->value,
+            ])
             ->select('id', 'name', 'status')
             ->get();
 

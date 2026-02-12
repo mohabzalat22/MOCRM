@@ -27,7 +27,7 @@ class UpdateProjectRequest extends FormRequest
             'description' => 'nullable|string',
             'start_date' => 'sometimes|required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'status' => 'sometimes|required|in:not_started,in_progress,on_hold,completed,cancelled',
+            'status' => 'sometimes|required|in:not_started,in_progress,on_hold,completed,cancelled,archived',
         ];
     }
 }

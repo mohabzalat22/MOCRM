@@ -29,4 +29,6 @@ export type TaggableType = 'client' | 'project' | 'task';
 export interface ServiceOptions {
     onSuccess?: () => void;
     onError?: (errors: Record<string, string>) => void;
+    preserveScroll?: boolean;
+    preserveState?: boolean;
 }
