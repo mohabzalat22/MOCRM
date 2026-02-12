@@ -124,7 +124,7 @@ export function searchActivities(
 
     return activities.filter((activity) => {
         // Search in summary
-        if (activity.summary.toLowerCase().includes(lowerQuery)) {
+        if (activity.summary?.toLowerCase().includes(lowerQuery)) {
             return true;
         }
 

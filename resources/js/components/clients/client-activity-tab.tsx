@@ -1,7 +1,8 @@
+import { usePage } from '@inertiajs/react';
 import { useMemo } from 'react';
 import ActivityTimeline from '@/components/clients/activity-timeline';
 import { useClientStore, type ActivityChange } from '@/stores/useClientStore';
-import type { Activity, ActivityData, ActivityType, Client } from '@/types';
+import type { Activity, ActivityData, ActivityType, Client, SharedData } from '@/types';
 
 interface ClientActivityTabProps {
     activities: Activity[];
@@ -23,9 +24,9 @@ function generateTempId(): number {
 function mergeActivitiesWithChanges(
     activities: Activity[],
     activityChanges: ActivityChange[],
+    clientId: number,
+    userId: number,
 ): DisplayActivity[] {
-    // Get client_id from existing activities (they should all have the same client_id)
-    const clientId = activities[0]?.client_id;
 
     // Track IDs to be deleted
     const deletedIds = new Set(
@@ -67,9 +68,10 @@ function mergeActivitiesWithChanges(
             return {
                 id: generateTempId(),
                 client_id: clientId,
+                user_id: userId,
                 type: type as ActivityType,
-                summary: summary as string,
-                data: data as ActivityData,
+                summary: (summary as string) || '',
+                data: (data as ActivityData) || {},
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
                 isPending: true,
@@ -86,9 +88,12 @@ export default function ClientActivityTab({
 }: ClientActivityTabProps) {
     const activityChanges = useClientStore((state) => state.activityChanges);
 
+    const { auth } = usePage<SharedData>().props;
+    const userId = auth.user.id;
+
     const displayActivities = useMemo(
-        () => mergeActivitiesWithChanges(activities, activityChanges),
-        [activities, activityChanges],
+        () => mergeActivitiesWithChanges(activities, activityChanges, Number(client.id), userId),
+        [activities, activityChanges, client.id, userId],
     );
 
     return (

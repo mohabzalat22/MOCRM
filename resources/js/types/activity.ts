@@ -25,6 +25,7 @@ export interface ActivityData {
     old_status?: string;
     new_status?: string;
     is_project_update?: boolean;
+    notes?: string;
     [key: string]: unknown;
 }
 

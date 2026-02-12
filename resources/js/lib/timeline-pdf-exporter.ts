@@ -8,14 +8,15 @@ import { groupActivitiesByDate } from './activity-utils';
  * Get activity type label
  */
 function getTypeLabel(type: ActivityType): string {
-    const labels = {
+    const labels: Record<ActivityType, string> = {
         call: 'Call',
         email: 'Email',
         meeting: 'Meeting',
         transaction: 'Transaction',
         note: 'Note',
+        status_change: 'Status Change',
     };
-    return labels[type];
+    return labels[type] || type;
 }
 
 /**

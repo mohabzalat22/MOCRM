@@ -66,8 +66,8 @@ export default function ActivityForm({
         setData((prev) => ({
             ...prev,
             type,
-            summary: activity?.type === type ? activity.summary : '',
-            data: activity?.type === type ? activity.data : {},
+            summary: (activity?.type === type ? activity.summary : '') || '',
+            data: (activity?.type === type ? activity.data : {}) || {},
         }));
         setActionItems(
             activity?.type === type ? activity.data?.action_items || [] : [],
