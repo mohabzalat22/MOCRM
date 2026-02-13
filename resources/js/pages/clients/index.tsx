@@ -22,10 +22,16 @@ export default function clients({ clients, allTags }: ClientsPageProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Clients" />
-            <div className="p-4">
-                {/* bar */}
-                <div className="mb-1 flex items-center justify-between">
-                    <h2>My Clients</h2>
+            <div className="space-y-6 p-6">
+                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            Clients
+                        </h1>
+                        <p className="text-muted-foreground">
+                            Manage your client relationships and information.
+                        </p>
+                    </div>
                     <ClientDialog></ClientDialog>
                 </div>
                 <DataTable columns={columns} data={clients} allTags={allTags} />
