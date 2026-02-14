@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ClientStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,6 +26,7 @@ class Client extends Model
         'website',
         'address',
         'image',
+        'monthly_value',
     ];
 
     /**
@@ -97,6 +99,16 @@ class Client extends Model
         $user_id = auth()->id();
 
         return $query->where('user_id', $user_id);
+    }
+
+    /**
+     * Scope a query to only include active clients.
+     *
+     * @param  mixed  $query
+     */
+    public function scopeActive($query): mixed
+    {
+        return $query->where('status', ClientStatus::ACTIVE->value);
     }
 
     /**

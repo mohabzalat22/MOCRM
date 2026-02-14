@@ -16,6 +16,7 @@ export interface Client {
     address?: string;
     image?: string;
     status: string;
+    monthly_value: number;
     tags: Tag[];
     custom_fields: CustomField[];
     created_at: string;

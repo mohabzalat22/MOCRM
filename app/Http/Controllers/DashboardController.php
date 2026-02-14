@@ -17,7 +17,28 @@ class DashboardController extends Controller
      */
     public function __invoke(): Response
     {
+        $activeClientsCount = Client::forUser()->active()->count();
+        $totalMonthlyRevenue = Client::forUser()->active()->sum('monthly_value');
+        $activeProjectsCount = Project::where('status', '!=', 'completed')
+            ->where('status', '!=', 'cancelled')
+            ->whereHas('client', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->count();
+        $overdueTasksCount = Task::where('completed', false)
+            ->whereDate('due_date', '<', Carbon::today())
+            ->whereHas('project.client', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->count();
+
         return Inertia::render('dashboard', [
+            'metrics' => [
+                'activeClients' => $activeClientsCount,
+                'monthlyRevenue' => $totalMonthlyRevenue,
+                'activeProjects' => $activeProjectsCount,
+                'overdueTasks' => $overdueTasksCount,
+            ],
             'todayReminders' => Reminder::where('user_id', auth()->id())
                 ->whereDate('reminder_at', Carbon::today())
                 ->with('remindable')

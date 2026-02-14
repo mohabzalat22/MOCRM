@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { ActiveProjectsList } from '@/components/dashboard/active-projects-list';
 import { AtRiskClientsList } from '@/components/dashboard/at-risk-clients-list';
 import { DueTodayTasksList } from '@/components/dashboard/due-today-tasks-list';
+import { MetricCards } from '@/components/dashboard/metric-cards';
 import { TodayReminders } from '@/components/reminders/today-reminders';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
@@ -16,17 +17,26 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface DashboardProps {
+    metrics: {
+        activeClients: number;
+        monthlyRevenue: number;
+        activeProjects: number;
+        overdueTasks: number;
+    };
     todayReminders: Reminder[];
     dueTodayTasks: Task[];
     atRiskClients: Client[];
     activeProjects: Project[];
 }
 
-export default function Dashboard({ todayReminders, dueTodayTasks, atRiskClients, activeProjects }: DashboardProps) {
+export default function Dashboard({ metrics, todayReminders, dueTodayTasks, atRiskClients, activeProjects }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl p-4">
+                {/* Metrics Section */}
+                <MetricCards metrics={metrics} />
+
                 {/* Top Priority Section */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
