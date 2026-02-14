@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Reminder;
@@ -72,6 +73,11 @@ class DashboardController extends Controller
                 }])
                 ->latest()
                 ->take(5)
+                ->get(),
+            'recentActivities' => Activity::where('user_id', auth()->id())
+                ->with(['client', 'user'])
+                ->latest()
+                ->take(10)
                 ->get(),
         ]);
     }

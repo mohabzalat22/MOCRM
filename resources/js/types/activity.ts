@@ -1,5 +1,6 @@
 import type { Attachment } from './attachment';
 import type { User } from './auth';
+import type { Client } from './client';
 
 export type ActivityType =
     | 'call'
@@ -40,5 +41,6 @@ export interface Activity {
     created_at: string;
     updated_at: string;
     user?: User;
+    client?: Client;
     attachments?: Attachment[];
 }
