@@ -18,6 +18,9 @@ export interface Task {
     completed_at?: string;
     created_at: string;
     updated_at: string;
+
+    // Relationships
+    project?: Project;
 }
 
 export interface Project {

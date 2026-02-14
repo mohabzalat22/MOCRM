@@ -1,10 +1,12 @@
 import { Head } from '@inertiajs/react';
 import { ActiveProjectsList } from '@/components/dashboard/active-projects-list';
+import { AtRiskClientsList } from '@/components/dashboard/at-risk-clients-list';
+import { DueTodayTasksList } from '@/components/dashboard/due-today-tasks-list';
 import { TodayReminders } from '@/components/reminders/today-reminders';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import type { BreadcrumbItem, Reminder, Project } from '@/types';
+import type { BreadcrumbItem, Reminder, Project, Task, Client } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -15,27 +17,48 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface DashboardProps {
     todayReminders: Reminder[];
+    dueTodayTasks: Task[];
+    atRiskClients: Client[];
     activeProjects: Project[];
 }
 
-export default function Dashboard({ todayReminders, activeProjects }: DashboardProps) {
+export default function Dashboard({ todayReminders, dueTodayTasks, atRiskClients, activeProjects }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="min-h-[200px] overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+            <div className="flex h-full flex-1 flex-col gap-6 rounded-xl p-4">
+                {/* Top Priority Section */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+                        <DueTodayTasksList tasks={dueTodayTasks} />
+                    </div>
+                    <div className="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
                         <TodayReminders reminders={todayReminders} />
                     </div>
-                    <div className="col-span-1 md:col-span-2 min-h-[200px] overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-card">
-                        <ActiveProjectsList projects={activeProjects} />
+                    <div className="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+                        <AtRiskClientsList clients={atRiskClients} />
                     </div>
                 </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                {/* Future widgets can go here */}
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+
+                {/* Main Content Sections */}
+                <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+                    <div className="xl:col-span-2 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-card shadow-sm">
+                        <ActiveProjectsList projects={activeProjects} />
+                    </div>
+                    
+                    <div className="relative min-h-[300px] overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border shadow-sm">
+                        {/* Future widgets can go here */}
+                        <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                            <div className="space-y-2">
+                                <p className="text-sm font-medium text-muted-foreground">Insights Coming Soon</p>
+                                <p className="text-xs text-muted-foreground/60">More powerful analytics and business health indicators are on the way.</p>
+                            </div>
+                        </div>
+                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/10 dark:stroke-neutral-100/10" />
+                    </div>
                 </div>
             </div>
         </AppLayout>
     );
 }
+

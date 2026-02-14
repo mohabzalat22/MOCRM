@@ -1,3 +1,4 @@
+import type { Activity } from './activity';
 import type { Tag } from './index';
 
 export interface CustomField {
@@ -19,4 +20,7 @@ export interface Client {
     custom_fields: CustomField[];
     created_at: string;
     updated_at: string;
+
+    // Relationships
+    activities?: Activity[];
 }
