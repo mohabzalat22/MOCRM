@@ -112,6 +112,59 @@ class Client extends Model
     }
 
     /**
+     * Scope a query to include non-inactive clients.
+     *
+     * @param  mixed  $query
+     */
+    public function scopeNotInactive($query): mixed
+    {
+        return $query->where('status', '!=', ClientStatus::IN_ACTIVE->value);
+    }
+
+    /**
+     * Scope a query to include healthy clients.
+     *
+     * @param  mixed  $query
+     */
+    public function scopeHealthy($query): mixed
+    {
+        return $query->notInactive()
+            ->whereHas('activities', function ($query) {
+                $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays(7));
+            });
+    }
+
+    /**
+     * Scope a query to include clients that need attention.
+     *
+     * @param  mixed  $query
+     */
+    public function scopeNeedsAttention($query): mixed
+    {
+        return $query->notInactive()
+            ->whereHas('activities', function ($query) {
+                $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays(14))
+                    ->where('created_at', '<', \Carbon\Carbon::now()->subDays(7));
+            })
+            ->whereDoesntHave('activities', function ($query) {
+                $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays(7));
+            });
+    }
+
+    /**
+     * Scope a query to include at-risk clients.
+     *
+     * @param  mixed  $query
+     */
+    public function scopeAtRisk($query): mixed
+    {
+        return $query->notInactive()
+            ->whereDoesntHave('activities', function ($query) {
+                $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays(14));
+            });
+    }
+
+    /**
      * Summary of booted
      */
     protected static function booted(): void

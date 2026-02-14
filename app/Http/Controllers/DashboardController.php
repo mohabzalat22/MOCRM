@@ -53,15 +53,17 @@ class DashboardController extends Controller
                 ->with('project.client')
                 ->latest()
                 ->get(),
-            'atRiskClients' => Client::where('user_id', auth()->id())
-                ->where('status', '!=', 'archived')
-                ->whereDoesntHave('activities', function ($query) {
-                    $query->where('created_at', '>=', Carbon::now()->subDays(14));
-                })
-                ->with(['activities' => function ($query) {
-                    $query->latest()->limit(1);
-                }])
-                ->get(),
+            'clientHealth' => [
+                'healthy' => Client::forUser()->healthy()
+                    ->with(['activities' => fn ($q) => $q->latest()->limit(1)])
+                    ->get(),
+                'needsAttention' => Client::forUser()->needsAttention()
+                    ->with(['activities' => fn ($q) => $q->latest()->limit(1)])
+                    ->get(),
+                'atRisk' => Client::forUser()->atRisk()
+                    ->with(['activities' => fn ($q) => $q->latest()->limit(1)])
+                    ->get(),
+            ],
             'activeProjects' => Project::where('status', '!=', 'completed')
                 ->where('status', '!=', 'cancelled')
                 ->whereHas('client', function ($query) {

@@ -1,7 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { ActiveProjectsList } from '@/components/dashboard/active-projects-list';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
-import { AtRiskClientsList } from '@/components/dashboard/at-risk-clients-list';
+import { ClientHealthOverview } from '@/components/dashboard/client-health-overview';
 import { DueTodayTasksList } from '@/components/dashboard/due-today-tasks-list';
 import { MetricCards } from '@/components/dashboard/metric-cards';
 import { TodayReminders } from '@/components/reminders/today-reminders';
@@ -32,7 +32,11 @@ interface DashboardProps {
     };
     todayReminders: Reminder[];
     dueTodayTasks: Task[];
-    atRiskClients: Client[];
+    clientHealth: {
+        healthy: Client[];
+        needsAttention: Client[];
+        atRisk: Client[];
+    };
     activeProjects: Project[];
     recentActivities: Activity[];
 }
@@ -41,7 +45,7 @@ export default function Dashboard({
     metrics,
     todayReminders,
     dueTodayTasks,
-    atRiskClients,
+    clientHealth,
     activeProjects,
     recentActivities,
 }: DashboardProps) {
@@ -61,7 +65,7 @@ export default function Dashboard({
                         <TodayReminders reminders={todayReminders} />
                     </div>
                     <div className="rounded-xl border border-sidebar-border/70 bg-card/50 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md dark:border-sidebar-border">
-                        <AtRiskClientsList clients={atRiskClients} />
+                        <ClientHealthOverview healthData={clientHealth} />
                     </div>
                 </div>
 
