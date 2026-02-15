@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ProjectStatus;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Project;
@@ -33,12 +34,40 @@ class DashboardController extends Controller
             })
             ->count();
 
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        $endOfWeek = Carbon::now();
+
+        $weeklyInteractions = Activity::where('user_id', auth()->id())
+            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
+            ->count();
+
+        $weeklyProjectsCompleted = Project::where('status', ProjectStatus::COMPLETED->value)
+            ->whereHas('client', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
+            ->count();
+
+        $weeklyNewClients = Client::forUser()
+            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
+            ->count();
+
+        $weeklyRevenueEarned = Client::forUser()
+            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
+            ->sum('monthly_value');
+
         return Inertia::render('dashboard', [
             'metrics' => [
                 'activeClients' => $activeClientsCount,
                 'monthlyRevenue' => $totalMonthlyRevenue,
                 'activeProjects' => $activeProjectsCount,
                 'overdueTasks' => $overdueTasksCount,
+            ],
+            'weeklySummary' => [
+                'interactionsCount' => $weeklyInteractions,
+                'projectsCompletedCount' => $weeklyProjectsCompleted,
+                'newClientsCount' => $weeklyNewClients,
+                'revenueEarned' => $weeklyRevenueEarned,
             ],
             'todayReminders' => Reminder::where('user_id', auth()->id())
                 ->whereDate('reminder_at', Carbon::today())

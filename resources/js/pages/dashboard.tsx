@@ -4,6 +4,7 @@ import { ActivityFeed } from '@/components/dashboard/activity-feed';
 import { ClientHealthOverview } from '@/components/dashboard/client-health-overview';
 import { DueTodayTasksList } from '@/components/dashboard/due-today-tasks-list';
 import { MetricCards } from '@/components/dashboard/metric-cards';
+import { WeeklySummary } from '@/components/dashboard/weekly-summary';
 import { TodayReminders } from '@/components/reminders/today-reminders';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -30,6 +31,12 @@ interface DashboardProps {
         activeProjects: number;
         overdueTasks: number;
     };
+    weeklySummary: {
+        interactionsCount: number;
+        projectsCompletedCount: number;
+        newClientsCount: number;
+        revenueEarned: number;
+    };
     todayReminders: Reminder[];
     dueTodayTasks: Task[];
     clientHealth: {
@@ -43,6 +50,7 @@ interface DashboardProps {
 
 export default function Dashboard({
     metrics,
+    weeklySummary,
     todayReminders,
     dueTodayTasks,
     clientHealth,
@@ -55,6 +63,9 @@ export default function Dashboard({
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl p-4">
                 {/* Metrics Section */}
                 <MetricCards metrics={metrics} />
+
+                {/* Weekly Summary Section */}
+                <WeeklySummary summary={weeklySummary} />
 
                 {/* Top Priority Section */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
