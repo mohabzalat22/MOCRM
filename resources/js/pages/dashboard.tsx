@@ -4,6 +4,7 @@ import { ActivityFeed } from '@/components/dashboard/activity-feed';
 import { ClientHealthOverview } from '@/components/dashboard/client-health-overview';
 import { DueTodayTasksList } from '@/components/dashboard/due-today-tasks-list';
 import { MetricCards } from '@/components/dashboard/metric-cards';
+import { QuickActions } from '@/components/dashboard/quick-actions';
 import { WeeklySummary } from '@/components/dashboard/weekly-summary';
 import { TodayReminders } from '@/components/reminders/today-reminders';
 import AppLayout from '@/layouts/app-layout';
@@ -46,6 +47,7 @@ interface DashboardProps {
     };
     activeProjects: Project[];
     recentActivities: Activity[];
+    clients: { id: number; name: string }[];
 }
 
 export default function Dashboard({
@@ -56,6 +58,7 @@ export default function Dashboard({
     clientHealth,
     activeProjects,
     recentActivities,
+    clients,
 }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -63,6 +66,9 @@ export default function Dashboard({
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl p-4">
                 {/* Metrics Section */}
                 <MetricCards metrics={metrics} />
+
+                {/* Quick Actions Section */}
+                <QuickActions clients={clients} />
 
                 {/* Weekly Summary Section */}
                 <WeeklySummary summary={weeklySummary} />

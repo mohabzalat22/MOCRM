@@ -110,6 +110,7 @@ class DashboardController extends Controller
                 ->latest()
                 ->take(10)
                 ->get(),
+            'clients' => Client::forUser()->select('id', 'name')->get(),
         ]);
     }
 }

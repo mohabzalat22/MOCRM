@@ -1,7 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { Camera } from 'lucide-react';
 import type { ChangeEvent } from 'react';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 
-export function ClientDialog() {
+export function ClientDialog({ trigger }: { trigger?: React.ReactNode } = {}) {
     const [image, setImage] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [isDialogOpen, setDialogOpen] = useState(false);
@@ -73,9 +73,11 @@ export function ClientDialog() {
     return (
         <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-                <Button onClick={() => setDialogOpen(true)}>
-                    Add New Client
-                </Button>
+                {trigger || (
+                    <Button onClick={() => setDialogOpen(true)}>
+                        Add New Client
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="max-w-[425px] lg:max-w-[800px]">
                 <form
