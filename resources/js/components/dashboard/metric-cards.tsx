@@ -21,7 +21,7 @@ function MetricCard({ title, value, icon: Icon, description, href, className, ic
                     <div className="space-y-1">
                         <p className="text-sm font-medium text-muted-foreground">{title}</p>
                         <div className="flex items-baseline gap-1">
-                            <h2 className="text-3xl font-bold tracking-tight">{value}</h2>
+                            <h2 className="text-4xl font-bold tracking-tight">{value}</h2>
                         </div>
                         {description && (
                             <p className="text-xs text-muted-foreground">{description}</p>

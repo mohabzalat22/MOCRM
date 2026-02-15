@@ -1,5 +1,10 @@
-import { MessageSquare, CheckCircle2, UserPlus, TrendingUp } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    MessageSquare,
+    CheckCircle2,
+    UserPlus,
+    TrendingUp,
+} from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface WeeklySummaryProps {
     summary: {
@@ -51,26 +56,36 @@ export function WeeklySummary({ summary }: WeeklySummaryProps) {
     ];
 
     return (
-        <Card className="border-sidebar-border/70 bg-card/50 backdrop-blur-sm dark:border-sidebar-border">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-semibold">This Week Summary</CardTitle>
-                <p className="text-xs text-muted-foreground">Activities from Monday to today</p>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                    {items.map((item) => (
-                        <div key={item.label} className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
-                                <div className={`rounded-lg p-2 ${item.bgColor}`}>
-                                    <item.icon className={`size-4 ${item.color}`} />
+        <Card className="h-auto w-full border-sidebar-border/70 bg-transparent shadow-none dark:border-sidebar-border">
+            <CardContent className="px-1 py-2">
+                <div className="flex flex-col items-center gap-4">
+                    <h3 className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground/50 uppercase">
+                        This Week Summary
+                    </h3>
+                    <div className="grid w-full max-w-4xl grid-cols-2 items-center justify-items-center gap-x-12 gap-y-4 md:grid-cols-4">
+                        {items.map((item) => (
+                            <div
+                                key={item.label}
+                                className="flex items-center gap-3"
+                            >
+                                <div
+                                    className={`rounded-lg p-1.5 ${item.bgColor} shrink-0`}
+                                >
+                                    <item.icon
+                                        className={`size-3.5 ${item.color}`}
+                                    />
                                 </div>
-                                <span className="text-xs font-medium text-muted-foreground">{item.label}</span>
+                                <div className="flex min-w-[90px] flex-col">
+                                    <span className="mb-1 text-left text-[10px] leading-none font-semibold tracking-wider text-muted-foreground/70 uppercase">
+                                        {item.label}
+                                    </span>
+                                    <span className="text-left text-lg leading-none font-bold tracking-tight">
+                                        {item.value}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="mt-1">
-                                <span className="text-2xl font-bold tracking-tight">{item.value}</span>
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </CardContent>
         </Card>

@@ -67,7 +67,7 @@ export function QuickActions({ clients }: QuickActionsProps) {
     ];
 
     return (
-        <Card className="border-sidebar-border/70 bg-card/50 backdrop-blur-sm dark:border-sidebar-border">
+        <Card className="h-full border-sidebar-border/70 bg-card/50 backdrop-blur-sm dark:border-sidebar-border">
             <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
                 <p className="text-xs text-muted-foreground">Frequent tasks at your fingertips</p>
