@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { ActiveProjectsList } from '@/components/dashboard/active-projects-list';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
 import { ClientHealthOverview } from '@/components/dashboard/client-health-overview';
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { DateRangeSelector } from '@/components/dashboard/date-range-selector';
 import { DueTodayTasksList } from '@/components/dashboard/due-today-tasks-list';
 import { MetricCards } from '@/components/dashboard/metric-cards';
@@ -16,6 +15,7 @@ import { TodayReminders } from '@/components/reminders/today-reminders';
 import { Button } from '@/components/ui/button';
 import { useDashboardPreferences } from '@/hooks/use-dashboard-preferences';
 import AppLayout from '@/layouts/app-layout';
+import { DashboardLayout } from '@/layouts/dashboard/layout';
 import { dashboard } from '@/routes';
 
 import type {
