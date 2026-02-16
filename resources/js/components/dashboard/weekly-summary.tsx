@@ -12,6 +12,7 @@ interface WeeklySummaryProps {
         projectsCompletedCount: number;
         newClientsCount: number;
         revenueEarned: number;
+        dateRangeLabel?: string;
     };
 }
 
@@ -60,7 +61,7 @@ export function WeeklySummary({ summary }: WeeklySummaryProps) {
             <CardContent className="px-1 py-2">
                 <div className="flex flex-col items-center gap-4">
                     <h3 className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground/50 uppercase">
-                        This Week Summary
+                        Summary ({summary.dateRangeLabel || 'Last 7 Days'})
                     </h3>
                     <div className="grid w-full max-w-4xl grid-cols-2 items-center justify-items-center gap-x-12 gap-y-4 md:grid-cols-4">
                         {items.map((item) => (

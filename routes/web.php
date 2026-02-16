@@ -26,6 +26,8 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::post('/dashboard/preferences', [App\Http\Controllers\DashboardPreferenceController::class, 'update'])
+        ->name('dashboard.preferences.update');
 
     Route::resource('/clients', ClientController::class);
     Route::post('/clients/bulk-update', [ClientController::class, 'bulkUpdate'])->name('clients.bulk-update');
