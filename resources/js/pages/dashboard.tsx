@@ -125,10 +125,10 @@ export default function Dashboard({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-6 p-6">
-                <div className="flex items-center justify-between">
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                          <DateRangeSelector 
                             value={dateRange} 
                             onChange={updateDateRange} 

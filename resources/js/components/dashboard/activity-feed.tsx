@@ -40,7 +40,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
     }, []);
 
     return (
-        <Card className="flex h-full flex-col overflow-hidden border-none shadow-none bg-transparent">
+        <Card className="flex h-full flex-col overflow-hidden border-sidebar-border/70 bg-white dark:bg-transparent shadow-sm dark:border-sidebar-border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                     <ActivityIcon className="h-4 w-4 text-primary" />

@@ -67,7 +67,7 @@ export function QuickActions({ clients }: QuickActionsProps) {
     ];
 
     return (
-        <Card className="h-full border-sidebar-border/70 bg-card/50 backdrop-blur-sm dark:border-sidebar-border">
+        <Card className="h-full border-sidebar-border/70 bg-white dark:bg-transparent dark:border-sidebar-border shadow-sm">
             <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
                 <p className="text-xs text-muted-foreground">Frequent tasks at your fingertips</p>
@@ -80,7 +80,7 @@ export function QuickActions({ clients }: QuickActionsProps) {
                                 key={action.title}
                                 trigger={
                                     <div className={cn(
-                                        "flex flex-col items-center justify-center p-4 rounded-xl border border-sidebar-border/70 bg-background/50 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md",
+                                        "flex flex-col items-center justify-center p-4 rounded-xl border border-sidebar-border/70 bg-white dark:bg-muted/20 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md",
                                         action.hoverBorder
                                     )}>
                                         <div className={cn("rounded-full p-3 mb-3", action.bgColor)}>
@@ -91,11 +91,11 @@ export function QuickActions({ clients }: QuickActionsProps) {
                                 }
                             />
                         ) : (
-                            <button
-                                key={action.title}
-                                onClick={action.onClick}
-                                className={cn(
-                                    "flex flex-col items-center justify-center p-4 rounded-xl border border-sidebar-border/70 bg-background/50 transition-all duration-200 shadow-sm hover:shadow-md",
+                                <button
+                                    key={action.title}
+                                    onClick={action.onClick}
+                                    className={cn(
+                                        "flex flex-col items-center justify-center p-4 rounded-xl border border-sidebar-border/70 bg-white dark:bg-muted/20 transition-all duration-200 shadow-sm hover:shadow-md",
                                     action.hoverBorder
                                 )}
                             >

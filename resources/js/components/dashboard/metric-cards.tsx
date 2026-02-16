@@ -15,7 +15,7 @@ interface MetricProps {
 
 function MetricCard({ title, value, icon: Icon, description, href, className, iconClassName }: MetricProps) {
     const content = (
-        <Card className={cn("h-full overflow-hidden border-sidebar-border/70 dark:border-sidebar-border bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200", className)}>
+        <Card className={cn("h-full overflow-hidden border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-transparent shadow-sm hover:shadow-md transition-all duration-200", className)}>
             <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                     <div className="space-y-1">

@@ -20,7 +20,7 @@ const statusMap = {
 
 export function ActiveProjectsList({ projects }: ActiveProjectsListProps) {
     return (
-        <Card className="h-full border-none shadow-none bg-transparent">
+        <Card className="h-full border-sidebar-border/70 bg-white dark:bg-transparent shadow-sm dark:border-sidebar-border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
                 <div className="flex items-center gap-2">

@@ -55,7 +55,7 @@ export function ClientHealthOverview({ healthData }: ClientHealthOverviewProps) 
     const activeCategory = categories.find((c) => c.key === selectedCategory)!;
 
     return (
-        <Card className="flex h-full flex-col overflow-hidden border-none bg-transparent shadow-none">
+        <Card className="flex h-full flex-col overflow-hidden border-sidebar-border/70 bg-white dark:bg-transparent shadow-sm dark:border-sidebar-border">
             <CardHeader className="pb-4">
                 <CardTitle className="text-sm font-semibold">Client Health Overview</CardTitle>
             </CardHeader>
