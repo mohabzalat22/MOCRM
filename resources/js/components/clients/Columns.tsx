@@ -3,6 +3,7 @@ import { ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ensureHttp } from '@/lib/utils';
 import type { Client } from '@/types';
 
 // Define custom filter function
@@ -140,21 +141,40 @@ export const columns: ColumnDef<Client>[] = [
     {
         accessorKey: 'company_name' as const,
         header: 'Company Name',
+        cell: ({ row }) => row.original.company_name || '-',
     },
     {
         accessorKey: 'email' as const,
         header: 'Email',
+        cell: ({ row }) => row.original.email || '-',
     },
     {
         accessorKey: 'phone' as const,
         header: 'Phone',
+        cell: ({ row }) => row.original.phone || '-',
     },
     {
         accessorKey: 'website' as const,
         header: 'Website',
+        cell: ({ row }) => {
+            const website = row.original.website;
+            if (!website) return '-';
+            return (
+                <a 
+                    href={ensureHttp(website)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {website}
+                </a>
+            );
+        },
     },
     {
         accessorKey: 'address' as const,
         header: 'Address',
+        cell: ({ row }) => row.original.address || '-',
     },
 ];

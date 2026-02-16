@@ -23,22 +23,18 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
     {
         id: 'select',
         header: ({ table }) => (
-            <div className="px-4">
-                <Checkbox
-                    checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
-                />
-            </div>
+            <Checkbox
+                checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                aria-label="Select all"
+            />
         ),
         cell: ({ row }) => (
-            <div className="px-4">
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                />
-            </div>
+            <Checkbox
+                checked={row.getIsSelected()}
+                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                aria-label="Select row"
+            />
         ),
         enableSorting: false,
         enableHiding: false,
@@ -58,7 +54,7 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
                 </Button>
             );
         },
-        cell: ({ row }) => <span className="font-medium px-4">{row.original.remindable?.name || 'N/A'}</span>
+        cell: ({ row }) => <span className="font-medium">{row.original.remindable?.name || '-'}</span>
     },
     {
         accessorKey: 'title',
@@ -76,7 +72,7 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
             );
         },
         cell: ({ row }) => (
-            <div className="flex flex-col px-4">
+            <div className="flex flex-col">
                 <span className="font-medium">{row.original.title}</span>
             </div>
         ),
@@ -97,7 +93,7 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
             );
         },
         cell: ({ row }) => (
-            <div className="px-4 max-w-[300px]">
+            <div className="max-w-[300px]">
                 <p className="text-sm line-clamp-2">
                     {row.original.description || '-'}
                 </p>
@@ -122,7 +118,7 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
         cell: ({ row }) => {
             const date = new Date(row.original.reminder_at);
             return (
-                <div className="flex flex-col text-sm px-4">
+                <div className="flex flex-col text-sm">
                     <span className="flex items-center gap-1.5 font-medium">
                         <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                         {date.toLocaleDateString()}
@@ -172,12 +168,12 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
     {
         id: 'actions',
         accessorKey: 'actions',
-        header: () => <div className="text-right pr-4">Actions</div>,
+        header: () => <div className="text-right">Actions</div>,
         cell: ({ row }) => {
             const isCompleted = !!row.original.completed_at;
             
             return (
-                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity pr-4">
+                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     {!isCompleted && (
                         <>
                             <Button

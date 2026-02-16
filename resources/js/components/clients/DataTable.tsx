@@ -349,9 +349,9 @@ export function DataTable<TData extends WithId, TValue>({
                 </DropdownMenu>
             </div>
 
-            <div className="rounded-md border">
+            <div className="rounded-md border bg-card shadow-sm overflow-hidden">
                 <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-muted/50">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
@@ -378,13 +378,22 @@ export function DataTable<TData extends WithId, TValue>({
                                     data-state={
                                         row.getIsSelected() && 'selected'
                                     }
+                                    className="group hover:bg-muted/50"
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id} 
+                                        <TableCell
+                                            key={cell.id}
                                             onClick={(e) => {
-                                                  // Prevent navigation when clicking checkbox or actions
-                                                 if ((e.target as HTMLElement).closest('[role="checkbox"]')) return;
-                                                router.visit(`clients/${row.original.id}`);
+                                                // Prevent navigation when clicking checkbox or actions
+                                                if (
+                                                    (
+                                                        e.target as HTMLElement
+                                                    ).closest('[role="checkbox"]')
+                                                )
+                                                    return;
+                                                router.visit(
+                                                    `clients/${row.original.id}`,
+                                                );
                                             }}
                                             className="cursor-pointer"
                                         >

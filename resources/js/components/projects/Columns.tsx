@@ -24,22 +24,18 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
     {
         id: 'select',
         header: ({ table }) => (
-            <div className="px-4">
-                <Checkbox
-                    checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
-                />
-            </div>
+            <Checkbox
+                checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                aria-label="Select all"
+            />
         ),
         cell: ({ row }) => (
-            <div className="px-4">
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                />
-            </div>
+            <Checkbox
+                checked={row.getIsSelected()}
+                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                aria-label="Select row"
+            />
         ),
         enableSorting: false,
         enableHiding: false,
@@ -59,7 +55,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
                 </Button>
             );
         },
-        cell: ({ row }) => <span className="font-medium px-4">{row.original.name}</span>
+        cell: ({ row }) => <span className="font-medium">{row.original.name}</span>
     },
     {
         accessorKey: 'client.name',
@@ -76,7 +72,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
                 </Button>
             );
         },
-        cell: ({ row }) => <span className="px-4">{row.original.client?.name || 'N/A'}</span>
+        cell: ({ row }) => row.original.client?.name || '-'
     },
     {
         accessorKey: 'tasks_count',
@@ -86,10 +82,10 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
             const total = project.tasks_count || 0;
             const completed = project.completed_tasks_count || 0;
             
-            if (total === 0) return <span className="text-muted-foreground text-xs px-4">No tasks</span>;
+            if (total === 0) return <span className="text-muted-foreground text-xs">No tasks</span>;
             
             return (
-                <div className="flex items-center gap-2 px-4 whitespace-nowrap">
+                <div className="flex items-center gap-2 whitespace-nowrap">
                     <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div 
                             className="h-full bg-primary" 
@@ -121,7 +117,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
         cell: ({ row }) => {
             const status = row.getValue('status') as string;
             const config = statusConfig[status] || { label: status, variant: 'secondary' as const };
-            return <Badge variant={config.variant} className="ml-4">{config.label}</Badge>;
+            return <Badge variant={config.variant}>{config.label}</Badge>;
         },
     },
     {
@@ -142,7 +138,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
         cell: ({ row }) => {
             const date = new Date(row.original.start_date);
             return (
-                <div className="flex items-center gap-1.5 text-sm px-4">
+                <div className="flex items-center gap-1.5 text-sm">
                     <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>{date.toLocaleDateString()}</span>
                 </div>
@@ -165,10 +161,10 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
             );
         },
         cell: ({ row }) => {
-            if (!row.original.end_date) return <span className="px-4 text-muted-foreground">-</span>;
+            if (!row.original.end_date) return <span className="text-muted-foreground">-</span>;
             const date = new Date(row.original.end_date);
             return (
-                <div className="flex items-center gap-1.5 text-sm px-4">
+                <div className="flex items-center gap-1.5 text-sm">
                     <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>{date.toLocaleDateString()}</span>
                 </div>
@@ -177,11 +173,11 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
     },
     {
         id: 'actions',
-        header: () => <div className="text-right pr-4">Actions</div>,
+        header: () => <div className="text-right">Actions</div>,
         cell: ({ row }) => {
             const project = row.original;
             return (
-                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity pr-4">
+                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                         variant="ghost"
                         size="icon"

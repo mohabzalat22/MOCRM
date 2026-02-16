@@ -10,6 +10,11 @@ export function toUrl(url: NonNullable<InertiaLinkProps['href']>): string {
     return typeof url === 'string' ? url : url.url;
 }
 
+export function ensureHttp(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : `https://${url}`;
+}
+
 export const TAG_COLORS = [
     '#3B82F6',
     '#EF4444',

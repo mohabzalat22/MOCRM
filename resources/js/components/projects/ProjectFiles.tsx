@@ -60,7 +60,7 @@ export function ProjectFiles({ project }: ProjectFilesProps) {
                                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                                         <Clock className="h-3 w-3" />
                                         <span>
-                                            {file.update_date ? new Date(file.update_date).toLocaleDateString() : 'N/A'}
+                                            {file.update_date ? new Date(file.update_date).toLocaleDateString() : '-'}
                                         </span>
                                     </div>
                                 </div>
