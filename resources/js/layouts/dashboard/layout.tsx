@@ -1,6 +1,3 @@
-import type {
-    DragEndEvent,
-    DragStartEvent} from '@dnd-kit/core';
 import {
     DndContext,
     DragOverlay,
@@ -9,7 +6,12 @@ import {
     useSensor,
     useSensors,
     closestCenter,
+    defaultDropAnimationSideEffects,
 } from '@dnd-kit/core';
+import type {
+    DragEndEvent,
+    DragStartEvent} from '@dnd-kit/core';
+import type { DropAnimation } from '@dnd-kit/core';
 import {
     SortableContext,
     rectSortingStrategy,
@@ -47,6 +49,7 @@ export function DashboardLayout({
     onHideWidget,
 }: DashboardLayoutProps) {
     const [activeId, setActiveId] = useState<string | null>(null);
+    const [activeRect, setActiveRect] = useState<{ width: number; height: number } | null>(null);
 
     const sensors = useSensors(
         useSensor(MouseSensor, {
@@ -63,12 +66,34 @@ export function DashboardLayout({
     );
 
     const handleDragStart = (event: DragStartEvent) => {
-        setActiveId(event.active.id as string);
+        const { active } = event;
+        setActiveId(active.id as string);
+        
+        // Use direct DOM measurement for precision
+        const element = document.getElementById(`widget-${active.id}`);
+        if (element) {
+            const rect = element.getBoundingClientRect();
+            setActiveRect({
+                width: rect.width,
+                height: rect.height,
+            });
+        }
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
         setActiveId(null);
+        setActiveRect(null);
         onDragEnd(event);
+    };
+
+    const dropAnimation: DropAnimation = {
+        sideEffects: defaultDropAnimationSideEffects({
+            styles: {
+                active: {
+                    opacity: '0.5',
+                },
+            },
+        }),
     };
 
     return (
@@ -99,10 +124,18 @@ export function DashboardLayout({
                 </div>
             </SortableContext>
 
-            <DragOverlay>
-                {activeId ? (
-                    <div className={WIDGET_SPANS[activeId] || 'col-span-1'}>
-                        {widgets[activeId]}
+            <DragOverlay dropAnimation={dropAnimation}>
+                {activeId && activeRect ? (
+                    <div 
+                        className="pointer-events-none"
+                        style={{
+                            width: activeRect.width,
+                            height: activeRect.height,
+                        }}
+                    >
+                        <div className="rounded-lg border bg-background shadow-2xl ring-2 ring-primary/10 h-full overflow-hidden outline-none">
+                            {widgets[activeId]}
+                        </div>
                     </div>
                 ) : null}
             </DragOverlay>

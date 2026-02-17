@@ -36,16 +36,20 @@ export function SortableWidget({
 
     return (
         <div
+            id={`widget-${id}`}
             ref={setNodeRef}
             style={style}
             className={cn(
-                'group relative h-full',
-                isDragging && 'opacity-50',
+                'group relative h-full transition-shadow duration-200',
+                isDragging && 'bg-muted/10 rounded-lg ring-2 ring-muted ring-inset',
                 className,
             )}
         >
             {isEditMode && (
-                <div className="absolute top-2 right-2 z-10 flex gap-1 rounded-md border bg-background/80 p-1 opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                <div className={cn(
+                    "absolute top-2 right-2 z-10 flex gap-1 rounded-md border bg-background/80 p-1 opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100",
+                    isDragging && "hidden"
+                )}>
                     {/* Drag Handle */}
                     <div
                         className="cursor-grab rounded p-1 hover:bg-muted active:cursor-grabbing"
@@ -66,7 +70,9 @@ export function SortableWidget({
                     </div>
                 </div>
             )}
-            {children}
+            <div className={cn("h-full", isDragging && "invisible")}>
+                {children}
+            </div>
         </div>
     );
 }
