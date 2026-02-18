@@ -19,7 +19,13 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import type { Project } from '@/types';
 
 interface ClientProjectsTabProps {
@@ -40,13 +46,21 @@ export default function ClientProjectsTab({
     client,
 }: ClientProjectsTabProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [currentStatus, setCurrentStatus] = useState<string>('all');
 
     const activeProjects = projects.filter((p) =>
         ['not_started', 'in_progress', 'on_hold'].includes(p.status),
     );
-    const archivedProjects = projects.filter((p) =>
-        ['completed', 'cancelled'].includes(p.status),
-    );
+
+    const filteredProjects = projects.filter((p) => {
+        if (currentStatus === 'active') {
+            return ['not_started', 'in_progress', 'on_hold'].includes(p.status);
+        }
+        if (currentStatus === 'all') {
+            return true;
+        }
+        return p.status === currentStatus;
+    });
 
     const ProjectCard = ({ project }: { project: Project }) => {
         const status =
@@ -140,56 +154,52 @@ export default function ClientProjectsTab({
                 </Button>
             </div>
 
-            <Tabs defaultValue="active" className="w-full">
-                <TabsList>
-                    <TabsTrigger value="active">
-                        Active ({activeProjects.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="archived">
-                        Archived ({archivedProjects.length})
-                    </TabsTrigger>
-                </TabsList>
+            <div className="flex flex-wrap items-center gap-2 py-4">
+                <Select
+                    value={currentStatus === 'all' ? undefined : currentStatus}
+                    onValueChange={(value) => setCurrentStatus(value)}
+                >
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">
+                            All Statuses ({projects.length})
+                        </SelectItem>
+                        <SelectItem value="active">
+                            Active Projects ({activeProjects.length})
+                        </SelectItem>
+                        <SelectItem value="not_started">Not Started</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="on_hold">On Hold</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
 
-                <TabsContent value="active" className="mt-4 space-y-4">
-                    {activeProjects.length === 0 ? (
-                        <div className="rounded-lg border border-dashed py-12 text-center text-muted-foreground">
-                            <p>No active projects found.</p>
+            <div className="mt-4 space-y-4">
+                {filteredProjects.length === 0 ? (
+                    <div className="rounded-lg border border-dashed py-12 text-center text-muted-foreground">
+                        <p>No projects found for this filter.</p>
+                        {currentStatus === 'all' && (
                             <Button
                                 variant="link"
                                 onClick={() => setIsCreateOpen(true)}
                             >
                                 Create one?
                             </Button>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            {activeProjects.map((project) => (
-                                <ProjectCard
-                                    key={project.id}
-                                    project={project}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-
-                <TabsContent value="archived" className="mt-4 space-y-4">
-                    {archivedProjects.length === 0 ? (
-                        <div className="rounded-lg border border-dashed py-12 text-center text-muted-foreground">
-                            <p>No archived projects.</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            {archivedProjects.map((project) => (
-                                <ProjectCard
-                                    key={project.id}
-                                    project={project}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-            </Tabs>
+                        )}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {filteredProjects.map((project) => (
+                            <ProjectCard key={project.id} project={project} />
+                        ))}
+                    </div>
+                )}
+            </div>
 
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogContent className="sm:max-w-[500px]">

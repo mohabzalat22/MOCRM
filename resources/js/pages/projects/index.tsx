@@ -13,7 +13,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem, Project } from '@/types';
 
@@ -33,7 +32,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function ProjectsIndex({
     projects,
     clients,
-    filters = { status: 'active' },
+    filters = { status: 'all' },
 }: ProjectsPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -91,22 +90,14 @@ export default function ProjectsIndex({
                     </Button>
                 </div>
 
-                <Tabs
-                    defaultValue={filters.status}
-                    onValueChange={handleTabChange}
-                    className="w-full"
-                >
-                    <TabsList className="mb-4">
-                        <TabsTrigger value="active">
-                            Active Projects
-                        </TabsTrigger>
-                        <TabsTrigger value="archived">Archived</TabsTrigger>
-                        <TabsTrigger value="all">All Projects</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value={filters.status} className="mt-0">
-                        <DataTable columns={columns} data={projects} />
-                    </TabsContent>
-                </Tabs>
+                <div className="mt-0">
+                    <DataTable
+                        columns={columns}
+                        data={projects}
+                        statusFilter={filters.status}
+                        onStatusChange={handleTabChange}
+                    />
+                </div>
             </div>
 
             {/* Create Dialog */}

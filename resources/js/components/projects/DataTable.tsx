@@ -24,6 +24,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
     Table,
     TableBody,
     TableCell,
@@ -35,11 +42,15 @@ import {
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    statusFilter?: string;
+    onStatusChange?: (value: string) => void;
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
+    statusFilter,
+    onStatusChange,
 }: DataTableProps<TData, TValue>) {
     'use no memo';
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -83,6 +94,35 @@ export function DataTable<TData, TValue>({
                         className="pl-8"
                     />
                 </div>
+
+                {onStatusChange && (
+                    <Select
+                        value={
+                            statusFilter === 'all' ? undefined : statusFilter
+                        }
+                        onValueChange={onStatusChange}
+                    >
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Filter by Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Statuses</SelectItem>
+                            <SelectItem value="active">
+                                Active Projects
+                            </SelectItem>
+                            <SelectItem value="not_started">
+                                Not Started
+                            </SelectItem>
+                            <SelectItem value="in_progress">
+                                In Progress
+                            </SelectItem>
+                            <SelectItem value="on_hold">On Hold</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                        </SelectContent>
+                    </Select>
+                )}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">

@@ -20,7 +20,7 @@ class ProjectController extends Controller
      */
     public function index(Request $request): Response
     {
-        $status = $request->input('status', 'active');
+        $status = $request->input('status', 'all');
 
         $projects = Project::with('client')
             ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
@@ -36,8 +36,8 @@ class ProjectController extends Controller
                     ProjectStatus::ON_HOLD->value,
                 ]);
             })
-            ->when($status === 'archived', function ($query) {
-                $query->where('status', ProjectStatus::Archived->value);
+            ->when($status !== 'active' && $status !== 'all', function ($query) use ($status) {
+                $query->where('status', $status);
             })
             ->orderBy('created_at', 'desc')
             ->get();
