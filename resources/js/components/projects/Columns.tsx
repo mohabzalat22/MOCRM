@@ -11,7 +11,13 @@ interface ColumnProps {
     onDelete: (project: Project) => void;
 }
 
-const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+const statusConfig: Record<
+    string,
+    {
+        label: string;
+        variant: 'default' | 'secondary' | 'destructive' | 'outline';
+    }
+> = {
     not_started: { label: 'Not Started', variant: 'secondary' },
     in_progress: { label: 'In Progress', variant: 'default' },
     on_hold: { label: 'On Hold', variant: 'outline' },
@@ -20,13 +26,21 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'second
     archived: { label: 'Archived', variant: 'outline' },
 };
 
-export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project>[] => [
+export const getColumns = ({
+    onEdit,
+    onDelete,
+}: ColumnProps): ColumnDef<Project>[] => [
     {
         id: 'select',
         header: ({ table }) => (
             <Checkbox
-                checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                checked={
+                    table.getIsAllPageRowsSelected() ||
+                    (table.getIsSomePageRowsSelected() && 'indeterminate')
+                }
+                onCheckedChange={(value) =>
+                    table.toggleAllPageRowsSelected(!!value)
+                }
                 aria-label="Select all"
             />
         ),
@@ -55,7 +69,9 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
                 </Button>
             );
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.name}</span>
+        cell: ({ row }) => (
+            <span className="font-medium">{row.original.name}</span>
+        ),
     },
     {
         accessorKey: 'client.name',
@@ -72,7 +88,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
                 </Button>
             );
         },
-        cell: ({ row }) => row.original.client?.name || '-'
+        cell: ({ row }) => row.original.client?.name || '-',
     },
     {
         accessorKey: 'tasks_count',
@@ -81,15 +97,22 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
             const project = row.original;
             const total = project.tasks_count || 0;
             const completed = project.completed_tasks_count || 0;
-            
-            if (total === 0) return <span className="text-muted-foreground text-xs">No tasks</span>;
-            
+
+            if (total === 0)
+                return (
+                    <span className="text-xs text-muted-foreground">
+                        No tasks
+                    </span>
+                );
+
             return (
                 <div className="flex items-center gap-2 whitespace-nowrap">
-                    <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div 
-                            className="h-full bg-primary" 
-                            style={{ width: `${Math.round((completed / total) * 100)}%` }} 
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+                        <div
+                            className="h-full bg-primary"
+                            style={{
+                                width: `${Math.round((completed / total) * 100)}%`,
+                            }}
                         />
                     </div>
                     <span className="text-[10px] font-medium">
@@ -116,7 +139,10 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
         },
         cell: ({ row }) => {
             const status = row.getValue('status') as string;
-            const config = statusConfig[status] || { label: status, variant: 'secondary' as const };
+            const config = statusConfig[status] || {
+                label: status,
+                variant: 'secondary' as const,
+            };
             return <Badge variant={config.variant}>{config.label}</Badge>;
         },
     },
@@ -143,7 +169,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
                     <span>{date.toLocaleDateString()}</span>
                 </div>
             );
-        }
+        },
     },
     {
         accessorKey: 'end_date',
@@ -161,7 +187,8 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
             );
         },
         cell: ({ row }) => {
-            if (!row.original.end_date) return <span className="text-muted-foreground">-</span>;
+            if (!row.original.end_date)
+                return <span className="text-muted-foreground">-</span>;
             const date = new Date(row.original.end_date);
             return (
                 <div className="flex items-center gap-1.5 text-sm">
@@ -169,7 +196,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
                     <span>{date.toLocaleDateString()}</span>
                 </div>
             );
-        }
+        },
     },
     {
         id: 'actions',
@@ -177,7 +204,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
         cell: ({ row }) => {
             const project = row.original;
             return (
-                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <Button
                         variant="ghost"
                         size="icon"
@@ -197,7 +224,7 @@ export const getColumns = ({ onEdit, onDelete }: ColumnProps): ColumnDef<Project
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => onDelete(project)}
                         title="Delete"
                     >

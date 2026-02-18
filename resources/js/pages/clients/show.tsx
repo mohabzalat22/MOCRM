@@ -124,7 +124,7 @@ export default function Show({
                             value="projects"
                             className="mt-0 focus-visible:outline-none"
                         >
-                            <ClientProjectsTab 
+                            <ClientProjectsTab
                                 projects={projects}
                                 client={client}
                             />
@@ -134,8 +134,8 @@ export default function Show({
                             value="activity"
                             className="mt-0 focus-visible:outline-none"
                         >
-                            <ClientActivityTab 
-                                activities={activities} 
+                            <ClientActivityTab
+                                activities={activities}
                                 client={client}
                             />
                         </TabsContent>

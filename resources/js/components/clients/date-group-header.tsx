@@ -6,16 +6,22 @@ interface DateGroupHeaderProps {
     count: number;
 }
 
-export default function DateGroupHeader({ label, count }: DateGroupHeaderProps) {
+export default function DateGroupHeader({
+    label,
+    count,
+}: DateGroupHeaderProps) {
     return (
-        <div className="sticky top-0 z-20 mb-4 flex items-center gap-3 border-b bg-background/95 pb-2 pt-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="sticky top-0 z-20 mb-4 flex items-center gap-3 border-b bg-background/95 pt-6 pb-2 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                <h3 className="text-sm font-semibold tracking-wide text-foreground uppercase">
                     {label}
                 </h3>
             </div>
-            <Badge variant="secondary" className="h-5 rounded-full px-2 text-xs">
+            <Badge
+                variant="secondary"
+                className="h-5 rounded-full px-2 text-xs"
+            >
                 {count}
             </Badge>
         </div>

@@ -57,7 +57,7 @@ export function WeeklySummary({ summary }: WeeklySummaryProps) {
     ];
 
     return (
-        <Card className="h-auto w-full border-sidebar-border/70 bg-white dark:bg-transparent shadow-sm dark:border-sidebar-border">
+        <Card className="h-auto w-full border-sidebar-border/70 bg-white shadow-sm dark:border-sidebar-border dark:bg-transparent">
             <CardContent className="px-1 py-2">
                 <div className="flex flex-col items-center gap-4">
                     <h3 className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground/50 uppercase">

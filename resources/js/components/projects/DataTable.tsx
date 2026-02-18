@@ -2,7 +2,8 @@ import type {
     ColumnDef,
     ColumnFiltersState,
     SortingState,
-    VisibilityState} from '@tanstack/react-table';
+    VisibilityState,
+} from '@tanstack/react-table';
 import {
     flexRender,
     getCoreRowModel,
@@ -42,8 +43,10 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
     'use no memo';
     const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+    const [columnFilters, setColumnFilters] =
+        React.useState<ColumnFiltersState>([]);
+    const [columnVisibility, setColumnVisibility] =
+        React.useState<VisibilityState>({});
     const [globalFilter, setGlobalFilter] = React.useState('');
 
     // eslint-disable-next-line react-hooks/incompatible-library
@@ -68,13 +71,15 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="w-full">
-            <div className="flex items-center py-4 gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2 py-4">
                 <div className="relative w-full max-w-sm">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search projects..."
                         value={globalFilter ?? ''}
-                        onChange={(event) => setGlobalFilter(event.target.value)}
+                        onChange={(event) =>
+                            setGlobalFilter(event.target.value)
+                        }
                         className="pl-8"
                     />
                 </div>
@@ -106,7 +111,7 @@ export function DataTable<TData, TValue>({
                 </DropdownMenu>
             </div>
 
-            <div className="rounded-md border bg-card shadow-sm overflow-hidden">
+            <div className="overflow-hidden rounded-md border bg-card shadow-sm">
                 <Table>
                     <TableHeader className="bg-muted/50">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -117,8 +122,9 @@ export function DataTable<TData, TValue>({
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
-                                                      header.column.columnDef.header,
-                                                      header.getContext()
+                                                      header.column.columnDef
+                                                          .header,
+                                                      header.getContext(),
                                                   )}
                                         </TableHead>
                                     );
@@ -131,14 +137,16 @@ export function DataTable<TData, TValue>({
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
-                                    data-state={row.getIsSelected() && 'selected'}
+                                    data-state={
+                                        row.getIsSelected() && 'selected'
+                                    }
                                     className="group hover:bg-muted/50"
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
-                                                cell.getContext()
+                                                cell.getContext(),
                                             )}
                                         </TableCell>
                                     ))}

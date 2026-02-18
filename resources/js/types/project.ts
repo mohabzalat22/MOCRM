@@ -2,7 +2,12 @@ import type { Activity } from './activity';
 import type { Attachment } from './attachment';
 import type { Client } from './client';
 
-export type ProjectStatus = 'not_started' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled';
+export type ProjectStatus =
+    | 'not_started'
+    | 'in_progress'
+    | 'on_hold'
+    | 'completed'
+    | 'cancelled';
 
 export interface Task {
     id: number;
@@ -41,7 +46,7 @@ export interface Project {
     tasks?: Task[];
     activities?: Activity[];
     attachments?: Attachment[];
-    
+
     // Aggregates
     tasks_count?: number;
     completed_tasks_count?: number;

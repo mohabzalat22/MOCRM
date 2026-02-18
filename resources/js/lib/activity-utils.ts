@@ -7,7 +7,12 @@ import {
 } from 'date-fns';
 import type { Activity, ActivityType } from '@/types';
 
-export type DateGroup = 'today' | 'yesterday' | 'this-week' | 'this-month' | 'older';
+export type DateGroup =
+    | 'today'
+    | 'yesterday'
+    | 'this-week'
+    | 'this-month'
+    | 'older';
 
 export interface GroupedActivities {
     group: DateGroup;
@@ -70,7 +75,9 @@ export function sortActivitiesByDate(activities: Activity[]): Activity[] {
 /**
  * Groups activities by date categories
  */
-export function groupActivitiesByDate(activities: Activity[]): GroupedActivities[] {
+export function groupActivitiesByDate(
+    activities: Activity[],
+): GroupedActivities[] {
     // First, sort activities by date
     const sorted = sortActivitiesByDate(activities);
 
@@ -92,7 +99,9 @@ export function groupActivitiesByDate(activities: Activity[]): GroupedActivities
             label: getDateGroupLabel(group),
             activities,
         }))
-        .sort((a, b) => getDateGroupOrder(a.group) - getDateGroupOrder(b.group));
+        .sort(
+            (a, b) => getDateGroupOrder(a.group) - getDateGroupOrder(b.group),
+        );
 }
 
 /**

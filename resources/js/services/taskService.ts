@@ -26,14 +26,17 @@ export const taskService = {
     /**
      * Create a new task
      */
-    createTask(data: { 
-        project_id: number; 
-        description: string;
-        start_date?: string | null;
-        due_date?: string | null;
-        is_milestone?: boolean;
-        parent_id?: number | null;
-    }, options: ServiceOptions = {}): void {
+    createTask(
+        data: {
+            project_id: number;
+            description: string;
+            start_date?: string | null;
+            due_date?: string | null;
+            is_milestone?: boolean;
+            parent_id?: number | null;
+        },
+        options: ServiceOptions = {},
+    ): void {
         router.post('/tasks', data as unknown as RequestPayload, {
             preserveScroll: true,
             ...options,
@@ -44,22 +47,30 @@ export const taskService = {
      * Toggle task completion status
      */
     toggleComplete(taskId: number, options: ServiceOptions = {}): void {
-        router.put(`/tasks/${taskId}/toggle-complete`, {}, {
-            preserveScroll: true,
-            ...options,
-        });
+        router.put(
+            `/tasks/${taskId}/toggle-complete`,
+            {},
+            {
+                preserveScroll: true,
+                ...options,
+            },
+        );
     },
 
     /**
      * Update task details (description, due date, etc.)
      */
-    updateTask(taskId: number, data: { 
-        description?: string; 
-        due_date?: string | null;
-        start_date?: string | null;
-        is_milestone?: boolean;
-        parent_id?: number | null;
-    }, options: ServiceOptions = {}): void {
+    updateTask(
+        taskId: number,
+        data: {
+            description?: string;
+            due_date?: string | null;
+            start_date?: string | null;
+            is_milestone?: boolean;
+            parent_id?: number | null;
+        },
+        options: ServiceOptions = {},
+    ): void {
         router.patch(`/tasks/${taskId}`, data as unknown as RequestPayload, {
             preserveScroll: true,
             ...options,
@@ -90,9 +101,13 @@ export const taskService = {
      * Bulk complete tasks
      */
     bulkComplete(taskIds: number[], options: ServiceOptions = {}): void {
-        router.post('/tasks/bulk-complete', { task_ids: taskIds } as unknown as RequestPayload, {
-            preserveScroll: true,
-            ...options,
-        });
+        router.post(
+            '/tasks/bulk-complete',
+            { task_ids: taskIds } as unknown as RequestPayload,
+            {
+                preserveScroll: true,
+                ...options,
+            },
+        );
     },
 };

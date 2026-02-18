@@ -9,7 +9,7 @@ interface DueTodayTasksListProps {
 
 export function DueTodayTasksList({ tasks }: DueTodayTasksListProps) {
     return (
-        <Card className="flex h-full flex-col overflow-hidden border-sidebar-border/70 bg-white dark:bg-transparent shadow-sm dark:border-sidebar-border">
+        <Card className="flex h-full flex-col overflow-hidden border-sidebar-border/70 bg-white shadow-sm dark:border-sidebar-border dark:bg-transparent">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                     <AlertCircle className="h-4 w-4 text-orange-500" />
@@ -31,19 +31,21 @@ export function DueTodayTasksList({ tasks }: DueTodayTasksListProps) {
                                 key={task.id}
                                 className="p-4 transition-colors hover:bg-muted/50"
                             >
-                                <div className="space-y-1 min-w-0">
-                                    <p className="text-sm font-medium leading-none truncate">
+                                <div className="min-w-0 space-y-1">
+                                    <p className="truncate text-sm leading-none font-medium">
                                         {task.description}
                                     </p>
                                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                         <Link
                                             href={`/projects/${task.project_id}`}
-                                            className="hover:underline truncate"
+                                            className="truncate hover:underline"
                                         >
                                             {task.project?.name}
                                         </Link>
                                         <span className="h-1 w-1 rounded-full bg-border" />
-                                        <span className="truncate">{task.project?.client?.name}</span>
+                                        <span className="truncate">
+                                            {task.project?.client?.name}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

@@ -13,21 +13,45 @@ interface MetricProps {
     iconClassName?: string;
 }
 
-function MetricCard({ title, value, icon: Icon, description, href, className, iconClassName }: MetricProps) {
+function MetricCard({
+    title,
+    value,
+    icon: Icon,
+    description,
+    href,
+    className,
+    iconClassName,
+}: MetricProps) {
     const content = (
-        <Card className={cn("h-full overflow-hidden border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-transparent shadow-sm hover:shadow-md transition-all duration-200", className)}>
+        <Card
+            className={cn(
+                'h-full overflow-hidden border-sidebar-border/70 bg-white shadow-sm transition-all duration-200 hover:shadow-md dark:border-sidebar-border dark:bg-transparent',
+                className,
+            )}
+        >
             <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                            {title}
+                        </p>
                         <div className="flex items-baseline gap-1">
-                            <h2 className="text-4xl font-bold tracking-tight">{value}</h2>
+                            <h2 className="text-4xl font-bold tracking-tight">
+                                {value}
+                            </h2>
                         </div>
                         {description && (
-                            <p className="text-xs text-muted-foreground">{description}</p>
+                            <p className="text-xs text-muted-foreground">
+                                {description}
+                            </p>
                         )}
                     </div>
-                    <div className={cn("rounded-xl p-3 bg-primary/10", iconClassName)}>
+                    <div
+                        className={cn(
+                            'rounded-xl bg-primary/10 p-3',
+                            iconClassName,
+                        )}
+                    >
                         <Icon className="size-6 text-primary" />
                     </div>
                 </div>
@@ -37,7 +61,7 @@ function MetricCard({ title, value, icon: Icon, description, href, className, ic
 
     if (href) {
         return (
-            <Link href={href} className="block group h-full">
+            <Link href={href} className="group block h-full">
                 {content}
             </Link>
         );

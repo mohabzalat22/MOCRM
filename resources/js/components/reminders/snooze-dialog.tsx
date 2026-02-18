@@ -1,4 +1,4 @@
-import {  Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,7 +17,11 @@ interface SnoozeDialogProps {
     onSnooze: (date: Date) => void;
 }
 
-export function SnoozeDialog({ open, onOpenChange, onSnooze }: SnoozeDialogProps) {
+export function SnoozeDialog({
+    open,
+    onOpenChange,
+    onSnooze,
+}: SnoozeDialogProps) {
     // Initial state as ISO string for datetime-local input
     const [datetime, setDatetime] = useState<string>('');
 
@@ -27,10 +31,12 @@ export function SnoozeDialog({ open, onOpenChange, onSnooze }: SnoozeDialogProps
         onOpenChange(false);
     };
 
-    const handleQuickSnooze = (type: 'later_today' | 'tomorrow' | 'next_week') => {
+    const handleQuickSnooze = (
+        type: 'later_today' | 'tomorrow' | 'next_week',
+    ) => {
         const now = new Date();
         const newDate = new Date();
-        
+
         switch (type) {
             case 'later_today':
                 newDate.setHours(now.getHours() + 4);
@@ -44,7 +50,7 @@ export function SnoozeDialog({ open, onOpenChange, onSnooze }: SnoozeDialogProps
                 newDate.setHours(9, 0, 0, 0);
                 break;
         }
-        
+
         onSnooze(newDate);
         onOpenChange(false);
     };
@@ -58,16 +64,25 @@ export function SnoozeDialog({ open, onOpenChange, onSnooze }: SnoozeDialogProps
                         Choose when you want to be reminded again.
                     </DialogDescription>
                 </DialogHeader>
-                
+
                 <div className="grid gap-4 py-4">
                     <div className="flex flex-col gap-2">
-                        <Button variant="outline" onClick={() => handleQuickSnooze('later_today')}>
+                        <Button
+                            variant="outline"
+                            onClick={() => handleQuickSnooze('later_today')}
+                        >
                             Later Today (+4 hours)
                         </Button>
-                        <Button variant="outline" onClick={() => handleQuickSnooze('tomorrow')}>
+                        <Button
+                            variant="outline"
+                            onClick={() => handleQuickSnooze('tomorrow')}
+                        >
                             Tomorrow (9:00 AM)
                         </Button>
-                        <Button variant="outline" onClick={() => handleQuickSnooze('next_week')}>
+                        <Button
+                            variant="outline"
+                            onClick={() => handleQuickSnooze('next_week')}
+                        >
                             Next Week (9:00 AM)
                         </Button>
                     </div>
@@ -84,13 +99,13 @@ export function SnoozeDialog({ open, onOpenChange, onSnooze }: SnoozeDialogProps
                     </div>
 
                     <div className="grid gap-2">
-                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        <label className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                             Custom Date & Time
                         </label>
                         <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4 text-muted-foreground" />
-                            <Input 
-                                type="datetime-local" 
+                            <Input
+                                type="datetime-local"
                                 value={datetime}
                                 onChange={(e) => setDatetime(e.target.value)}
                                 className="w-full"
@@ -100,8 +115,15 @@ export function SnoozeDialog({ open, onOpenChange, onSnooze }: SnoozeDialogProps
                 </div>
 
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button onClick={handleSnooze} disabled={!datetime}>Snooze</Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => onOpenChange(false)}
+                    >
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSnooze} disabled={!datetime}>
+                        Snooze
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

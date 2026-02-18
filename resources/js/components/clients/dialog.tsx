@@ -17,7 +17,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-
 export function ClientDialog({ trigger }: { trigger?: React.ReactNode } = {}) {
     const [image, setImage] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -30,7 +29,6 @@ export function ClientDialog({ trigger }: { trigger?: React.ReactNode } = {}) {
         website: '',
         address: '',
         image: null as File | null,
-
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -196,7 +194,6 @@ export function ClientDialog({ trigger }: { trigger?: React.ReactNode } = {}) {
                                 }
                             />
                         </div>
-
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>

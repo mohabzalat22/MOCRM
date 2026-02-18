@@ -2,7 +2,8 @@ import type {
     ColumnDef,
     ColumnFiltersState,
     SortingState,
-    VisibilityState} from '@tanstack/react-table';
+    VisibilityState,
+} from '@tanstack/react-table';
 import {
     flexRender,
     getCoreRowModel,
@@ -42,11 +43,12 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
     'use no memo';
     const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+    const [columnFilters, setColumnFilters] =
+        React.useState<ColumnFiltersState>([]);
+    const [columnVisibility, setColumnVisibility] =
+        React.useState<VisibilityState>({});
     const [globalFilter, setGlobalFilter] = React.useState('');
 
-     
     const table = useReactTable({
         data,
         columns,
@@ -68,13 +70,15 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="w-full">
-            <div className="flex items-center py-4 gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2 py-4">
                 <div className="relative w-full max-w-sm">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search reminders..."
                         value={globalFilter ?? ''}
-                        onChange={(event) => setGlobalFilter(event.target.value)}
+                        onChange={(event) =>
+                            setGlobalFilter(event.target.value)
+                        }
                         className="pl-8"
                     />
                 </div>
@@ -107,26 +111,39 @@ export function DataTable<TData, TValue>({
             </div>
 
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
-                 <div className="flex items-center gap-2 mb-4 p-2 bg-muted/50 rounded-md animate-in fade-in slide-in-from-left-2 duration-200">
-                    <span className="text-sm font-medium text-muted-foreground pl-2">
-                        {table.getFilteredSelectedRowModel().rows.length} selected
+                <div className="mb-4 flex animate-in items-center gap-2 rounded-md bg-muted/50 p-2 duration-200 fade-in slide-in-from-left-2">
+                    <span className="pl-2 text-sm font-medium text-muted-foreground">
+                        {table.getFilteredSelectedRowModel().rows.length}{' '}
+                        selected
                     </span>
-                    <div className="h-4 w-[1px] bg-border mx-2" />
+                    <div className="mx-2 h-4 w-[1px] bg-border" />
                     <Button
                         variant="secondary"
                         size="sm"
                         className="h-8 gap-2"
                         onClick={() => {
-                             const ids = table.getFilteredSelectedRowModel().rows.map(row => (row.original as { id: number }).id);
-                             // Dispatched via custom event or prop? 
-                             // NOTE: The previous DataTable didn't accept onBulkAction param. 
-                             // I should emit an event or better yet, since I can't easily change props without updating parent,
-                             // I will import reminderService directly here.
-                             import('@/services/reminderService').then(({ reminderService }) => {
-                                 reminderService.bulkAction('complete', ids, {
-                                     onSuccess: () => table.resetRowSelection(),
-                                 });
-                             });
+                            const ids = table
+                                .getFilteredSelectedRowModel()
+                                .rows.map(
+                                    (row) =>
+                                        (row.original as { id: number }).id,
+                                );
+                            // Dispatched via custom event or prop?
+                            // NOTE: The previous DataTable didn't accept onBulkAction param.
+                            // I should emit an event or better yet, since I can't easily change props without updating parent,
+                            // I will import reminderService directly here.
+                            import('@/services/reminderService').then(
+                                ({ reminderService }) => {
+                                    reminderService.bulkAction(
+                                        'complete',
+                                        ids,
+                                        {
+                                            onSuccess: () =>
+                                                table.resetRowSelection(),
+                                        },
+                                    );
+                                },
+                            );
                         }}
                     >
                         Mark as Complete
@@ -136,20 +153,33 @@ export function DataTable<TData, TValue>({
                         size="sm"
                         className="h-8 gap-2"
                         onClick={() => {
-                            if (!window.confirm('Are you sure you want to delete selected reminders?')) return;
-                             const ids = table.getFilteredSelectedRowModel().rows.map(row => (row.original as { id: number }).id);
-                             import('@/services/reminderService').then(({ reminderService }) => {
-                                 reminderService.bulkAction('delete', ids, {
-                                     onSuccess: () => table.resetRowSelection(),
-                                 });
-                             });
+                            if (
+                                !window.confirm(
+                                    'Are you sure you want to delete selected reminders?',
+                                )
+                            )
+                                return;
+                            const ids = table
+                                .getFilteredSelectedRowModel()
+                                .rows.map(
+                                    (row) =>
+                                        (row.original as { id: number }).id,
+                                );
+                            import('@/services/reminderService').then(
+                                ({ reminderService }) => {
+                                    reminderService.bulkAction('delete', ids, {
+                                        onSuccess: () =>
+                                            table.resetRowSelection(),
+                                    });
+                                },
+                            );
                         }}
                     >
                         Delete
                     </Button>
                 </div>
             )}
-            <div className="rounded-md border bg-card shadow-sm overflow-hidden">
+            <div className="overflow-hidden rounded-md border bg-card shadow-sm">
                 <Table>
                     <TableHeader className="bg-muted/50">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -160,8 +190,9 @@ export function DataTable<TData, TValue>({
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
-                                                      header.column.columnDef.header,
-                                                      header.getContext()
+                                                      header.column.columnDef
+                                                          .header,
+                                                      header.getContext(),
                                                   )}
                                         </TableHead>
                                     );
@@ -174,14 +205,16 @@ export function DataTable<TData, TValue>({
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
-                                    data-state={row.getIsSelected() && 'selected'}
+                                    data-state={
+                                        row.getIsSelected() && 'selected'
+                                    }
                                     className="group hover:bg-muted/50"
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
-                                                cell.getContext()
+                                                cell.getContext(),
                                             )}
                                         </TableCell>
                                     ))}

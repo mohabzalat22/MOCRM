@@ -2,7 +2,13 @@ import { usePage } from '@inertiajs/react';
 import { useMemo } from 'react';
 import ActivityTimeline from '@/components/clients/activity-timeline';
 import { useClientStore, type ActivityChange } from '@/stores/useClientStore';
-import type { Activity, ActivityData, ActivityType, Client, SharedData } from '@/types';
+import type {
+    Activity,
+    ActivityData,
+    ActivityType,
+    Client,
+    SharedData,
+} from '@/types';
 
 interface ClientActivityTabProps {
     activities: Activity[];
@@ -27,7 +33,6 @@ function mergeActivitiesWithChanges(
     clientId: number,
     userId: number,
 ): DisplayActivity[] {
-
     // Track IDs to be deleted
     const deletedIds = new Set(
         activityChanges
@@ -92,14 +97,20 @@ export default function ClientActivityTab({
     const userId = auth.user.id;
 
     const displayActivities = useMemo(
-        () => mergeActivitiesWithChanges(activities, activityChanges, Number(client.id), userId),
+        () =>
+            mergeActivitiesWithChanges(
+                activities,
+                activityChanges,
+                Number(client.id),
+                userId,
+            ),
         [activities, activityChanges, client.id, userId],
     );
 
     return (
         <div className="mx-auto max-w-3xl">
-            <ActivityTimeline 
-                activities={displayActivities} 
+            <ActivityTimeline
+                activities={displayActivities}
                 savedActivities={activities}
                 client={client}
             />

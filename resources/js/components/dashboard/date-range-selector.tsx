@@ -14,7 +14,10 @@ interface DateRangeSelectorProps {
 
 export function DateRangeSelector({ value, onChange }: DateRangeSelectorProps) {
     return (
-        <Select value={value} onValueChange={(val) => onChange(val as DateRangeKey)}>
+        <Select
+            value={value}
+            onValueChange={(val) => onChange(val as DateRangeKey)}
+        >
             <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select range" />
             </SelectTrigger>

@@ -1,10 +1,16 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Calendar, Check, Clock, Edit2, Trash2 } from 'lucide-react';
+import {
+    ArrowUpDown,
+    Calendar,
+    Check,
+    Clock,
+    Edit2,
+    Trash2,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Reminder } from '@/types';
-
 
 interface ColumnProps {
     onEdit: (reminder: Reminder) => void;
@@ -19,13 +25,23 @@ const priorityWeights: Record<string, number> = {
     high: 3,
 };
 
-export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnProps): ColumnDef<Reminder>[] => [
+export const getColumns = ({
+    onEdit,
+    onDelete,
+    onComplete,
+    onSnooze,
+}: ColumnProps): ColumnDef<Reminder>[] => [
     {
         id: 'select',
         header: ({ table }) => (
             <Checkbox
-                checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                checked={
+                    table.getIsAllPageRowsSelected() ||
+                    (table.getIsSomePageRowsSelected() && 'indeterminate')
+                }
+                onCheckedChange={(value) =>
+                    table.toggleAllPageRowsSelected(!!value)
+                }
                 aria-label="Select all"
             />
         ),
@@ -54,7 +70,11 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
                 </Button>
             );
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.remindable?.name || '-'}</span>
+        cell: ({ row }) => (
+            <span className="font-medium">
+                {row.original.remindable?.name || '-'}
+            </span>
+        ),
     },
     {
         accessorKey: 'title',
@@ -94,7 +114,7 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
         },
         cell: ({ row }) => (
             <div className="max-w-[300px]">
-                <p className="text-sm line-clamp-2">
+                <p className="line-clamp-2 text-sm">
                     {row.original.description || '-'}
                 </p>
             </div>
@@ -123,13 +143,16 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
                         <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                         {date.toLocaleDateString()}
                     </span>
-                    <span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Clock className="h-3.5 w-3.5" />
-                        {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {date.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}
                     </span>
                 </div>
             );
-        }
+        },
     },
     {
         accessorKey: 'priority',
@@ -150,11 +173,32 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
             const priority = row.getValue('priority') as string;
             switch (priority) {
                 case 'high':
-                    return <Badge variant="destructive" className="bg-red-500 hover:bg-red-600">High</Badge>;
+                    return (
+                        <Badge
+                            variant="destructive"
+                            className="bg-red-500 hover:bg-red-600"
+                        >
+                            High
+                        </Badge>
+                    );
                 case 'medium':
-                    return <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600 text-yellow-950">Medium</Badge>;
+                    return (
+                        <Badge
+                            variant="default"
+                            className="bg-yellow-500 text-yellow-950 hover:bg-yellow-600"
+                        >
+                            Medium
+                        </Badge>
+                    );
                 case 'low':
-                    return <Badge variant="default" className="bg-green-500 hover:bg-green-600">Low</Badge>;
+                    return (
+                        <Badge
+                            variant="default"
+                            className="bg-green-500 hover:bg-green-600"
+                        >
+                            Low
+                        </Badge>
+                    );
                 default:
                     return <Badge variant="secondary">{priority}</Badge>;
             }
@@ -171,15 +215,15 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
         header: () => <div className="text-right">Actions</div>,
         cell: ({ row }) => {
             const isCompleted = !!row.original.completed_at;
-            
+
             return (
-                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     {!isCompleted && (
                         <>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                className="text-green-600 hover:bg-green-50 hover:text-green-700"
                                 onClick={() => onComplete(row.original)}
                                 title="Mark as Complete"
                             >
@@ -188,7 +232,7 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                                 onClick={() => onSnooze(row.original)}
                                 title="Snooze"
                             >
@@ -207,7 +251,7 @@ export const getColumns = ({ onEdit, onDelete, onComplete, onSnooze }: ColumnPro
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => onDelete(row.original)}
                         title="Delete"
                     >

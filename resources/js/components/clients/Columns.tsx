@@ -7,10 +7,14 @@ import { ensureHttp } from '@/lib/utils';
 import type { Client } from '@/types';
 
 // Define custom filter function
-const multiSelectFilter: FilterFn<Client> = (row, columnId, filterValue: string[]) => {
+const multiSelectFilter: FilterFn<Client> = (
+    row,
+    columnId,
+    filterValue: string[],
+) => {
     if (!filterValue || filterValue.length === 0) return true;
     const rowTags = row.original.tags;
-    
+
     // Check for "None" selection
     const filterHasNone = filterValue.includes('_none_');
     const rowHasNoTags = !rowTags || rowTags.length === 0;
@@ -23,13 +27,13 @@ const multiSelectFilter: FilterFn<Client> = (row, columnId, filterValue: string[
     // If we have "None" AND other tags, we want rows that match EITHER
     let matchesTags = false;
     if (rowTags && rowTags.length > 0) {
-        matchesTags = rowTags.some(tag => filterValue.includes(tag.name));
+        matchesTags = rowTags.some((tag) => filterValue.includes(tag.name));
     }
 
     if (filterHasNone) {
         return !!(rowHasNoTags || matchesTags);
     }
-    
+
     return matchesTags;
 };
 
@@ -42,7 +46,9 @@ export const columns: ColumnDef<Client>[] = [
                     table.getIsAllPageRowsSelected() ||
                     (table.getIsSomePageRowsSelected() && 'indeterminate')
                 }
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                onCheckedChange={(value) =>
+                    table.toggleAllPageRowsSelected(!!value)
+                }
                 aria-label="Select all"
             />
         ),
@@ -89,30 +95,38 @@ export const columns: ColumnDef<Client>[] = [
         },
         cell: ({ row }) => {
             const status = row.getValue('status') as string;
-            
+
             // Map status to badge style
-            const badgeVariant = "outline" as const;
-            let badgeClass = "";
-            
+            const badgeVariant = 'outline' as const;
+            let badgeClass = '';
+
             // Using styles similar to StatusButton or custom colors
             switch (status) {
                 case 'Active':
-                    badgeClass = "bg-green-100 text-green-800 border-green-200 hover:bg-green-100";
+                    badgeClass =
+                        'bg-green-100 text-green-800 border-green-200 hover:bg-green-100';
                     break;
                 case 'Lead':
-                    badgeClass = "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-100";
+                    badgeClass =
+                        'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-100';
                     break;
                 case 'At Risk':
-                    badgeClass = "bg-red-100 text-red-800 border-red-200 hover:bg-red-100";
+                    badgeClass =
+                        'bg-red-100 text-red-800 border-red-200 hover:bg-red-100';
                     break;
                 case 'In Active':
-                    badgeClass = "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-100";
+                    badgeClass =
+                        'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-100';
                     break;
                 default:
-                    badgeClass = "";
+                    badgeClass = '';
             }
 
-            return <Badge variant={badgeVariant} className={badgeClass}>{status}</Badge>;
+            return (
+                <Badge variant={badgeVariant} className={badgeClass}>
+                    {status}
+                </Badge>
+            );
         },
     },
     {
@@ -160,9 +174,9 @@ export const columns: ColumnDef<Client>[] = [
             const website = row.original.website;
             if (!website) return '-';
             return (
-                <a 
-                    href={ensureHttp(website)} 
-                    target="_blank" 
+                <a
+                    href={ensureHttp(website)}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary hover:underline"
                     onClick={(e) => e.stopPropagation()}

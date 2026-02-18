@@ -10,7 +10,7 @@ interface AtRiskClientsListProps {
 
 export function AtRiskClientsList({ clients }: AtRiskClientsListProps) {
     return (
-        <Card className="flex h-full flex-col overflow-hidden border-none shadow-none bg-transparent">
+        <Card className="flex h-full flex-col overflow-hidden border-none bg-transparent shadow-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                     <UserX className="h-4 w-4 text-destructive" />
@@ -34,10 +34,10 @@ export function AtRiskClientsList({ clients }: AtRiskClientsListProps) {
                                     key={client.id}
                                     className="p-4 transition-colors hover:bg-muted/50"
                                 >
-                                    <div className="space-y-1 min-w-0">
+                                    <div className="min-w-0 space-y-1">
                                         <Link
                                             href={`/clients/${client.id}`}
-                                            className="text-sm font-medium hover:underline truncate"
+                                            className="truncate text-sm font-medium hover:underline"
                                         >
                                             {client.name}
                                         </Link>
@@ -45,16 +45,18 @@ export function AtRiskClientsList({ clients }: AtRiskClientsListProps) {
                                             <div className="flex items-center gap-1">
                                                 <Clock className="h-3 w-3" />
                                                 <span>
-                                                    {lastActivity 
+                                                    {lastActivity
                                                         ? `Last sync ${formatDistanceToNow(new Date(lastActivity.created_at))} ago`
                                                         : 'No activity recorded'}
                                                 </span>
                                             </div>
                                             {client.phone && (
-                                                 <div className="flex items-center gap-1">
+                                                <div className="flex items-center gap-1">
                                                     <MessageSquare className="h-3 w-3" />
-                                                    <span className="truncate">{client.phone}</span>
-                                                 </div>
+                                                    <span className="truncate">
+                                                        {client.phone}
+                                                    </span>
+                                                </div>
                                             )}
                                         </div>
                                     </div>

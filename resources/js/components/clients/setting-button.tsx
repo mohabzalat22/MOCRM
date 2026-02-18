@@ -16,19 +16,14 @@ import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import { useClientStore } from '@/stores/useClientStore';
 
 export default function SettingButton() {
-    const { 
-        editMode, 
-        deleting, 
-        client, 
-        setEditMode, 
-        setDeleting 
-    } = useClientStore();
-    
+    const { editMode, deleting, client, setEditMode, setDeleting } =
+        useClientStore();
+
     const { confirm, ConfirmDialog } = useConfirmDialog();
 
     const handleDelete = () => {
         if (!client) return;
-        
+
         confirm(
             () => {
                 setDeleting(true);

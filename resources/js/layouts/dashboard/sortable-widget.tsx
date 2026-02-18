@@ -41,15 +41,18 @@ export function SortableWidget({
             style={style}
             className={cn(
                 'group relative h-full transition-shadow duration-200',
-                isDragging && 'bg-muted/10 rounded-lg ring-2 ring-muted ring-inset',
+                isDragging &&
+                    'rounded-lg bg-muted/10 ring-2 ring-muted ring-inset',
                 className,
             )}
         >
             {isEditMode && (
-                <div className={cn(
-                    "absolute top-2 right-2 z-10 flex gap-1 rounded-md border bg-background/80 p-1 opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100",
-                    isDragging && "hidden"
-                )}>
+                <div
+                    className={cn(
+                        'absolute top-2 right-2 z-10 flex gap-1 rounded-md border bg-background/80 p-1 opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100',
+                        isDragging && 'hidden',
+                    )}
+                >
                     {/* Drag Handle */}
                     <div
                         className="cursor-grab rounded p-1 hover:bg-muted active:cursor-grabbing"
@@ -70,7 +73,7 @@ export function SortableWidget({
                     </div>
                 </div>
             )}
-            <div className={cn("h-full", isDragging && "invisible")}>
+            <div className={cn('h-full', isDragging && 'invisible')}>
                 {children}
             </div>
         </div>

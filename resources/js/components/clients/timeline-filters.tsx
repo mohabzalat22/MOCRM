@@ -44,7 +44,12 @@ const activityTypes: {
 }[] = [
     { type: 'call', label: 'Call', icon: Phone, color: 'text-blue-500' },
     { type: 'email', label: 'Email', icon: Mail, color: 'text-green-500' },
-    { type: 'meeting', label: 'Meeting', icon: Users, color: 'text-purple-500' },
+    {
+        type: 'meeting',
+        label: 'Meeting',
+        icon: Users,
+        color: 'text-purple-500',
+    },
     {
         type: 'transaction',
         label: 'Transaction',
@@ -74,20 +79,20 @@ export default function TimelineFilters({
             {/* Top row: Search and Export */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         type="text"
                         placeholder="Search activities..."
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
-                        className="pl-9 pr-9"
+                        className="pr-9 pl-9"
                     />
                     {searchQuery && (
                         <Button
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2"
+                            className="absolute top-1/2 right-1 h-7 w-7 -translate-y-1/2"
                             onClick={() => onSearchChange('')}
                         >
                             <X className="h-3 w-3" />
@@ -99,7 +104,11 @@ export default function TimelineFilters({
                     {!hideFilters && (
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button type="button" variant="outline" className="gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="gap-2"
+                                >
                                     <Filter className="h-4 w-4" />
                                     Filter
                                     {activeFilterCount > 0 && (
@@ -121,9 +130,10 @@ export default function TimelineFilters({
                                         <div className="space-y-2">
                                             {activityTypes.map((item) => {
                                                 const Icon = item.icon;
-                                                const isSelected = selectedTypes.has(
-                                                    item.type,
-                                                );
+                                                const isSelected =
+                                                    selectedTypes.has(
+                                                        item.type,
+                                                    );
                                                 return (
                                                     <div
                                                         key={item.type}
@@ -133,7 +143,9 @@ export default function TimelineFilters({
                                                             id={`filter-${item.type}`}
                                                             checked={isSelected}
                                                             onCheckedChange={() =>
-                                                                onTypeToggle(item.type)
+                                                                onTypeToggle(
+                                                                    item.type,
+                                                                )
                                                             }
                                                         />
                                                         <Label

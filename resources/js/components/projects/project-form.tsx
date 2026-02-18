@@ -29,15 +29,16 @@ export function ProjectForm({
     onSuccess,
 }: ProjectFormProps) {
     const [processing, setProcessing] = useState(false);
-    
+
     const [data, setData] = useState({
-        client_id: project?.client_id?.toString() || defaultClientId?.toString() || '',
+        client_id:
+            project?.client_id?.toString() || defaultClientId?.toString() || '',
         name: project?.name || '',
         description: project?.description || '',
-        start_date: project?.start_date 
+        start_date: project?.start_date
             ? format(new Date(project.start_date), 'yyyy-MM-dd')
             : '',
-        end_date: project?.end_date 
+        end_date: project?.end_date
             ? format(new Date(project.end_date), 'yyyy-MM-dd')
             : '',
         status: (project?.status || 'not_started') as ProjectStatus,
@@ -51,12 +52,18 @@ export function ProjectForm({
         const options = {
             onSuccess: () => {
                 setProcessing(false);
-                toast.success(project ? 'Project updated successfully' : 'Project created successfully');
+                toast.success(
+                    project
+                        ? 'Project updated successfully'
+                        : 'Project created successfully',
+                );
                 onSuccess?.();
             },
             onError: (errors: Record<string, string>) => {
                 setProcessing(false);
-                Object.values(errors).forEach((error) => toast.error(error as string));
+                Object.values(errors).forEach((error) =>
+                    toast.error(error as string),
+                );
             },
         };
 
@@ -74,7 +81,9 @@ export function ProjectForm({
                     <Label htmlFor="client_id">Client *</Label>
                     <Select
                         value={data.client_id}
-                        onValueChange={(val) => setData({ ...data, client_id: val })}
+                        onValueChange={(val) =>
+                            setData({ ...data, client_id: val })
+                        }
                         required
                     >
                         <SelectTrigger id="client_id">
@@ -82,7 +91,10 @@ export function ProjectForm({
                         </SelectTrigger>
                         <SelectContent>
                             {clients.map((client) => (
-                                <SelectItem key={client.id} value={client.id.toString()}>
+                                <SelectItem
+                                    key={client.id}
+                                    value={client.id.toString()}
+                                >
                                     {client.name}
                                 </SelectItem>
                             ))}
@@ -108,7 +120,9 @@ export function ProjectForm({
                     id="description"
                     placeholder="Project details..."
                     value={data.description}
-                    onChange={(e) => setData({ ...data, description: e.target.value })}
+                    onChange={(e) =>
+                        setData({ ...data, description: e.target.value })
+                    }
                     rows={3}
                 />
             </div>
@@ -120,7 +134,9 @@ export function ProjectForm({
                         id="start_date"
                         type="date"
                         value={data.start_date}
-                        onChange={(e) => setData({ ...data, start_date: e.target.value })}
+                        onChange={(e) =>
+                            setData({ ...data, start_date: e.target.value })
+                        }
                         required
                     />
                 </div>
@@ -130,7 +146,9 @@ export function ProjectForm({
                         id="end_date"
                         type="date"
                         value={data.end_date}
-                        onChange={(e) => setData({ ...data, end_date: e.target.value })}
+                        onChange={(e) =>
+                            setData({ ...data, end_date: e.target.value })
+                        }
                     />
                 </div>
             </div>
@@ -139,7 +157,9 @@ export function ProjectForm({
                 <Label htmlFor="status">Status *</Label>
                 <Select
                     value={data.status}
-                    onValueChange={(val) => setData({ ...data, status: val as ProjectStatus })}
+                    onValueChange={(val) =>
+                        setData({ ...data, status: val as ProjectStatus })
+                    }
                 >
                     <SelectTrigger id="status">
                         <SelectValue placeholder="Select status" />
@@ -157,7 +177,11 @@ export function ProjectForm({
 
             <div className="flex justify-end gap-2 pt-2">
                 <Button type="submit" disabled={processing}>
-                    {processing ? 'Saving...' : project ? 'Update Project' : 'Create Project'}
+                    {processing
+                        ? 'Saving...'
+                        : project
+                          ? 'Update Project'
+                          : 'Create Project'}
                 </Button>
             </div>
         </form>

@@ -1,4 +1,4 @@
-import { Plus, Trash, Pencil} from 'lucide-react';
+import { Plus, Trash, Pencil } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,7 +48,7 @@ export default function CustomFieldsView() {
         if (editingIndex !== null) {
             // Edit existing
             const updated = fields.map((f, i) =>
-                i === editingIndex ? currentField : f
+                i === editingIndex ? currentField : f,
             );
             onFieldsChange(updated);
         } else {
@@ -68,7 +68,12 @@ export default function CustomFieldsView() {
             <div className="flex items-center justify-between">
                 <Label className="text-base font-semibold">Custom Fields</Label>
                 {editMode && (
-                    <Button variant="outline" size="sm" onClick={handleOpenAdd} type="button">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleOpenAdd}
+                        type="button"
+                    >
                         <Plus className="mr-2 h-4 w-4" />
                         Add Field
                     </Button>
@@ -87,33 +92,41 @@ export default function CustomFieldsView() {
                             className="flex flex-col gap-2 rounded-lg border bg-card p-3 shadow-sm transition-all hover:shadow-md"
                         >
                             <div className="flex items-start justify-between">
-                                <span className="font-semibold">{field.key}</span>
+                                <span className="font-semibold">
+                                    {field.key}
+                                </span>
                                 {editMode && (
                                     <div className="flex gap-1">
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            onClick={() => handleOpenEdit(idx, field)}
+                                            onClick={() =>
+                                                handleOpenEdit(idx, field)
+                                            }
                                             type="button"
                                             className="h-8 w-8 text-muted-foreground hover:text-foreground"
                                         >
                                             <Pencil className="h-4 w-4" />
-                                            <span className="sr-only">Edit</span>
+                                            <span className="sr-only">
+                                                Edit
+                                            </span>
                                         </Button>
                                         <Button
                                             variant="ghost"
                                             size="icon"
                                             onClick={() => handleRemove(idx)}
                                             type="button"
-                                            className="h-8 w-8 text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                                            className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive/90"
                                         >
                                             <Trash className="h-4 w-4" />
-                                            <span className="sr-only">Delete</span>
+                                            <span className="sr-only">
+                                                Delete
+                                            </span>
                                         </Button>
                                     </div>
                                 )}
                             </div>
-                            <div className="rounded-md bg-muted/50 p-2 text-sm text-muted-foreground whitespace-pre-wrap break-words">
+                            <div className="rounded-md bg-muted/50 p-2 text-sm break-words whitespace-pre-wrap text-muted-foreground">
                                 {field.value}
                             </div>
                         </div>
@@ -122,10 +135,12 @@ export default function CustomFieldsView() {
             </div>
 
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetContent className="w-full sm:max-w-md p-2">
+                <SheetContent className="w-full p-2 sm:max-w-md">
                     <SheetHeader>
                         <SheetTitle>
-                            {editingIndex !== null ? 'Edit Custom Field' : 'Add Custom Field'}
+                            {editingIndex !== null
+                                ? 'Edit Custom Field'
+                                : 'Add Custom Field'}
                         </SheetTitle>
                         <SheetDescription>
                             {editingIndex !== null
@@ -141,7 +156,10 @@ export default function CustomFieldsView() {
                                 placeholder="e.g. Notes, Project ID"
                                 value={currentField.key}
                                 onChange={(e) =>
-                                    setCurrentField({ ...currentField, key: e.target.value })
+                                    setCurrentField({
+                                        ...currentField,
+                                        key: e.target.value,
+                                    })
                                 }
                                 className="bg-background"
                             />
@@ -153,7 +171,10 @@ export default function CustomFieldsView() {
                                 placeholder="Enter the field content..."
                                 value={currentField.value}
                                 onChange={(e) =>
-                                    setCurrentField({ ...currentField, value: e.target.value })
+                                    setCurrentField({
+                                        ...currentField,
+                                        value: e.target.value,
+                                    })
                                 }
                                 className="min-h-[200px] resize-none bg-background text-base md:text-sm"
                             />

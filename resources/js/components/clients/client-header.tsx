@@ -25,13 +25,13 @@ export default function ClientHeader({ client }: ClientHeaderProps) {
                 <div className="flex-1 space-y-4 text-center md:space-y-6 md:text-left">
                     {/* Name and Company */}
                     <div className="space-y-1 md:space-y-2">
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-4xl capitalize">
+                        <h1 className="text-2xl font-bold tracking-tight text-foreground capitalize md:text-4xl">
                             {client.name}
                         </h1>
                         {client.company_name && (
-                            <div className="flex items-center justify-center  md:justify-start">
+                            <div className="flex items-center justify-center md:justify-start">
                                 <div className="h-1 w-1 rounded-full bg-primary md:h-1.5 md:w-1.5" />
-                                <p className="text-lg my-auto ms-2 font-semibold text-muted-foreground md:text-xl">
+                                <p className="my-auto ms-2 text-lg font-semibold text-muted-foreground md:text-xl">
                                     {client.company_name}
                                 </p>
                             </div>

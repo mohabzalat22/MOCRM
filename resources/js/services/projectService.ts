@@ -24,7 +24,11 @@ export const projectService = {
     /**
      * Update an existing project
      */
-    updateProject(id: number, data: ProjectData, options: ServiceOptions = {}): void {
+    updateProject(
+        id: number,
+        data: ProjectData,
+        options: ServiceOptions = {},
+    ): void {
         router.put(`/projects/${id}`, data as unknown as RequestPayload, {
             ...options,
         });
@@ -42,14 +46,14 @@ export const projectService = {
     /**
      * Update project status
      */
-    updateStatus(id: number, status: string, options: ServiceOptions = {}): void {
-        router.put(
-            `/projects/${id}`,
-            { status } as unknown as RequestPayload,
-            {
-                ...options,
-            },
-        );
+    updateStatus(
+        id: number,
+        status: string,
+        options: ServiceOptions = {},
+    ): void {
+        router.put(`/projects/${id}`, { status } as unknown as RequestPayload, {
+            ...options,
+        });
     },
 
     /**

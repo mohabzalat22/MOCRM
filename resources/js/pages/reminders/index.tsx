@@ -34,21 +34,36 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function RemindersIndex({ reminders, clients, activities, filters }: RemindersPageProps) {
+export default function RemindersIndex({
+    reminders,
+    clients,
+    activities,
+    filters,
+}: RemindersPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
-    
+
     // Derived from filters prop, defaults to 'incomplete'
     const status = filters.status || 'incomplete';
 
     const handleStatusChange = (value: string) => {
-        router.get('/reminders', { status: value }, {
-            preserveState: true,
-            replace: true,
-        });
+        router.get(
+            '/reminders',
+            { status: value },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
     };
-    const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
-    const [deletingReminder, setDeletingReminder] = useState<Reminder | null>(null);
-    const [snoozingReminder, setSnoozingReminder] = useState<Reminder | null>(null);
+    const [editingReminder, setEditingReminder] = useState<Reminder | null>(
+        null,
+    );
+    const [deletingReminder, setDeletingReminder] = useState<Reminder | null>(
+        null,
+    );
+    const [snoozingReminder, setSnoozingReminder] = useState<Reminder | null>(
+        null,
+    );
 
     const handleComplete = (reminder: Reminder) => {
         reminderService.complete(reminder.id);
@@ -67,37 +82,52 @@ export default function RemindersIndex({ reminders, clients, activities, filters
         });
     };
 
-    const columns = useMemo(() => getColumns({
-        onEdit: (reminder) => setEditingReminder(reminder),
-        onDelete: (reminder) => setDeletingReminder(reminder),
-        onComplete: (reminder) => handleComplete(reminder),
-        onSnooze: (reminder) => setSnoozingReminder(reminder),
-    }), []);
+    const columns = useMemo(
+        () =>
+            getColumns({
+                onEdit: (reminder) => setEditingReminder(reminder),
+                onDelete: (reminder) => setDeletingReminder(reminder),
+                onComplete: (reminder) => handleComplete(reminder),
+                onSnooze: (reminder) => setSnoozingReminder(reminder),
+            }),
+        [],
+    );
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Reminders" />
 
-            <div className="p-6 space-y-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="space-y-6 p-6">
+                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Reminders</h1>
-                        <p className="text-muted-foreground">Stay on top of your client follow-ups.</p>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            Reminders
+                        </h1>
+                        <p className="text-muted-foreground">
+                            Stay on top of your client follow-ups.
+                        </p>
                     </div>
-                    <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
+                    <Button
+                        onClick={() => setIsCreateOpen(true)}
+                        className="gap-2"
+                    >
                         <Plus className="h-4 w-4" /> Add Reminder
                     </Button>
                 </div>
-                
+
                 <div className="flex items-center space-x-4">
-                    <Tabs 
-                        value={status} 
-                        onValueChange={handleStatusChange} 
+                    <Tabs
+                        value={status}
+                        onValueChange={handleStatusChange}
                         className="w-[400px]"
                     >
                         <TabsList>
-                            <TabsTrigger value="incomplete">Incomplete</TabsTrigger>
-                            <TabsTrigger value="completed">Completed</TabsTrigger>
+                            <TabsTrigger value="incomplete">
+                                Incomplete
+                            </TabsTrigger>
+                            <TabsTrigger value="completed">
+                                Completed
+                            </TabsTrigger>
                             <TabsTrigger value="all">All</TabsTrigger>
                         </TabsList>
                     </Tabs>
@@ -111,20 +141,24 @@ export default function RemindersIndex({ reminders, clients, activities, filters
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle>Add New Reminder</DialogTitle>
-                    <DialogDescription>
-                        Create a reminder for a client, activity, or as a general task.
-                    </DialogDescription>
+                        <DialogDescription>
+                            Create a reminder for a client, activity, or as a
+                            general task.
+                        </DialogDescription>
                     </DialogHeader>
-                    <ReminderForm 
-                        clients={clients} 
+                    <ReminderForm
+                        clients={clients}
                         activities={activities}
-                        onSuccess={() => setIsCreateOpen(false)} 
+                        onSuccess={() => setIsCreateOpen(false)}
                     />
                 </DialogContent>
             </Dialog>
 
             {/* Edit Dialog */}
-            <Dialog open={!!editingReminder} onOpenChange={(open) => !open && setEditingReminder(null)}>
+            <Dialog
+                open={!!editingReminder}
+                onOpenChange={(open) => !open && setEditingReminder(null)}
+            >
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle>Edit Reminder</DialogTitle>
@@ -133,11 +167,11 @@ export default function RemindersIndex({ reminders, clients, activities, filters
                         </DialogDescription>
                     </DialogHeader>
                     {editingReminder && (
-                        <ReminderForm 
-                            reminder={editingReminder} 
+                        <ReminderForm
+                            reminder={editingReminder}
                             clients={clients}
                             activities={activities}
-                            onSuccess={() => setEditingReminder(null)} 
+                            onSuccess={() => setEditingReminder(null)}
                         />
                     )}
                 </DialogContent>
@@ -161,4 +195,3 @@ export default function RemindersIndex({ reminders, clients, activities, filters
         </AppLayout>
     );
 }
-

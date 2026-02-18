@@ -8,15 +8,10 @@ import {
     closestCenter,
     defaultDropAnimationSideEffects,
 } from '@dnd-kit/core';
-import type {
-    DragEndEvent,
-    DragStartEvent} from '@dnd-kit/core';
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import type { DropAnimation } from '@dnd-kit/core';
-import {
-    SortableContext,
-    rectSortingStrategy,
-} from '@dnd-kit/sortable';
-import type { ReactNode} from 'react';
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import type { WidgetConfig } from '@/types';
 import { SortableWidget } from './sortable-widget';
@@ -49,7 +44,10 @@ export function DashboardLayout({
     onHideWidget,
 }: DashboardLayoutProps) {
     const [activeId, setActiveId] = useState<string | null>(null);
-    const [activeRect, setActiveRect] = useState<{ width: number; height: number } | null>(null);
+    const [activeRect, setActiveRect] = useState<{
+        width: number;
+        height: number;
+    } | null>(null);
 
     const sensors = useSensors(
         useSensor(MouseSensor, {
@@ -62,13 +60,13 @@ export function DashboardLayout({
                 delay: 250,
                 tolerance: 5,
             },
-        })
+        }),
     );
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
         setActiveId(active.id as string);
-        
+
         // Use direct DOM measurement for precision
         const element = document.getElementById(`widget-${active.id}`);
         if (element) {
@@ -107,14 +105,16 @@ export function DashboardLayout({
                 items={layout.map((w) => w.id)}
                 strategy={rectSortingStrategy}
             >
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 auto-rows-min">
+                <div className="grid auto-rows-min grid-cols-1 gap-6 lg:grid-cols-3">
                     {layout
                         .filter((widget) => widget.visible)
                         .map((widget) => (
                             <SortableWidget
                                 key={widget.id}
                                 id={widget.id}
-                                className={WIDGET_SPANS[widget.id] || 'col-span-1'}
+                                className={
+                                    WIDGET_SPANS[widget.id] || 'col-span-1'
+                                }
                                 isEditMode={isEditMode}
                                 onHide={onHideWidget}
                             >
@@ -126,14 +126,14 @@ export function DashboardLayout({
 
             <DragOverlay dropAnimation={dropAnimation}>
                 {activeId && activeRect ? (
-                    <div 
+                    <div
                         className="pointer-events-none"
                         style={{
                             width: activeRect.width,
                             height: activeRect.height,
                         }}
                     >
-                        <div className="rounded-lg border bg-background shadow-2xl ring-2 ring-primary/10 h-full overflow-hidden outline-none">
+                        <div className="h-full overflow-hidden rounded-lg border bg-background shadow-2xl ring-2 ring-primary/10 outline-none">
                             {widgets[activeId]}
                         </div>
                     </div>

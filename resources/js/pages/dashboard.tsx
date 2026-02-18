@@ -80,8 +80,13 @@ export default function Dashboard({
 }: DashboardProps) {
     const { layout, dateRange, updateLayout, updateDateRange } =
         useDashboardPreferences(
-            preferences?.layout ? preferences : { ...preferences, layout: DEFAULT_LAYOUT } as DashboardPreference,
-            currentDateRange
+            preferences?.layout
+                ? preferences
+                : ({
+                      ...preferences,
+                      layout: DEFAULT_LAYOUT,
+                  } as DashboardPreference),
+            currentDateRange,
         );
 
     const [isEditMode, setIsEditMode] = useState(false);
@@ -104,16 +109,20 @@ export default function Dashboard({
         const { active, over } = event;
 
         if (active.id !== over?.id) {
-            const oldIndex = activeLayout.findIndex((item) => item.id === active.id);
-            const newIndex = activeLayout.findIndex((item) => item.id === over?.id);
+            const oldIndex = activeLayout.findIndex(
+                (item) => item.id === active.id,
+            );
+            const newIndex = activeLayout.findIndex(
+                (item) => item.id === over?.id,
+            );
             const newLayout = arrayMove(activeLayout, oldIndex, newIndex);
             updateLayout(newLayout);
         }
     };
 
     const handleHideWidget = (id: string) => {
-        const newLayout = activeLayout.map(w => 
-            w.id === id ? { ...w, visible: false } : w
+        const newLayout = activeLayout.map((w) =>
+            w.id === id ? { ...w, visible: false } : w,
         );
         updateLayout(newLayout);
     };
@@ -127,11 +136,13 @@ export default function Dashboard({
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">
+                        Dashboard
+                    </h1>
                     <div className="flex flex-wrap items-center gap-2">
-                         <DateRangeSelector 
-                            value={dateRange} 
-                            onChange={updateDateRange} 
+                        <DateRangeSelector
+                            value={dateRange}
+                            onChange={updateDateRange}
                         />
                         {isEditMode ? (
                             <>

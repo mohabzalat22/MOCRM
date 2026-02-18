@@ -12,7 +12,14 @@ export interface Reminder {
     remindable_type?: string;
     completed_at?: string;
     is_recurring?: boolean;
-    recurrence_pattern?: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom' | null;
+    recurrence_pattern?:
+        | 'daily'
+        | 'weekly'
+        | 'monthly'
+        | 'quarterly'
+        | 'yearly'
+        | 'custom'
+        | null;
     recurrence_interval?: number;
     recurrence_end_date?: string;
     created_at?: string;
@@ -27,7 +34,14 @@ export interface CreateReminderData {
     remindable_id?: number | string | null;
     remindable_type?: string | null;
     is_recurring?: boolean;
-    recurrence_pattern?: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom' | null;
+    recurrence_pattern?:
+        | 'daily'
+        | 'weekly'
+        | 'monthly'
+        | 'quarterly'
+        | 'yearly'
+        | 'custom'
+        | null;
     recurrence_interval?: number;
     recurrence_end_date?: string | null;
 }
@@ -40,7 +54,14 @@ export interface UpdateReminderData {
     remindable_id?: number | string | null;
     remindable_type?: string | null;
     is_recurring?: boolean;
-    recurrence_pattern?: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom' | null;
+    recurrence_pattern?:
+        | 'daily'
+        | 'weekly'
+        | 'monthly'
+        | 'quarterly'
+        | 'yearly'
+        | 'custom'
+        | null;
     recurrence_interval?: number;
     recurrence_end_date?: string | null;
 }

@@ -46,8 +46,8 @@ interface ActivityItemProps {
     onToggleExpand?: () => void;
 }
 
-export default function ActivityItem({ 
-    activity, 
+export default function ActivityItem({
+    activity,
     isExpanded = false,
     onToggleExpand,
 }: ActivityItemProps) {
@@ -185,11 +185,12 @@ export default function ActivityItem({
     };
 
     const renderAttachments = () => {
-        if (!activity.attachments || activity.attachments.length === 0) return null;
+        if (!activity.attachments || activity.attachments.length === 0)
+            return null;
 
         return (
             <div className="mt-4 space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
                     Attachments
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -200,7 +201,9 @@ export default function ActivityItem({
                             className="flex items-center gap-2 rounded-md border bg-card px-2 py-1.5 text-[11px] transition-colors hover:bg-muted"
                         >
                             <FileIcon className="h-3 w-3 text-primary" />
-                            <span className="font-medium truncate max-w-[120px]">{file.file_name}</span>
+                            <span className="max-w-[120px] truncate font-medium">
+                                {file.file_name}
+                            </span>
                             <Download className="h-3 w-3 text-muted-foreground" />
                         </a>
                     ))}
@@ -297,7 +300,7 @@ export default function ActivityItem({
                     </div>
 
                     {isExpanded && (
-                        <div className="animate-in slide-in-from-top-2 duration-200">
+                        <div className="animate-in duration-200 slide-in-from-top-2">
                             {formatData()}
 
                             <div className="mt-2 rounded-md border border-dashed bg-muted/30 p-3 text-sm whitespace-pre-wrap text-muted-foreground">

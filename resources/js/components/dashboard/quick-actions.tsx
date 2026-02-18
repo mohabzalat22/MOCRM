@@ -13,12 +13,12 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
@@ -27,7 +27,9 @@ interface QuickActionsProps {
 }
 
 export function QuickActions({ clients }: QuickActionsProps) {
-    const [activeDialog, setActiveDialog] = useState<'activity' | 'project' | 'reminder' | null>(null);
+    const [activeDialog, setActiveDialog] = useState<
+        'activity' | 'project' | 'reminder' | null
+    >(null);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
 
     const actions = [
@@ -67,50 +69,80 @@ export function QuickActions({ clients }: QuickActionsProps) {
     ];
 
     return (
-        <Card className="h-full border-sidebar-border/70 bg-white dark:bg-transparent dark:border-sidebar-border shadow-sm">
+        <Card className="h-full border-sidebar-border/70 bg-white shadow-sm dark:border-sidebar-border dark:bg-transparent">
             <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
-                <p className="text-xs text-muted-foreground">Frequent tasks at your fingertips</p>
+                <CardTitle className="text-lg font-semibold">
+                    Quick Actions
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                    Frequent tasks at your fingertips
+                </p>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                    {actions.map((action) => (
+                    {actions.map((action) =>
                         action.isCustom ? (
-                            <ClientDialog 
+                            <ClientDialog
                                 key={action.title}
                                 trigger={
-                                    <div className={cn(
-                                        "flex flex-col items-center justify-center p-4 rounded-xl border border-sidebar-border/70 bg-white dark:bg-muted/20 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md",
-                                        action.hoverBorder
-                                    )}>
-                                        <div className={cn("rounded-full p-3 mb-3", action.bgColor)}>
-                                            <action.icon className={cn("size-6", action.color)} />
+                                    <div
+                                        className={cn(
+                                            'flex cursor-pointer flex-col items-center justify-center rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md dark:bg-muted/20',
+                                            action.hoverBorder,
+                                        )}
+                                    >
+                                        <div
+                                            className={cn(
+                                                'mb-3 rounded-full p-3',
+                                                action.bgColor,
+                                            )}
+                                        >
+                                            <action.icon
+                                                className={cn(
+                                                    'size-6',
+                                                    action.color,
+                                                )}
+                                            />
                                         </div>
-                                        <span className="text-sm font-medium text-center">{action.title}</span>
+                                        <span className="text-center text-sm font-medium">
+                                            {action.title}
+                                        </span>
                                     </div>
                                 }
                             />
                         ) : (
-                                <button
-                                    key={action.title}
-                                    onClick={action.onClick}
-                                    className={cn(
-                                        "flex flex-col items-center justify-center p-4 rounded-xl border border-sidebar-border/70 bg-white dark:bg-muted/20 transition-all duration-200 shadow-sm hover:shadow-md",
-                                    action.hoverBorder
+                            <button
+                                key={action.title}
+                                onClick={action.onClick}
+                                className={cn(
+                                    'flex flex-col items-center justify-center rounded-xl border border-sidebar-border/70 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md dark:bg-muted/20',
+                                    action.hoverBorder,
                                 )}
                             >
-                                <div className={cn("rounded-full p-3 mb-3", action.bgColor)}>
-                                    <action.icon className={cn("size-6", action.color)} />
+                                <div
+                                    className={cn(
+                                        'mb-3 rounded-full p-3',
+                                        action.bgColor,
+                                    )}
+                                >
+                                    <action.icon
+                                        className={cn('size-6', action.color)}
+                                    />
                                 </div>
-                                <span className="text-sm font-medium text-center">{action.title}</span>
+                                <span className="text-center text-sm font-medium">
+                                    {action.title}
+                                </span>
                             </button>
-                        )
-                    ))}
+                        ),
+                    )}
                 </div>
             </CardContent>
 
             {/* Log Activity Dialog */}
-            <Dialog open={activeDialog === 'activity'} onOpenChange={(open) => !open && setActiveDialog(null)}>
+            <Dialog
+                open={activeDialog === 'activity'}
+                onOpenChange={(open) => !open && setActiveDialog(null)}
+            >
                 <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
                         <DialogTitle>Log Activity</DialogTitle>
@@ -120,14 +152,22 @@ export function QuickActions({ clients }: QuickActionsProps) {
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2 px-4">
-                            <Label htmlFor="quick-activity-client">Select Client *</Label>
-                            <Select onValueChange={setSelectedClientId} value={selectedClientId}>
+                            <Label htmlFor="quick-activity-client">
+                                Select Client *
+                            </Label>
+                            <Select
+                                onValueChange={setSelectedClientId}
+                                value={selectedClientId}
+                            >
                                 <SelectTrigger id="quick-activity-client">
                                     <SelectValue placeholder="Which client?" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {clients.map((client) => (
-                                        <SelectItem key={client.id} value={client.id.toString()}>
+                                        <SelectItem
+                                            key={client.id}
+                                            value={client.id.toString()}
+                                        >
                                             {client.name}
                                         </SelectItem>
                                     ))}
@@ -135,7 +175,7 @@ export function QuickActions({ clients }: QuickActionsProps) {
                             </Select>
                         </div>
                         {selectedClientId && (
-                            <ActivityForm 
+                            <ActivityForm
                                 clientId={selectedClientId}
                                 enableImmediateSave={true}
                                 onSuccess={() => {
@@ -149,7 +189,10 @@ export function QuickActions({ clients }: QuickActionsProps) {
             </Dialog>
 
             {/* Create Project Dialog */}
-            <Dialog open={activeDialog === 'project'} onOpenChange={(open) => !open && setActiveDialog(null)}>
+            <Dialog
+                open={activeDialog === 'project'}
+                onOpenChange={(open) => !open && setActiveDialog(null)}
+            >
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle>Create New Project</DialogTitle>
@@ -157,7 +200,7 @@ export function QuickActions({ clients }: QuickActionsProps) {
                             Start a new project for one of your clients.
                         </DialogDescription>
                     </DialogHeader>
-                    <ProjectForm 
+                    <ProjectForm
                         clients={clients}
                         onSuccess={() => setActiveDialog(null)}
                     />
@@ -165,7 +208,10 @@ export function QuickActions({ clients }: QuickActionsProps) {
             </Dialog>
 
             {/* Set Reminder Dialog */}
-            <Dialog open={activeDialog === 'reminder'} onOpenChange={(open) => !open && setActiveDialog(null)}>
+            <Dialog
+                open={activeDialog === 'reminder'}
+                onOpenChange={(open) => !open && setActiveDialog(null)}
+            >
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle>Set Reminder</DialogTitle>
@@ -173,7 +219,7 @@ export function QuickActions({ clients }: QuickActionsProps) {
                             Schedule a follow-up or a task.
                         </DialogDescription>
                     </DialogHeader>
-                    <ReminderForm 
+                    <ReminderForm
                         clients={clients}
                         onSuccess={() => setActiveDialog(null)}
                     />

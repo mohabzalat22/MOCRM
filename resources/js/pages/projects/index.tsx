@@ -13,12 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem, Project } from '@/types';
 
@@ -102,7 +97,9 @@ export default function ProjectsIndex({
                     className="w-full"
                 >
                     <TabsList className="mb-4">
-                        <TabsTrigger value="active">Active Projects</TabsTrigger>
+                        <TabsTrigger value="active">
+                            Active Projects
+                        </TabsTrigger>
                         <TabsTrigger value="archived">Archived</TabsTrigger>
                         <TabsTrigger value="all">All Projects</TabsTrigger>
                     </TabsList>

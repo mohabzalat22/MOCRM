@@ -272,15 +272,19 @@ export const clientService = {
         onSuccess?: () => void;
         onError?: (errors: Record<string, string | string[]>) => void;
     }): void {
-        router.post('/clients/bulk-update', {
-            ids,
-            action,
-            status,
-            tag_id,
-        } as never, {
-            preserveScroll: true,
-            onSuccess,
-            onError,
-        });
+        router.post(
+            '/clients/bulk-update',
+            {
+                ids,
+                action,
+                status,
+                tag_id,
+            } as never,
+            {
+                preserveScroll: true,
+                onSuccess,
+                onError,
+            },
+        );
     },
 };

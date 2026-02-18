@@ -1,6 +1,14 @@
 export interface Route {
     uri: string;
-    methods: ("GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS")[];
+    methods: (
+        | 'GET'
+        | 'HEAD'
+        | 'POST'
+        | 'PUT'
+        | 'PATCH'
+        | 'DELETE'
+        | 'OPTIONS'
+    )[];
     parameters?: string[];
     bindings?: Record<string, string>;
     wheres?: Record<string, string>;

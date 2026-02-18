@@ -11,7 +11,7 @@ interface TodayRemindersProps {
 
 export function TodayReminders({ reminders }: TodayRemindersProps) {
     return (
-        <Card className="flex h-full flex-col overflow-hidden border-sidebar-border/70 bg-white dark:bg-transparent shadow-sm dark:border-sidebar-border">
+        <Card className="flex h-full flex-col overflow-hidden border-sidebar-border/70 bg-white shadow-sm dark:border-sidebar-border dark:bg-transparent">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                     <Bell className="h-4 w-4 text-primary" />

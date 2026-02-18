@@ -1,4 +1,10 @@
-export type DateRangeKey = '7d' | '30d' | '90d' | 'this_month' | 'last_month' | 'this_year';
+export type DateRangeKey =
+    | '7d'
+    | '30d'
+    | '90d'
+    | 'this_month'
+    | 'last_month'
+    | 'this_year';
 
 export interface WidgetConfig {
     id: string;

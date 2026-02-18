@@ -30,7 +30,7 @@ function FormField({
             {editMode ? (
                 <div className="relative">
                     {Icon && (
-                        <Icon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Icon className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
                     )}
                     <Input
                         id={id}
@@ -43,7 +43,13 @@ function FormField({
             ) : (
                 <div className="flex items-center gap-2 rounded bg-zinc-100 px-3 py-2 text-black dark:bg-zinc-800 dark:text-white">
                     {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
-                    <span>{value || <span className="text-muted-foreground opacity-50 italic">Empty</span>}</span>
+                    <span>
+                        {value || (
+                            <span className="text-muted-foreground italic opacity-50">
+                                Empty
+                            </span>
+                        )}
+                    </span>
                 </div>
             )}
         </div>
@@ -51,12 +57,7 @@ function FormField({
 }
 
 export default function ClientForm() {
-    const { 
-        formData, 
-        editMode, 
-        updateFormData, 
-        resetForm 
-    } = useClientStore();
+    const { formData, editMode, updateFormData, resetForm } = useClientStore();
 
     // Track previous editMode to detect change
     const prevEditModeRef = useRef(editMode);
@@ -127,5 +128,5 @@ export default function ClientForm() {
                 />
             ))}
         </div>
-        );
+    );
 }

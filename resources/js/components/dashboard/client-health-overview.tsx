@@ -1,6 +1,13 @@
 import { Link } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
-import { UserCheck, UserMinus, UserX, Clock, MessageSquare, ChevronRight } from 'lucide-react';
+import {
+    UserCheck,
+    UserMinus,
+    UserX,
+    Clock,
+    MessageSquare,
+    ChevronRight,
+} from 'lucide-react';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -16,8 +23,11 @@ interface ClientHealthOverviewProps {
 
 type HealthCategory = 'healthy' | 'needsAttention' | 'atRisk';
 
-export function ClientHealthOverview({ healthData }: ClientHealthOverviewProps) {
-    const [selectedCategory, setSelectedCategory] = useState<HealthCategory>('atRisk');
+export function ClientHealthOverview({
+    healthData,
+}: ClientHealthOverviewProps) {
+    const [selectedCategory, setSelectedCategory] =
+        useState<HealthCategory>('atRisk');
 
     const categories = [
         {
@@ -55,9 +65,11 @@ export function ClientHealthOverview({ healthData }: ClientHealthOverviewProps) 
     const activeCategory = categories.find((c) => c.key === selectedCategory)!;
 
     return (
-        <Card className="flex h-full flex-col overflow-hidden border-sidebar-border/70 bg-white dark:bg-transparent shadow-sm dark:border-sidebar-border">
+        <Card className="flex h-full flex-col overflow-hidden border-sidebar-border/70 bg-white shadow-sm dark:border-sidebar-border dark:bg-transparent">
             <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-semibold">Client Health Overview</CardTitle>
+                <CardTitle className="text-sm font-semibold">
+                    Client Health Overview
+                </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-1 flex-col gap-4 p-0">
                 {/* Visual Breakdown Tabs */}
@@ -70,13 +82,20 @@ export function ClientHealthOverview({ healthData }: ClientHealthOverviewProps) 
                                 'flex flex-col items-center gap-1 rounded-lg border p-3 transition-all',
                                 cat.bgColor,
                                 cat.borderColor,
-                                selectedCategory === cat.key ? cn('ring-2 ring-offset-2', cat.activeBorder) : 'opacity-60 hover:opacity-100'
+                                selectedCategory === cat.key
+                                    ? cn(
+                                          'ring-2 ring-offset-2',
+                                          cat.activeBorder,
+                                      )
+                                    : 'opacity-60 hover:opacity-100',
                             )}
                         >
                             <cat.icon className={cn('h-5 w-5', cat.color)} />
                             <div className="flex flex-col items-center">
-                                <span className="text-lg font-bold leading-tight">{cat.clients.length}</span>
-                                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                                <span className="text-lg leading-tight font-bold">
+                                    {cat.clients.length}
+                                </span>
+                                <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
                                     {cat.label}
                                 </span>
                             </div>
@@ -86,8 +105,9 @@ export function ClientHealthOverview({ healthData }: ClientHealthOverviewProps) 
 
                 {/* Filtered List */}
                 <div className="flex-1 overflow-hidden border-t border-sidebar-border/50">
-                    <div className="bg-muted/30 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        {activeCategory.label} Clients ({activeCategory.clients.length})
+                    <div className="bg-muted/30 px-4 py-2 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+                        {activeCategory.label} Clients (
+                        {activeCategory.clients.length})
                     </div>
                     <div className="max-h-[300px] divide-y divide-border overflow-auto">
                         {activeCategory.clients.length === 0 ? (
@@ -123,7 +143,9 @@ export function ClientHealthOverview({ healthData }: ClientHealthOverviewProps) 
                                                     {client.phone && (
                                                         <div className="flex items-center gap-1">
                                                             <MessageSquare className="h-3 w-3" />
-                                                            <span className="truncate">{client.phone}</span>
+                                                            <span className="truncate">
+                                                                {client.phone}
+                                                            </span>
                                                         </div>
                                                     )}
                                                 </div>

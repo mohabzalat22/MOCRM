@@ -21,7 +21,6 @@ import { cn, TAG_COLORS } from '@/lib/utils';
 import { useClientStore } from '@/stores/useClientStore';
 import type { Tag } from '@/types';
 
-
 export interface TagChange {
     tagsToAdd: Array<{ name: string; color: string }>;
     tagsToRemove: number[];
@@ -31,16 +30,9 @@ interface TagInputProps {
     className?: string;
 }
 
-export default function TagInput({
-    className = '',
-}: TagInputProps) {
-    const { 
-        allTags, 
-        client, 
-        editMode, 
-        tagChanges, 
-        setTagChanges 
-    } = useClientStore();
+export default function TagInput({ className = '' }: TagInputProps) {
+    const { allTags, client, editMode, tagChanges, setTagChanges } =
+        useClientStore();
 
     const existingTags = client?.tags || [];
     const { tagsToAdd, tagsToRemove } = tagChanges;
@@ -104,12 +96,15 @@ export default function TagInput({
             // Add to store tagChanges
             setTagChanges((prev) => ({
                 ...prev,
-                tagsToAdd: [...prev.tagsToAdd, { name: tagName.trim(), color: color || selectedColor }]
+                tagsToAdd: [
+                    ...prev.tagsToAdd,
+                    { name: tagName.trim(), color: color || selectedColor },
+                ],
             }));
-            
+
             setInputValue('');
             setOpen(false);
-            
+
             // Return focus to input
             setTimeout(() => {
                 inputRef.current?.focus();
@@ -123,9 +118,9 @@ export default function TagInput({
             // Add to store tagChanges
             setTagChanges((prev) => ({
                 ...prev,
-                tagsToRemove: [...prev.tagsToRemove, tagId]
+                tagsToRemove: [...prev.tagsToRemove, tagId],
             }));
-            
+
             setTimeout(() => {
                 inputRef.current?.focus();
             }, 10);
@@ -137,7 +132,10 @@ export default function TagInput({
         (tag: Tag) =>
             tag.name.toLowerCase().includes(inputValue.toLowerCase()) &&
             !existingTags.find((t: Tag) => t.id === tag.id) &&
-            !tagsToAdd.find((t: { name: string }) => t.name.toLowerCase() === tag.name.toLowerCase()),
+            !tagsToAdd.find(
+                (t: { name: string }) =>
+                    t.name.toLowerCase() === tag.name.toLowerCase(),
+            ),
     );
 
     const handleInputChange = useCallback(
@@ -221,13 +219,18 @@ export default function TagInput({
                             <Badge
                                 key={tag.id}
                                 className={cn(
-                                    "gap-1 px-3 py-1.5 pr-2 text-sm text-white transition-opacity hover:opacity-90",
-                                    tag.isPending && "ring-2 ring-white/50 ring-offset-2"
+                                    'gap-1 px-3 py-1.5 pr-2 text-sm text-white transition-opacity hover:opacity-90',
+                                    tag.isPending &&
+                                        'ring-2 ring-white/50 ring-offset-2',
                                 )}
                                 style={{ backgroundColor: tag.color }}
                             >
                                 {tag.name}
-                                {tag.isPending && <span className="text-xs opacity-75">(pending)</span>}
+                                {tag.isPending && (
+                                    <span className="text-xs opacity-75">
+                                        (pending)
+                                    </span>
+                                )}
                                 {editMode && (
                                     <Button
                                         type="button"
@@ -239,7 +242,12 @@ export default function TagInput({
                                                 // Remove from pending additions
                                                 setTagChanges((prev) => ({
                                                     ...prev,
-                                                    tagsToAdd: prev.tagsToAdd.filter((_, idx) => -idx - 1 !== tag.id)
+                                                    tagsToAdd:
+                                                        prev.tagsToAdd.filter(
+                                                            (_, idx) =>
+                                                                -idx - 1 !==
+                                                                tag.id,
+                                                        ),
                                                 }));
                                             } else {
                                                 // Add to removal list
