@@ -1,4 +1,4 @@
-import type { Client, CustomField } from '@/types';
+import type { Client, CustomField, ChangedFields } from '@/types';
 
 const STORAGE_BASE_URL =
     import.meta.env.VITE_STORAGE_URL || 'http://localhost:8000/storage/';
@@ -61,6 +61,7 @@ export const clientToFormData = (client: Client) => {
         website: client.website ?? '',
         address: client.address ?? '',
         image: null,
+        monthly_value: client.monthly_value ?? 0,
         custom_fields: (client.custom_fields || []) as CustomField[],
         status: client.status ?? '',
     };
@@ -70,7 +71,7 @@ export const clientToFormData = (client: Client) => {
  * Validate if there are actual changes to save
  */
 export const hasValidChanges = (
-    changedFields: Record<string, string | File | CustomField[] | null>,
+    changedFields: ChangedFields,
     client: Client,
 ): {
     hasClientChanges: boolean;

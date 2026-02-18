@@ -1,4 +1,5 @@
 import React from 'react';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -138,12 +139,12 @@ export const TypeSpecificFields: React.FC<TypeSpecificFieldsProps> = ({
                     </Select>
                 </div>
                 <div className="space-y-1.5">
-                    <Label className="text-xs font-medium">Amount</Label>
-                    <Input
-                        placeholder="$0.00"
-                        className="h-9 text-sm"
+                    <Label htmlFor="amount">Amount</Label>
+                    <CurrencyInput
+                        id="amount"
+                        placeholder="0.00"
                         value={data.amount || ''}
-                        onChange={(e) => updateData('amount', e.target.value)}
+                        onChange={(val) => updateData('amount', val)}
                     />
                 </div>
             </div>

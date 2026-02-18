@@ -21,7 +21,7 @@ export interface ActivityData {
     meeting_type?: string;
     attendees?: string;
     action_items?: ActionItem[];
-    amount?: string;
+    amount?: string | number;
     transaction_type?: string;
     old_status?: string;
     new_status?: string;

@@ -7,6 +7,7 @@ import type {
     Tag,
     ActivityType,
     ActivityData,
+    ChangedFields,
 } from '@/types';
 import {
     getImageUrl,
@@ -37,6 +38,7 @@ interface ClientFormData {
     website: string;
     address: string;
     image: File | null;
+    monthly_value: number;
     custom_fields: CustomField[];
     status: string;
 }
@@ -53,7 +55,7 @@ interface ClientState {
 
     // Form State
     formData: ClientFormData;
-    changedFields: Record<string, string | File | CustomField[] | null>;
+    changedFields: ChangedFields;
     tagChanges: TagChange;
     activityChanges: ActivityChange[];
 
@@ -72,19 +74,15 @@ interface ClientState {
     setFormData: (data: ClientFormData) => void;
     updateFormData: (
         key: keyof ClientFormData,
-        value: string | File | CustomField[] | null,
+        value: string | File | CustomField[] | number | null,
     ) => void;
     handleFieldChange: (
         key: keyof ClientFormData,
-        value: string | File | CustomField[] | null,
+        value: string | File | CustomField[] | number | null,
     ) => void;
 
     setChangedFields: (
-        fields:
-            | Record<string, string | File | CustomField[] | null>
-            | ((
-                  prev: Record<string, string | File | CustomField[] | null>,
-              ) => Record<string, string | File | CustomField[] | null>),
+        fields: ChangedFields | ((prev: ChangedFields) => ChangedFields),
     ) => void;
 
     setTagChanges: (
@@ -113,6 +111,7 @@ const defaultFormData: ClientFormData = {
     website: '',
     address: '',
     image: null,
+    monthly_value: 0,
     custom_fields: [],
     status: '',
 };
@@ -126,7 +125,7 @@ export const useClientStore = create<ClientState>()(
         editMode: false,
         isSaving: false,
         formData: defaultFormData,
-        changedFields: {},
+        changedFields: {} as ChangedFields,
         tagChanges: { tagsToAdd: [], tagsToRemove: [] },
         activityChanges: [],
         activityDialogOpen: false,
@@ -158,8 +157,9 @@ export const useClientStore = create<ClientState>()(
 
         updateFormData: (key, value) => {
             set((state) => {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                state.formData[key] = value as any;
+                // Use unknown cast to Record to avoid 'any' while allowing dynamic assignment
+                (state.formData as unknown as Record<string, unknown>)[key] =
+                    value;
             });
             get().handleFieldChange(key, value);
         },
@@ -216,6 +216,7 @@ export const useClientStore = create<ClientState>()(
                 website: client.website ?? '',
                 address: client.address ?? '',
                 image: null,
+                monthly_value: client.monthly_value ?? 0,
                 custom_fields: (client.custom_fields || []) as CustomField[],
                 status: client.status ?? '',
             };

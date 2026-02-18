@@ -33,6 +33,7 @@ class UpdateClientRequest extends FormRequest
             'website' => ['sometimes', 'max:255'],
             'address' => ['sometimes', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp'],
+            'monthly_value' => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'status' => ['sometimes', Rule::in(array_column(ClientStatus::cases(), 'value'))],
         ];
     }

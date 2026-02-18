@@ -4,6 +4,7 @@ import type { ChangeEvent } from 'react';
 import React, { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import {
     Dialog,
     DialogClose,
@@ -29,6 +30,7 @@ export function ClientDialog({ trigger }: { trigger?: React.ReactNode } = {}) {
         website: '',
         address: '',
         image: null as File | null,
+        monthly_value: 0,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -191,6 +193,19 @@ export function ClientDialog({ trigger }: { trigger?: React.ReactNode } = {}) {
                                 name={data.address}
                                 onChange={(e) =>
                                     setData('address', e.target.value)
+                                }
+                            />
+                        </div>
+                        <div className="grid gap-3">
+                            <Label htmlFor="monthly-value">
+                                Monthly Value ($)
+                            </Label>
+                            <CurrencyInput
+                                id="monthly-value"
+                                placeholder="0.00"
+                                value={data.monthly_value}
+                                onChange={(val) =>
+                                    setData('monthly_value', val)
                                 }
                             />
                         </div>

@@ -78,12 +78,13 @@ class DashboardController extends Controller
             ->whereBetween('created_at', [$startDate, $endDate])
             ->count();
 
-        // Revenue Earned in range (sum of monthly_value of NEW clients in this range?
-        // Or actual revenue? System acts like "Potential/Recurring Revenue".
-        // Using same logic as previous 'weeklyRevenueEarned' => sum monthly_value of created clients.
-        $revenueEarned = Client::forUser()
+        // Revenue Earned in range (sum of actual payments)
+        $revenueEarned = Activity::where('user_id', auth()->id())
+            ->where('type', 'transaction')
+            ->where('data->transaction_type', 'Payment Received')
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->sum('monthly_value');
+            ->get()
+            ->sum(fn ($activity) => (float) ($activity->data['amount'] ?? 0));
 
         return Inertia::render('dashboard', [
             'metrics' => [

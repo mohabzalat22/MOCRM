@@ -25,3 +25,8 @@ export interface Client {
     // Relationships
     activities?: Activity[];
 }
+
+export type ChangedFields = Record<
+    string,
+    string | File | CustomField[] | number | null
+>;

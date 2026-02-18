@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import { User, Building2, Mail, Phone, Globe, MapPin } from 'lucide-react';
 import { useRef, useEffect } from 'react';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useClientStore } from '@/stores/useClientStore';
@@ -127,6 +128,26 @@ export default function ClientForm() {
                     icon={field.icon}
                 />
             ))}
+            <div className="grid gap-2">
+                <Label htmlFor="monthly-value">Monthly Value ($)</Label>
+                {editMode ? (
+                    <CurrencyInput
+                        id="monthly-value"
+                        placeholder="0.00"
+                        value={formData.monthly_value}
+                        onChange={(val) => updateFormData('monthly_value', val)}
+                    />
+                ) : (
+                    <div className="flex items-center gap-2 rounded bg-zinc-100 px-3 py-2 text-black dark:bg-zinc-800 dark:text-white">
+                        <span className="text-sm font-semibold">
+                            {new Intl.NumberFormat('en-US', {
+                                style: 'currency',
+                                currency: 'USD',
+                            }).format(formData.monthly_value)}
+                        </span>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

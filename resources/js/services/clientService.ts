@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import type { TagChange } from '@/components/clients/tag-input';
-import type { CustomField } from '@/types';
+import type { CustomField, ChangedFields } from '@/types';
 
 interface UpdateClientDataOptions {
     clientId: number;
@@ -28,7 +28,7 @@ export const clientService = {
      * Build FormData from changed fields, excluding custom fields
      */
     buildFormData(
-        changedFields: Record<string, string | File | CustomField[] | null>,
+        changedFields: ChangedFields,
         excludeCustomFields = false,
     ): FormData {
         const formData = new FormData();
@@ -63,7 +63,10 @@ export const clientService = {
                     }
                 }
             } else {
-                formData.append(key, value as string);
+                formData.append(
+                    key,
+                    value !== null && value !== undefined ? String(value) : '',
+                );
             }
         });
 
