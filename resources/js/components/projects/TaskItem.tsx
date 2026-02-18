@@ -112,7 +112,7 @@ export function TaskItem({ task, projectTasks = EMPTY_TASKS }: TaskItemProps) {
                 className="h-4 w-4"
             />
 
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 pt-4">
                 {isEditing ? (
                     <input
                         className="w-full border-none bg-transparent p-0 text-sm font-medium text-foreground focus:ring-0"
