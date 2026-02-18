@@ -57,7 +57,7 @@ class ClientController extends Controller
         $client = Client::forUser()
             ->where('id', $client->id)
             ->with(['customFields', 'tags', 'activities' => function ($query) {
-                $query->with('user')->latest();
+                $query->with(['user', 'tags', 'attachments'])->latest();
             }, 'projects' => function ($query) {
                 $query->withCount(['tasks', 'tasks as completed_tasks_count' => function ($q) {
                     $q->where('completed', true);

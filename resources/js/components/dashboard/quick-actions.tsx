@@ -143,7 +143,7 @@ export function QuickActions({ clients }: QuickActionsProps) {
                 open={activeDialog === 'activity'}
                 onOpenChange={(open) => !open && setActiveDialog(null)}
             >
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="overflow-y-auto sm:max-h-[90vh] sm:max-w-3xl">
                     <DialogHeader>
                         <DialogTitle>Log Activity</DialogTitle>
                         <DialogDescription>

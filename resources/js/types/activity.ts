@@ -1,5 +1,5 @@
+import type { User, Tag } from '@/types';
 import type { Attachment } from './attachment';
-import type { User } from './auth';
 import type { Client } from './client';
 
 export type ActivityType =
@@ -40,7 +40,9 @@ export interface Activity {
     data: ActivityData | null;
     created_at: string;
     updated_at: string;
+    occurred_at: string;
     user?: User;
     client?: Client;
     attachments?: Attachment[];
+    tags?: Tag[];
 }

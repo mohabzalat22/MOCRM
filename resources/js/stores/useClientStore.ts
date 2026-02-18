@@ -22,6 +22,10 @@ export interface ActivityChange {
         type: ActivityType;
         summary: string;
         data: ActivityData;
+        occurred_at?: string;
+        tags?: { name: string; color: string; id?: number }[];
+        files?: File[];
+        removed_attachment_ids?: number[];
     };
 }
 

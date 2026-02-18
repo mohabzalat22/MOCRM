@@ -6,24 +6,28 @@ use App\Http\Requests\CreateActivityRequest;
 use App\Http\Requests\UpdateActivityRequest;
 use App\Models\Activity;
 use App\Models\Client;
+use App\Services\ActivityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
 class ActivityController extends Controller
 {
+    public function __construct(
+        protected ActivityService $activityService
+    ) {}
+
     /**
      * Summary of store
      */
-    public function store(CreateActivityRequest $request, Client $client): RedirectResponse
+    public function store(CreateActivityRequest $request, Client $client): RedirectResponse|JsonResponse
     {
         $validated = $request->validated();
 
-        $client->activities()->create([
-            'user_id' => auth()->id(),
-            'type' => $validated['type'],
-            'summary' => $validated['summary'] ?? null,
-            'data' => $validated['data'] ?? [],
-        ]);
+        $activity = $this->activityService->create($validated, $client);
+        // activity form uses it in create behavior when showing the activity data
+        if ($request->wantsJson()) {
+            return response()->json($activity->load(['user', 'tags', 'attachments']));
+        }
 
         return back()->with('success', 'Activity added successfully.');
     }
@@ -33,21 +37,22 @@ class ActivityController extends Controller
      */
     public function show(Activity $activity): JsonResponse
     {
-        return response()->json($activity->load('user'));
+        return response()->json($activity->load(['user', 'tags', 'attachments']));
     }
 
     /**
      * Summary of update
      */
-    public function update(UpdateActivityRequest $request, Activity $activity): RedirectResponse
+    public function update(UpdateActivityRequest $request, Activity $activity): RedirectResponse|JsonResponse
     {
         $validated = $request->validated();
+        // activity form uses it in update - edit behavior when showing the activity data
 
-        $activity->update([
-            'type' => $validated['type'],
-            'summary' => $validated['summary'],
-            'data' => $validated['data'] ?? [],
-        ]);
+        $activity = $this->activityService->update($activity, $validated);
+
+        if ($request->wantsJson()) {
+            return response()->json($activity->load(['user', 'tags', 'attachments']));
+        }
 
         return back()->with('success', 'Activity updated successfully.');
     }

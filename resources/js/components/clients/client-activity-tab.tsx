@@ -52,12 +52,14 @@ function mergeActivitiesWithChanges(
             );
 
             if (updateChange?.activityData) {
-                const { type, summary, data } = updateChange.activityData;
+                const { type, summary, data, occurred_at } =
+                    updateChange.activityData;
                 return {
                     ...activity,
                     type: type as ActivityType,
                     summary: summary as string,
                     data: data as ActivityData,
+                    occurred_at: occurred_at || activity.occurred_at,
                     isPending: true,
                 };
             }
@@ -69,7 +71,7 @@ function mergeActivitiesWithChanges(
     const newActivities: DisplayActivity[] = activityChanges
         .filter((change) => change.type === 'create' && change.activityData)
         .map((change) => {
-            const { type, summary, data } = change.activityData!;
+            const { type, summary, data, occurred_at } = change.activityData!;
             return {
                 id: generateTempId(),
                 client_id: clientId,
@@ -77,6 +79,7 @@ function mergeActivitiesWithChanges(
                 type: type as ActivityType,
                 summary: (summary as string) || '',
                 data: (data as ActivityData) || {},
+                occurred_at: occurred_at || new Date().toISOString(),
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
                 isPending: true,

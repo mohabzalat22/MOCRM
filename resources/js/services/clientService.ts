@@ -203,7 +203,7 @@ export const clientService = {
         onError,
     }: {
         clientId: number | string;
-        activityData: Record<string, unknown>;
+        activityData: Record<string, unknown> | FormData;
         onSuccess?: () => void;
         onError?: (errors: Record<string, string | string[]>) => void;
     }): void {
@@ -224,15 +224,25 @@ export const clientService = {
         onError,
     }: {
         activityId: number;
-        activityData: Record<string, unknown>;
+        activityData: Record<string, unknown> | FormData;
         onSuccess?: () => void;
         onError?: (errors: Record<string, string | string[]>) => void;
     }): void {
-        router.patch(`/activities/${activityId}`, activityData as never, {
-            preserveScroll: true,
-            onSuccess,
-            onError,
-        });
+        // If it's FormData, we need to spoof PATCH with _method
+        if (activityData instanceof FormData) {
+            activityData.append('_method', 'PATCH');
+            router.post(`/activities/${activityId}`, activityData as never, {
+                preserveScroll: true,
+                onSuccess,
+                onError,
+            });
+        } else {
+            router.patch(`/activities/${activityId}`, activityData as never, {
+                preserveScroll: true,
+                onSuccess,
+                onError,
+            });
+        }
     },
 
     /**

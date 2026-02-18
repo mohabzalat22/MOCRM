@@ -252,7 +252,8 @@ export default function ActivityItem({
                                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3" />
                                             {new Date(
-                                                activity.created_at,
+                                                activity.occurred_at ||
+                                                    activity.created_at,
                                             ).toLocaleString([], {
                                                 dateStyle: 'medium',
                                                 timeStyle: 'short',
@@ -304,15 +305,34 @@ export default function ActivityItem({
                             {formatData()}
 
                             <div className="mt-2 rounded-md border border-dashed bg-muted/30 p-3 text-sm whitespace-pre-wrap text-muted-foreground">
-                                {String(activity.data?.notes || 'No additional details')}
+                                {String(
+                                    activity.data?.notes ||
+                                        'No additional details',
+                                )}
                             </div>
+
+                            {activity.tags && activity.tags.length > 0 && (
+                                <div className="mt-3 flex flex-wrap gap-1.5">
+                                    {activity.tags.map((tag) => (
+                                        <div
+                                            key={tag.id}
+                                            className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium text-white shadow-sm"
+                                            style={{
+                                                backgroundColor: tag.color,
+                                            }}
+                                        >
+                                            {tag.name}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
                             {renderAttachments()}
                         </div>
                     )}
                 </div>
 
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent className="overflow-y-auto sm:max-h-[90vh] sm:max-w-3xl">
                     <DialogHeader>
                         <DialogTitle>Edit Activity</DialogTitle>
                         <DialogDescription>
