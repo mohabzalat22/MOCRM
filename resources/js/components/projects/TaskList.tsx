@@ -14,7 +14,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { ListTodo, CheckCircle2 } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -38,7 +38,59 @@ export function TaskList({ projectId, tasks = EMPTY_TASKS }: TaskListProps) {
         }),
     );
 
-    const taskIds = useMemo(() => tasks.map((t) => t.id), [tasks]);
+    const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
+
+    const toggleExpand = (id: number) => {
+        setExpandedIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    };
+
+    // Organize tasks into a hierarchical list for display
+    const visibleTasks = useMemo(() => {
+        const roots = tasks.filter((t) => !t.parent_id);
+        const subTasksByParent = tasks.reduce(
+            (acc, t) => {
+                if (t.parent_id) {
+                    if (!acc[t.parent_id]) acc[t.parent_id] = [];
+                    acc[t.parent_id].push(t);
+                }
+                return acc;
+            },
+            {} as Record<number, Task[]>,
+        );
+
+        const result: (Task & { depth: number; hasChildren: boolean })[] = [];
+
+        const addTasks = (taskList: Task[], depth: number) => {
+            taskList.sort((a, b) => a.order - b.order);
+            taskList.forEach((task) => {
+                const children = subTasksByParent[task.id] || [];
+                result.push({
+                    ...task,
+                    depth,
+                    hasChildren: children.length > 0,
+                });
+                if (expandedIds.has(task.id) && children.length > 0) {
+                    addTasks(children, depth + 1);
+                }
+            });
+        };
+
+        addTasks(roots, 0);
+        return result;
+    }, [tasks, expandedIds]);
+
+    const taskIds = useMemo(
+        () => visibleTasks.map((t) => t.id),
+        [visibleTasks],
+    );
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
@@ -120,11 +172,17 @@ export function TaskList({ projectId, tasks = EMPTY_TASKS }: TaskListProps) {
                             strategy={verticalListSortingStrategy}
                         >
                             <div className="space-y-3">
-                                {tasks.map((task) => (
+                                {visibleTasks.map((task) => (
                                     <TaskItem
                                         key={task.id}
                                         task={task}
                                         projectTasks={tasks}
+                                        depth={task.depth}
+                                        hasChildren={task.hasChildren}
+                                        isExpanded={expandedIds.has(task.id)}
+                                        onToggleExpand={() =>
+                                            toggleExpand(task.id)
+                                        }
                                     />
                                 ))}
                             </div>

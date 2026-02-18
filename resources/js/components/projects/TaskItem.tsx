@@ -8,6 +8,8 @@ import {
     Trash2,
     GitBranch,
     Pencil,
+    ChevronRight,
+    ChevronDown,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -32,11 +34,22 @@ import { Calendar as CalendarComponent } from '../ui/calendar';
 interface TaskItemProps {
     task: Task;
     projectTasks?: Task[];
+    depth?: number;
+    hasChildren?: boolean;
+    isExpanded?: boolean;
+    onToggleExpand?: () => void;
 }
 
 const EMPTY_TASKS: Task[] = [];
 
-export function TaskItem({ task, projectTasks = EMPTY_TASKS }: TaskItemProps) {
+export function TaskItem({
+    task,
+    projectTasks = EMPTY_TASKS,
+    depth = 0,
+    hasChildren = false,
+    isExpanded = false,
+    onToggleExpand,
+}: TaskItemProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [description, setDescription] = useState(task.description);
 
@@ -92,13 +105,35 @@ export function TaskItem({ task, projectTasks = EMPTY_TASKS }: TaskItemProps) {
     return (
         <div
             ref={setNodeRef}
-            style={style}
             className={cn(
                 'group flex items-center gap-3 rounded-lg border bg-card p-2.5 transition-colors',
                 isDragging ? 'border-primary opacity-50' : 'hover:bg-accent/50',
                 task.completed && 'opacity-60',
             )}
+            style={{
+                ...style,
+                marginLeft: `${depth * 24}px`,
+            }}
         >
+            {hasChildren ? (
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 shrink-0 text-muted-foreground/60 hover:text-foreground"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleExpand?.();
+                    }}
+                >
+                    {isExpanded ? (
+                        <ChevronDown className="h-4 w-4" />
+                    ) : (
+                        <ChevronRight className="h-4 w-4" />
+                    )}
+                </Button>
+            ) : depth > 0 ? (
+                <div className="w-6 shrink-0" /> // Spacer for alignment
+            ) : null}
             <div
                 {...attributes}
                 {...listeners}
