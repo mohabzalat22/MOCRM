@@ -304,7 +304,7 @@ export default function ActivityItem({
                             {formatData()}
 
                             <div className="mt-2 rounded-md border border-dashed bg-muted/30 p-3 text-sm whitespace-pre-wrap text-muted-foreground">
-                                {activity.summary}
+                                {String(activity.data?.notes || 'No additional details')}
                             </div>
 
                             {renderAttachments()}
