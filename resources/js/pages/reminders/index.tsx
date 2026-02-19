@@ -15,7 +15,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { reminderService } from '@/services/reminderService';
 import type { BreadcrumbItem, Reminder } from '@/types';
@@ -115,25 +114,12 @@ export default function RemindersIndex({
                     </Button>
                 </div>
 
-                <div className="flex items-center space-x-4">
-                    <Tabs
-                        value={status}
-                        onValueChange={handleStatusChange}
-                        className="w-[400px]"
-                    >
-                        <TabsList>
-                            <TabsTrigger value="incomplete">
-                                Incomplete
-                            </TabsTrigger>
-                            <TabsTrigger value="completed">
-                                Completed
-                            </TabsTrigger>
-                            <TabsTrigger value="all">All</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                </div>
-
-                <DataTable columns={columns} data={reminders} />
+                <DataTable
+                    columns={columns}
+                    data={reminders}
+                    status={status}
+                    onStatusChange={handleStatusChange}
+                />
             </div>
 
             {/* Create Dialog */}
