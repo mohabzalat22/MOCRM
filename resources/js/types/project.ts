@@ -12,11 +12,13 @@ export type ProjectStatus =
 export interface Task {
     id: number;
     project_id: number;
-    description: string;
+    title: string;
+    description: string | null;
+    status: 'todo' | 'in_progress' | 'review' | 'done' | 'blocked';
+    priority: 'low' | 'medium' | 'high' | 'urgent';
     due_date?: string;
     start_date?: string;
     assigned_to?: number;
-    completed: boolean;
     order: number;
     is_milestone: boolean;
     parent_id?: number;

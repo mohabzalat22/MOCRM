@@ -23,6 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { taskService } from '@/services/taskService';
 import type { Task } from '@/types/project';
@@ -30,6 +31,8 @@ import type { Task } from '@/types/project';
 interface AddTaskFormProps {
     projectId: number;
     projectTasks?: Task[];
+    onSuccess?: () => void;
+    initialAdding?: boolean;
 }
 
 const EMPTY_TASKS: Task[] = [];
@@ -37,8 +40,10 @@ const EMPTY_TASKS: Task[] = [];
 export function AddTaskForm({
     projectId,
     projectTasks = EMPTY_TASKS,
+    onSuccess,
+    initialAdding = false,
 }: AddTaskFormProps) {
-    const [isAdding, setIsAdding] = useState(false);
+    const [isAdding, setIsAdding] = useState(initialAdding);
     const { data, setData, processing, reset, errors } =
         taskService.useTaskForm(projectId);
 
@@ -48,6 +53,7 @@ export function AddTaskForm({
             onSuccess: () => {
                 reset();
                 setIsAdding(false);
+                onSuccess?.();
             },
         });
     };
@@ -73,27 +79,53 @@ export function AddTaskForm({
                 onSubmit={handleSubmit}
                 className="animate-in space-y-4 rounded-lg border bg-card/50 p-4 shadow-sm duration-300 fade-in slide-in-from-top-2"
             >
-                <div className="space-y-2">
-                    <Label className="ml-1 text-xs font-semibold text-muted-foreground">
-                        Description
-                    </Label>
-                    <Input
-                        value={data.description}
-                        onChange={(e) => setData('description', e.target.value)}
-                        placeholder="What needs to be done?"
-                        autoFocus
-                        disabled={processing}
-                        className={cn(
-                            'h-9 text-sm font-medium',
-                            errors.description &&
-                                'border-destructive focus-visible:ring-destructive',
+                <div className="space-y-3">
+                    <div className="space-y-1">
+                        <Label className="ml-1 text-xs font-semibold text-muted-foreground">
+                            Title
+                        </Label>
+                        <Input
+                            value={data.title}
+                            onChange={(e) => setData('title', e.target.value)}
+                            placeholder="Task Title"
+                            autoFocus
+                            disabled={processing}
+                            className={cn(
+                                'h-9 text-sm font-medium',
+                                errors.title &&
+                                    'border-destructive focus-visible:ring-destructive',
+                            )}
+                        />
+                        {errors.title && (
+                            <p className="ml-1 text-[11px] font-medium text-destructive">
+                                {errors.title}
+                            </p>
                         )}
-                    />
-                    {errors.description && (
-                        <p className="ml-1 text-[11px] font-medium text-destructive">
-                            {errors.description}
-                        </p>
-                    )}
+                    </div>
+
+                    <div className="space-y-1">
+                        <Label className="ml-1 text-xs font-semibold text-muted-foreground">
+                            Description
+                        </Label>
+                        <Textarea
+                            value={data.description}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
+                            placeholder="Details..."
+                            disabled={processing}
+                            className={cn(
+                                'min-h-[80px] resize-none text-sm',
+                                errors.description &&
+                                    'border-destructive focus-visible:ring-destructive',
+                            )}
+                        />
+                        {errors.description && (
+                            <p className="ml-1 text-[11px] font-medium text-destructive">
+                                {errors.description}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -201,44 +233,64 @@ export function AddTaskForm({
 
                     <div className="space-y-1.5">
                         <Label className="ml-1 text-[11px] font-semibold text-muted-foreground">
-                            Parent
+                            Priority
                         </Label>
                         <Select
-                            value={data.parent_id?.toString() || 'none'}
+                            value={data.priority}
                             onValueChange={(value) =>
-                                setData(
-                                    'parent_id',
-                                    value === 'none' ? null : parseInt(value),
-                                )
+                                setData('priority', value)
                             }
                         >
                             <SelectTrigger className="h-9 w-full bg-muted/20 text-xs font-medium">
-                                <SelectValue placeholder="Parent task" />
+                                <SelectValue placeholder="Priority" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="none">
-                                    None (Root)
-                                </SelectItem>
-                                {projectTasks.map((task) => (
-                                    <SelectItem
-                                        key={task.id}
-                                        value={task.id.toString()}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            {task.is_milestone ? (
-                                                <Milestone className="h-3.5 w-3.5 text-warning" />
-                                            ) : (
-                                                <GitBranch className="h-3.5 w-3.5 text-muted-foreground" />
-                                            )}
-                                            <span className="max-w-[150px] truncate font-medium">
-                                                {task.description}
-                                            </span>
-                                        </div>
-                                    </SelectItem>
-                                ))}
+                                <SelectItem value="low">Low</SelectItem>
+                                <SelectItem value="medium">Medium</SelectItem>
+                                <SelectItem value="high">High</SelectItem>
+                                <SelectItem value="urgent">Urgent</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
+                </div>
+
+                <div className="space-y-1.5">
+                    <Label className="ml-1 text-[11px] font-semibold text-muted-foreground">
+                        Parent
+                    </Label>
+                    <Select
+                        value={data.parent_id?.toString() || 'none'}
+                        onValueChange={(value) =>
+                            setData(
+                                'parent_id',
+                                value === 'none' ? null : parseInt(value),
+                            )
+                        }
+                    >
+                        <SelectTrigger className="h-9 w-full bg-muted/20 text-xs font-medium">
+                            <SelectValue placeholder="Parent task" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="none">None (Root)</SelectItem>
+                            {projectTasks.map((task) => (
+                                <SelectItem
+                                    key={task.id}
+                                    value={task.id.toString()}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        {task.is_milestone ? (
+                                            <Milestone className="h-3.5 w-3.5 text-warning" />
+                                        ) : (
+                                            <GitBranch className="h-3.5 w-3.5 text-muted-foreground" />
+                                        )}
+                                        <span className="max-w-[150px] truncate font-medium">
+                                            {task.title}
+                                        </span>
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
@@ -282,7 +334,7 @@ export function AddTaskForm({
                         </Button>
                         <Button
                             type="submit"
-                            disabled={processing || !data.description.trim()}
+                            disabled={processing || !data.title.trim()}
                             size="sm"
                             className="h-9 px-6 text-xs font-bold"
                         >

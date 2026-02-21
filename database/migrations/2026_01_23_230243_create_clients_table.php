@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('status')->default(ClientStatus::LEAD->value);
             $table->timestamps();
             // relations
-            $table->foreignId('user_id')->constrianed('users')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             // index
         });
     }

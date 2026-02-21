@@ -18,11 +18,11 @@ const statusConfig: Record<
         variant: 'default' | 'secondary' | 'destructive' | 'outline';
     }
 > = {
-    not_started: { label: 'Not Started', variant: 'secondary' },
-    in_progress: { label: 'In Progress', variant: 'default' },
+    not_started: { label: 'Not Started', variant: 'outline' },
+    in_progress: { label: 'In Progress', variant: 'outline' },
     on_hold: { label: 'On Hold', variant: 'outline' },
-    completed: { label: 'Completed', variant: 'default' },
-    cancelled: { label: 'Cancelled', variant: 'destructive' },
+    completed: { label: 'Completed', variant: 'outline' },
+    cancelled: { label: 'Cancelled', variant: 'outline' },
     archived: { label: 'Archived', variant: 'outline' },
 };
 

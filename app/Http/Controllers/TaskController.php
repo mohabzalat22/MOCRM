@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TaskStatus;
 use App\Http\Requests\BulkCompleteTasksRequest;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\ReorderTasksRequest;
@@ -46,8 +47,10 @@ class TaskController extends Controller
 
         $validated = $request->validated();
 
-        if (isset($validated['completed']) && $validated['completed'] != $task->completed) {
-            $validated['completed_at'] = $validated['completed'] ? now() : null;
+        if (isset($validated['status']) && $validated['status'] === TaskStatus::DONE->value && $task->status !== TaskStatus::DONE) {
+            $validated['completed_at'] = now();
+        } elseif (isset($validated['status']) && $validated['status'] !== TaskStatus::DONE->value) {
+            $validated['completed_at'] = null;
         }
 
         $task->update($validated);
@@ -65,9 +68,13 @@ class TaskController extends Controller
             abort(403);
         }
 
+        $newStatus = $task->status === TaskStatus::DONE
+            ? TaskStatus::TODO
+            : TaskStatus::DONE;
+
         $task->update([
-            'completed' => ! $task->completed,
-            'completed_at' => ! $task->completed ? now() : null,
+            'status' => $newStatus,
+            'completed_at' => $newStatus === TaskStatus::DONE ? now() : null,
         ]);
 
         return back()->with('success', 'Task status updated.');
@@ -97,7 +104,7 @@ class TaskController extends Controller
         $validated = $request->validated();
 
         Task::whereIn('id', $validated['task_ids'])->update([
-            'completed' => true,
+            'status' => TaskStatus::DONE,
             'completed_at' => now(),
         ]);
 

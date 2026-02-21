@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Clients\BulkUpdateClients;
+use App\Enums\TaskStatus;
 use App\Http\Requests\BulkUpdateRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
@@ -60,7 +61,7 @@ class ClientController extends Controller
                 $query->with(['user', 'tags', 'attachments'])->latest();
             }, 'projects' => function ($query) {
                 $query->withCount(['tasks', 'tasks as completed_tasks_count' => function ($q) {
-                    $q->where('completed', true);
+                    $q->where('status', TaskStatus::DONE);
                 }])->latest();
             }])
             ->firstOrFail();

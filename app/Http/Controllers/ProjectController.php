@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Projects\CreateProjectUpdate;
 use App\Enums\ProjectStatus;
+use App\Enums\TaskStatus;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Client;
@@ -24,7 +25,7 @@ class ProjectController extends Controller
 
         $projects = Project::with('client')
             ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
-                $query->where('completed', true);
+                $query->where('status', TaskStatus::DONE);
             }])
             ->whereHas('client', function ($query) {
                 $query->where('user_id', auth()->id());

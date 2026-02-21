@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\TaskPriority;
+use App\Enums\TaskStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreateTaskRequest extends FormRequest
 {
@@ -23,7 +26,10 @@ class CreateTaskRequest extends FormRequest
     {
         return [
             'project_id' => 'required|exists:projects,id',
-            'description' => 'required|string|max:1000',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => ['nullable', Rule::enum(TaskStatus::class)],
+            'priority' => ['nullable', Rule::enum(TaskPriority::class)],
             'due_date' => 'nullable|date',
             'start_date' => 'nullable|date',
             'assigned_to' => 'nullable|exists:users,id',

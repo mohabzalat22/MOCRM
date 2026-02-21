@@ -15,7 +15,10 @@ export const taskService = {
     useTaskForm: (projectId: number) => {
         return useForm({
             project_id: projectId,
+            title: '',
             description: '',
+            status: 'todo',
+            priority: 'medium',
             start_date: null as string | null,
             due_date: null as string | null,
             is_milestone: false,
@@ -29,7 +32,10 @@ export const taskService = {
     createTask(
         data: {
             project_id: number;
+            title: string;
             description: string;
+            status: string;
+            priority: string;
             start_date?: string | null;
             due_date?: string | null;
             is_milestone?: boolean;
@@ -63,7 +69,10 @@ export const taskService = {
     updateTask(
         taskId: number,
         data: {
+            title?: string;
             description?: string;
+            status?: string;
+            priority?: string;
             due_date?: string | null;
             start_date?: string | null;
             is_milestone?: boolean;

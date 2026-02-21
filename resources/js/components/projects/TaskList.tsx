@@ -13,24 +13,30 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { ListTodo, CheckCircle2 } from 'lucide-react';
+import { ListTodo, Diamond } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 import { taskService } from '@/services/taskService';
 import type { Task } from '@/types/project';
 import { AddTaskForm } from './AddTaskForm';
 import { TaskItem } from './TaskItem';
+import { STATUS_COLORS } from './timeline/constants';
 
 interface TaskListProps {
     projectId: number;
     tasks: Task[];
+    onEditTask: (task: Task) => void;
 }
 
 const EMPTY_TASKS: Task[] = [];
 
-export function TaskList({ projectId, tasks = EMPTY_TASKS }: TaskListProps) {
+export function TaskList({
+    projectId,
+    tasks = EMPTY_TASKS,
+    onEditTask,
+}: TaskListProps) {
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
@@ -110,14 +116,6 @@ export function TaskList({ projectId, tasks = EMPTY_TASKS }: TaskListProps) {
         }
     };
 
-    const handleBulkComplete = () => {
-        if (confirm('Mark all incomplete tasks as completed?')) {
-            taskService.bulkComplete(
-                tasks.filter((t) => !t.completed).map((t) => t.id),
-            );
-        }
-    };
-
     return (
         <Card className="flex h-[700px] flex-col border-border/60 shadow-sm">
             <div className="flex items-center justify-between border-b bg-muted/30 p-6">
@@ -136,27 +134,63 @@ export function TaskList({ projectId, tasks = EMPTY_TASKS }: TaskListProps) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-3 border-r px-3 py-1 text-[11px] font-medium text-muted-foreground">
-                        <span className="flex items-center gap-1.5">
-                            <div className="h-2 w-2 rounded-full bg-success/80" />{' '}
-                            {tasks.filter((t) => t.completed).length}
+                    <div className="flex items-center gap-4 border-r px-4 py-1 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+                        <span
+                            className="flex items-center gap-1.5"
+                            title="To Do"
+                        >
+                            <div
+                                className={cn(
+                                    'h-2 w-2 rounded-full',
+                                    STATUS_COLORS.todo.dot,
+                                )}
+                            />
+                            To Do
                         </span>
-                        <span className="flex items-center gap-1.5">
-                            <div className="h-2 w-2 rounded-full bg-primary/80" />{' '}
-                            {tasks.filter((t) => !t.completed).length}
+                        <span
+                            className="flex items-center gap-1.5"
+                            title="In Progress"
+                        >
+                            <div
+                                className={cn(
+                                    'h-2 w-2 rounded-full',
+                                    STATUS_COLORS.in_progress.dot,
+                                )}
+                            />
+                            In Progress
+                        </span>
+                        <span
+                            className="flex items-center gap-1.5"
+                            title="Review"
+                        >
+                            <div
+                                className={cn(
+                                    'h-2 w-2 rounded-full',
+                                    STATUS_COLORS.review.dot,
+                                )}
+                            />
+                            Review
+                        </span>
+                        <span
+                            className="flex items-center gap-1.5"
+                            title="Done"
+                        >
+                            <div
+                                className={cn(
+                                    'h-2 w-2 rounded-full',
+                                    STATUS_COLORS.done.dot,
+                                )}
+                            />
+                            Done
+                        </span>
+                        <span
+                            className="ml-1 flex items-center gap-1.5 border-l pl-4"
+                            title="Milestones"
+                        >
+                            <Diamond className="h-3 w-3 fill-amber-500/20 text-amber-500" />
+                            Milestone
                         </span>
                     </div>
-                    {tasks.some((t) => !t.completed) && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 text-xs font-semibold"
-                            onClick={handleBulkComplete}
-                        >
-                            <CheckCircle2 className="mr-2 h-4 w-4" /> Bulk
-                            Complete
-                        </Button>
-                    )}
                 </div>
             </div>
 
@@ -176,13 +210,13 @@ export function TaskList({ projectId, tasks = EMPTY_TASKS }: TaskListProps) {
                                     <TaskItem
                                         key={task.id}
                                         task={task}
-                                        projectTasks={tasks}
                                         depth={task.depth}
                                         hasChildren={task.hasChildren}
                                         isExpanded={expandedIds.has(task.id)}
                                         onToggleExpand={() =>
                                             toggleExpand(task.id)
                                         }
+                                        onEditTask={onEditTask}
                                     />
                                 ))}
                             </div>

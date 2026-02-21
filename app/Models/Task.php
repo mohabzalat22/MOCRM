@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\TaskPriority;
+use App\Enums\TaskStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
@@ -13,10 +15,12 @@ class Task extends Model
      */
     protected $fillable = [
         'project_id',
+        'title',
         'description',
+        'status',
+        'priority',
         'due_date',
         'assigned_to',
-        'completed',
         'order',
         'completed_at',
         'is_milestone',
@@ -31,10 +35,11 @@ class Task extends Model
      */
     protected $casts = [
         'due_date' => 'date',
-        'completed' => 'boolean',
         'completed_at' => 'datetime',
         'is_milestone' => 'boolean',
         'start_date' => 'date',
+        'status' => TaskStatus::class,
+        'priority' => TaskPriority::class,
     ];
 
     /**
@@ -75,5 +80,15 @@ class Task extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('order', 'asc')->orderBy('created_at', 'asc');
+    }
+
+    public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
+
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
     }
 }

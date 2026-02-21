@@ -171,8 +171,13 @@ class Client extends Model
     {
         // auto set user_id
         static::creating(function ($client) {
+            if (is_null($client->user_id)) {
+                if (! auth()->check()) {
+                    throw new \Exception('user_id is required and no authenticated user found.');
+                }
 
-            $client->user_id = auth()->id();
+                $client->user_id = auth()->id();
+            }
         });
     }
 

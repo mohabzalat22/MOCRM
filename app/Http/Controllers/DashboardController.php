@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ProjectStatus;
+use App\Enums\TaskStatus;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Project;
@@ -55,8 +56,8 @@ class DashboardController extends Controller
             })
             ->count();
 
-        $overdueTasksCount = Task::where('completed', false)
-            ->whereDate('due_date', '<', Carbon::today())
+        $overdueTasksCount = Task::where('status', '!=', TaskStatus::DONE)
+            ->where('due_date', '<', now())
             ->whereHas('project.client', function ($query) {
                 $query->where('user_id', auth()->id());
             })
@@ -108,7 +109,7 @@ class DashboardController extends Controller
                 ->latest()
                 ->get(),
             'dueTodayTasks' => Task::whereDate('due_date', Carbon::today())
-                ->where('completed', false)
+                ->where('status', '!=', TaskStatus::DONE)
                 ->whereHas('project.client', function ($query) {
                     $query->where('user_id', auth()->id());
                 })
@@ -133,7 +134,7 @@ class DashboardController extends Controller
                 })
                 ->with('client')
                 ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($q) {
-                    $q->where('completed', true);
+                    $q->where('status', TaskStatus::DONE);
                 }])
                 ->latest()
                 ->take(5)

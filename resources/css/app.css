@@ -272,3 +272,116 @@
         transform: scaleX(1);
     }
 }
+
+/* react-big-calendar theme overrides */
+.rbc-calendar {
+    font-family: inherit !important;
+    color: var(--foreground) !important;
+}
+
+.rbc-toolbar {
+    display: none !important; /* We use our own custom toolbar */
+}
+
+.rbc-header {
+    background-color: var(--muted) !important;
+    border-color: var(--border) !important;
+    color: var(--muted-foreground) !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    padding: 0.5rem 0 !important;
+}
+
+.rbc-month-view,
+.rbc-week-view,
+.rbc-day-view {
+    border-color: var(--border) !important;
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+}
+
+.rbc-month-row,
+.rbc-day-bg {
+    border-color: var(--border) !important;
+}
+
+.rbc-off-range-bg {
+    background-color: var(--muted) !important;
+    opacity: 0.5;
+}
+
+.rbc-today {
+    background-color: var(--primary) !important;
+    opacity: 0.05 !important;
+}
+
+.rbc-date-cell {
+    color: var(--foreground) !important;
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+}
+
+.rbc-date-cell.rbc-off-range {
+    color: var(--muted-foreground) !important;
+}
+
+.rbc-date-cell.rbc-now {
+    font-weight: 700 !important;
+    color: var(--primary) !important;
+}
+
+.rbc-event {
+    border-radius: 0.35rem !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 0.75rem !important;
+}
+
+.rbc-event.rbc-selected {
+    filter: brightness(1.15) !important;
+}
+
+.rbc-show-more {
+    color: var(--primary) !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+}
+
+.rbc-time-view {
+    border-color: var(--border) !important;
+}
+
+.rbc-time-header {
+    border-color: var(--border) !important;
+}
+
+.rbc-time-slot {
+    border-color: var(--border) !important;
+    color: var(--muted-foreground) !important;
+    font-size: 0.7rem !important;
+}
+
+.rbc-current-time-indicator {
+    background-color: var(--primary) !important;
+}
+
+.rbc-agenda-view table.rbc-agenda-table {
+    border-color: var(--border) !important;
+}
+
+.rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
+    border-color: var(--border) !important;
+    color: var(--foreground) !important;
+}
+
+.rbc-agenda-view table.rbc-agenda-table .rbc-agenda-time-cell {
+    color: var(--muted-foreground) !important;
+}
+
+.rbc-agenda-view table.rbc-agenda-table thead > tr > th {
+    background: var(--muted) !important;
+    color: var(--muted-foreground) !important;
+    border-color: var(--border) !important;
+}

@@ -1,50 +1,74 @@
 import { Head, Link } from '@inertiajs/react';
 import { format } from 'date-fns';
 import {
-    ArrowLeft,
-    Calendar,
+    Calendar as CalendarIcon,
     FileText,
     User,
     FolderArchive,
     RotateCcw,
+    LayoutList,
+    KanbanSquare,
+    CalendarDays,
+    GanttChartSquare,
+    Activity,
+    Files,
+    MoreHorizontal,
+    Clock,
 } from 'lucide-react';
 import { useState } from 'react';
 import ActivityTimeline from '@/components/clients/activity-timeline';
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import { ProjectQuickSwitcher } from '@/components/projects/project-quick-switcher';
+import { AddTaskForm } from '@/components/projects/AddTaskForm';
 import { ProjectFiles } from '@/components/projects/ProjectFiles';
 import { ProjectTimeline } from '@/components/projects/ProjectTimeline';
 import { ProjectUpdates } from '@/components/projects/ProjectUpdates';
+import { TaskEditModal } from '@/components/projects/TaskEditModal';
 import { TaskList } from '@/components/projects/TaskList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
 import { projectService } from '@/services/projectService';
 import type { BreadcrumbItem, Project } from '@/types';
+import type { Task } from '@/types/project';
+import { BoardView } from './views/BoardView';
+import { CalendarView } from './views/CalendarView';
 
 interface ProjectShowProps {
     project: Project;
-    siblingProjects: { id: number; name: string; status: string }[];
 }
 
 const statusMap = {
-    not_started: { label: 'Not Started', variant: 'secondary' as const },
-    in_progress: { label: 'In Progress', variant: 'default' as const },
+    not_started: { label: 'Not Started', variant: 'outline' as const },
+    in_progress: { label: 'In Progress', variant: 'outline' as const },
     on_hold: { label: 'On Hold', variant: 'outline' as const },
-    completed: { label: 'Completed', variant: 'success' as const },
-    cancelled: { label: 'Cancelled', variant: 'destructive' as const },
+    completed: { label: 'Completed', variant: 'outline' as const },
+    cancelled: { label: 'Cancelled', variant: 'outline' as const },
     archived: { label: 'Archived', variant: 'outline' as const },
 };
 
-export default function ProjectShow({
-    project,
-    siblingProjects = [],
-}: ProjectShowProps) {
-    const [activeTab, setActiveTab] = useState<
-        'tasks' | 'timeline' | 'updates' | 'activity' | 'files'
-    >('tasks');
+export default function ProjectShow({ project }: ProjectShowProps) {
+    const [activeTab, setActiveTab] = useState<string>('list');
     const [confirmArchive, setConfirmArchive] = useState(false);
+    const [editingTask, setEditingTask] = useState<Task | null>(null);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+    const handleEditTask = (task: Task) => {
+        setEditingTask(task);
+    };
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Projects', href: '/projects' },
@@ -55,183 +79,112 @@ export default function ProjectShow({
         statusMap[project.status as keyof typeof statusMap] ||
         statusMap.not_started;
 
+    const isArchived = ['completed', 'cancelled', 'archived'].includes(
+        project.status,
+    );
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`${project.name} - Project`} />
 
             <TooltipProvider>
-                <div className="w-full space-y-8 p-6">
-                    <div className="flex flex-col gap-6">
-                        <div className="space-y-1">
-                            <div className="flex items-center justify-between">
-                                <Link
-                                    href="/projects"
-                                    className="mb-2 flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+                <div className="flex h-full flex-col">
+                    {/* Header Section */}
+                    <div className="border-b bg-background/95 px-6 py-5 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-3xl sm:leading-none">
+                                    {project.name}
+                                </h1>
+                                <Badge
+                                    variant={status.variant}
+                                    className="px-2 text-[10px] font-bold tracking-wider uppercase"
                                 >
-                                    <ArrowLeft className="mr-1 h-3 w-3" /> Back
-                                    to projects
-                                </Link>
-                                <ProjectQuickSwitcher
-                                    currentProjectId={project.id}
-                                    siblingProjects={siblingProjects}
-                                />
+                                    {status.label}
+                                </Badge>
                             </div>
 
-                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                <div className="flex items-center gap-3">
-                                    <h1 className="text-3xl font-bold tracking-tight">
-                                        {project.name}
-                                    </h1>
-                                    <Badge variant={status.variant}>
-                                        {status.label}
-                                    </Badge>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    {/* Action Buttons */}
-                                    {[
-                                        'completed',
-                                        'cancelled',
-                                        'archived',
-                                    ].includes(project.status) ? (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                                projectService.restoreProject(
-                                                    project.id,
-                                                    { preserveScroll: true },
-                                                )
-                                            }
-                                            className="gap-2"
-                                        >
-                                            <RotateCcw className="h-4 w-4" />
-                                            Restore Project
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                                setConfirmArchive(true)
-                                            }
-                                            className="gap-2 text-destructive hover:text-destructive"
-                                        >
-                                            <FolderArchive className="h-4 w-4" />
-                                            Archive Project
-                                        </Button>
-                                    )}
-
-                                    <div className="flex items-center self-start rounded-lg bg-muted/50 p-1 sm:self-auto">
-                                        <Button
-                                            variant={
-                                                activeTab === 'tasks'
-                                                    ? 'default'
-                                                    : 'ghost'
-                                            }
-                                            size="sm"
-                                            onClick={() =>
-                                                setActiveTab('tasks')
-                                            }
-                                            className="rounded-md"
-                                        >
-                                            Tasks
-                                        </Button>
-                                        <Button
-                                            variant={
-                                                activeTab === 'timeline'
-                                                    ? 'default'
-                                                    : 'ghost'
-                                            }
-                                            size="sm"
-                                            onClick={() =>
-                                                setActiveTab('timeline')
-                                            }
-                                            className="rounded-md"
-                                        >
-                                            Timeline
-                                        </Button>
-                                        <Button
-                                            variant={
-                                                activeTab === 'activity'
-                                                    ? 'default'
-                                                    : 'ghost'
-                                            }
-                                            size="sm"
-                                            onClick={() =>
-                                                setActiveTab('activity')
-                                            }
-                                            className="rounded-md"
-                                        >
-                                            Activity
-                                        </Button>
-                                        <Button
-                                            variant={
-                                                activeTab === 'files'
-                                                    ? 'default'
-                                                    : 'ghost'
-                                            }
-                                            size="sm"
-                                            onClick={() =>
-                                                setActiveTab('files')
-                                            }
-                                            className="rounded-md"
-                                        >
-                                            Files
-                                        </Button>
-                                    </div>
-                                </div>
+                            <div className="flex items-center gap-2">
+                                {isArchived ? (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                            projectService.restoreProject(
+                                                project.id,
+                                                { preserveScroll: true },
+                                            )
+                                        }
+                                        className="gap-2"
+                                    >
+                                        <RotateCcw className="h-4 w-4" />
+                                        Restore
+                                    </Button>
+                                ) : (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                className="h-8 w-8"
+                                            >
+                                                <MoreHorizontal className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem
+                                                onClick={() =>
+                                                    setConfirmArchive(true)
+                                                }
+                                                className="text-destructive focus:text-destructive"
+                                            >
+                                                <FolderArchive className="mr-2 h-4 w-4" />
+                                                Archive Project
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                )}
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-x-8 gap-y-4 rounded-xl border bg-card/50 p-4 shadow-sm">
-                            <div className="flex items-center gap-2 text-sm">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <span className="font-medium text-muted-foreground">
-                                    Client:
-                                </span>
+                        {/* Metadata Bar */}
+                        <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                <span>Client:</span>
                                 <Link
                                     href={`/clients/${project.client_id}`}
-                                    className="font-semibold text-primary hover:underline"
+                                    className="font-medium text-foreground hover:underline"
                                 >
                                     {project.client?.name}
                                 </Link>
                             </div>
-
-                            <div className="flex items-center gap-2 text-sm">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span className="font-medium text-muted-foreground">
-                                    Start:
-                                </span>
-                                <span className="font-semibold text-foreground">
+                            <div className="flex items-center gap-2">
+                                <CalendarIcon className="h-4 w-4" />
+                                <span>
                                     {project.start_date
                                         ? format(
                                               new Date(project.start_date),
                                               'MMM d, yyyy',
                                           )
-                                        : 'N/A'}
+                                        : 'No start date'}
                                 </span>
+                                {project.end_date && (
+                                    <>
+                                        <span>→</span>
+                                        <span>
+                                            {format(
+                                                new Date(project.end_date),
+                                                'MMM d, yyyy',
+                                            )}
+                                        </span>
+                                    </>
+                                )}
                             </div>
-
-                            {project.end_date && (
-                                <div className="flex items-center gap-2 text-sm">
-                                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                                    <span className="font-medium text-muted-foreground">
-                                        End:
-                                    </span>
-                                    <span className="font-semibold text-foreground">
-                                        {format(
-                                            new Date(project.end_date),
-                                            'MMM d, yyyy',
-                                        )}
-                                    </span>
-                                </div>
-                            )}
-
                             {project.description && (
-                                <div className="ml-auto flex items-center gap-2 text-sm">
-                                    <FileText className="h-4 w-4 text-muted-foreground" />
-                                    <span className="max-w-md truncate text-muted-foreground italic">
+                                <div className="flex items-center gap-2">
+                                    <FileText className="h-4 w-4" />
+                                    <span className="max-w-[300px] truncate">
                                         {project.description}
                                     </span>
                                 </div>
@@ -239,34 +192,153 @@ export default function ProjectShow({
                         </div>
                     </div>
 
-                    <div className="w-full">
-                        {activeTab === 'tasks' ? (
-                            <TaskList
-                                projectId={project.id}
-                                tasks={project.tasks || []}
-                            />
-                        ) : activeTab === 'timeline' ? (
-                            <ProjectTimeline
-                                tasks={project.tasks || []}
-                                projectStartDate={
-                                    project.start_date ||
-                                    new Date().toISOString()
-                                }
-                            />
-                        ) : activeTab === 'activity' ? (
-                            <div className="space-y-6">
-                                <ProjectUpdates project={project} />
-                                <ActivityTimeline
-                                    activities={project.activities || []}
-                                    client={project.client!}
-                                    hideFilters={true}
-                                    hideExport={true}
-                                    allowedTypes={new Set(['note'])}
-                                />
+                    {/* Content Section */}
+                    <div className="flex-1 bg-muted/10 p-6">
+                        <Tabs
+                            value={activeTab}
+                            onValueChange={setActiveTab}
+                            className="space-y-4"
+                        >
+                            <TabsList className="h-11 w-full justify-start rounded-lg bg-background p-1 text-muted-foreground shadow-sm sm:w-auto">
+                                <TabsTrigger
+                                    value="list"
+                                    className="gap-2 rounded-md px-4 data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                                >
+                                    <LayoutList className="h-4 w-4" />
+                                    List
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="board"
+                                    className="gap-2 rounded-md px-4 data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                                >
+                                    <KanbanSquare className="h-4 w-4" />
+                                    Board
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="timeline"
+                                    className="gap-2 rounded-md px-4 data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                                >
+                                    <GanttChartSquare className="h-4 w-4" />
+                                    Timeline
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="calendar"
+                                    className="gap-2 rounded-md px-4 data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                                >
+                                    <CalendarDays className="h-4 w-4" />
+                                    Calendar
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="activity"
+                                    className="gap-2 rounded-md px-4 data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                                >
+                                    <Activity className="h-4 w-4" />
+                                    Activity
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="files"
+                                    className="gap-2 rounded-md px-4 data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                                >
+                                    <Files className="h-4 w-4" />
+                                    Files
+                                </TabsTrigger>
+                            </TabsList>
+
+                            <div className="min-h-[600px] rounded-xl border bg-background shadow-sm">
+                                <TabsContent
+                                    value="list"
+                                    className="m-0 h-full border-none p-0"
+                                >
+                                    <div className="p-1">
+                                        <TaskList
+                                            projectId={project.id}
+                                            tasks={project.tasks || []}
+                                            onEditTask={handleEditTask}
+                                        />
+                                    </div>
+                                </TabsContent>
+                                <TabsContent
+                                    value="board"
+                                    className="m-0 h-full border-none p-0"
+                                >
+                                    <div className="h-full p-6">
+                                        <BoardView
+                                            tasks={project.tasks || []}
+                                            onEditTask={handleEditTask}
+                                        />
+                                    </div>
+                                </TabsContent>
+                                <TabsContent
+                                    value="timeline"
+                                    className="m-0 h-full border-none p-0"
+                                >
+                                    <div className="h-full p-4">
+                                        <ProjectTimeline
+                                            tasks={project.tasks || []}
+                                            projectStartDate={
+                                                project.start_date ||
+                                                new Date().toISOString()
+                                            }
+                                            projectEndDate={
+                                                project.end_date || undefined
+                                            }
+                                            onEditTask={handleEditTask}
+                                        />
+                                    </div>
+                                </TabsContent>
+                                <TabsContent
+                                    value="calendar"
+                                    className="m-0 h-full border-none p-0"
+                                >
+                                    <div className="h-full p-6">
+                                        <CalendarView
+                                            tasks={project.tasks || []}
+                                            onEditTask={handleEditTask}
+                                            onCreateTask={() =>
+                                                setIsCreateModalOpen(true)
+                                            }
+                                        />
+                                    </div>
+                                </TabsContent>
+                                <TabsContent
+                                    value="activity"
+                                    className="m-0 h-full border-none p-0"
+                                >
+                                    <div className="grid grid-cols-1 gap-8 p-6 lg:grid-cols-2">
+                                        <div className="space-y-6">
+                                            <h3 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+                                                <Clock className="h-5 w-5 text-muted-foreground" />
+                                                Recent Updates
+                                            </h3>
+                                            <ProjectUpdates project={project} />
+                                        </div>
+                                        <div className="space-y-6">
+                                            <h3 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+                                                <Activity className="h-5 w-5 text-muted-foreground" />
+                                                Activity Log
+                                            </h3>
+                                            <ActivityTimeline
+                                                activities={
+                                                    project.activities || []
+                                                }
+                                                client={project.client!}
+                                                hideFilters={true}
+                                                hideExport={true}
+                                                allowedTypes={new Set(['note'])}
+                                            />
+                                        </div>
+                                    </div>
+                                </TabsContent>
+                                <TabsContent
+                                    value="files"
+                                    className="m-0 h-full border-none p-0"
+                                >
+                                    <div className="h-full p-6">
+                                        <ProjectFiles project={project} />
+                                    </div>
+                                </TabsContent>
                             </div>
-                        ) : (
-                            <ProjectFiles project={project} />
-                        )}
+                        </Tabs>
                     </div>
                 </div>
 
@@ -282,7 +354,37 @@ export default function ProjectShow({
                     }}
                     onCancel={() => setConfirmArchive(false)}
                 />
+
+                {editingTask && (
+                    <TaskEditModal
+                        task={editingTask}
+                        projectTasks={project.tasks || []}
+                        open={!!editingTask}
+                        onOpenChange={(open) => {
+                            if (!open) setEditingTask(null);
+                        }}
+                    />
+                )}
             </TooltipProvider>
+
+            <Dialog
+                open={isCreateModalOpen}
+                onOpenChange={setIsCreateModalOpen}
+            >
+                <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-[500px]">
+                    <DialogHeader className="p-6 pb-2">
+                        <DialogTitle>Create New Task</DialogTitle>
+                    </DialogHeader>
+                    <div className="p-2">
+                        <AddTaskForm
+                            projectId={project.id}
+                            projectTasks={project.tasks || []}
+                            onSuccess={() => setIsCreateModalOpen(false)}
+                            initialAdding={true}
+                        />
+                    </div>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }
