@@ -114,7 +114,7 @@ const CustomEvent = ({ event }: EventProps<CalendarEvent>) => {
                     isAllDay
                         ? colors.calendar +
                               ' text-white shadow-sm brightness-110'
-                        : 'border border-border/50 bg-background hover:border-primary/50',
+                        : 'border border-border/50 bg-background text-foreground hover:border-primary/50',
                 )}
             >
                 <div className="flex items-center gap-1.5 truncate">
