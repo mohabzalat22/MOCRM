@@ -1,16 +1,9 @@
-import { format } from 'date-fns';
-import { Calendar as CalendarIcon, GitBranch, Diamond } from 'lucide-react';
+import { GitBranch, Diamond } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
 import {
     Select,
     SelectContent,
@@ -218,109 +211,20 @@ export function TaskDateFields({
 
     return (
         <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-                <Label
-                    className={cn(
-                        'text-xs font-semibold',
-                        isInvalidRange
-                            ? 'text-destructive'
-                            : 'text-muted-foreground',
-                    )}
-                >
-                    Start Date
-                </Label>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className={cn(
-                                'h-9 w-full justify-start text-left font-normal',
-                                !startDate && 'text-muted-foreground',
-                                isInvalidRange &&
-                                    'border-destructive/50 bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive',
-                            )}
-                        >
-                            <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-60" />
-                            {startDate
-                                ? format(startDate, 'MMM d, yyyy')
-                                : 'Pick a date'}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={startDate}
-                            onSelect={setStartDate}
-                            initialFocus
-                        />
-                        {startDate && (
-                            <div className="border-t p-2">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-7 w-full text-xs text-muted-foreground"
-                                    onClick={() => setStartDate(undefined)}
-                                >
-                                    Clear date
-                                </Button>
-                            </div>
-                        )}
-                    </PopoverContent>
-                </Popover>
-            </div>
-
-            <div className="space-y-1.5">
-                <Label
-                    className={cn(
-                        'text-xs font-semibold',
-                        isInvalidRange
-                            ? 'text-destructive'
-                            : 'text-muted-foreground',
-                    )}
-                >
-                    Due Date
-                </Label>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className={cn(
-                                'h-9 w-full justify-start text-left font-normal',
-                                !dueDate && 'text-muted-foreground',
-                                isInvalidRange &&
-                                    'border-destructive/50 bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive',
-                            )}
-                        >
-                            <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-60" />
-                            {dueDate
-                                ? format(dueDate, 'MMM d, yyyy')
-                                : 'Pick a date'}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={dueDate}
-                            onSelect={setDueDate}
-                            initialFocus
-                        />
-                        {dueDate && (
-                            <div className="border-t p-2">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-7 w-full text-xs text-muted-foreground"
-                                    onClick={() => setDueDate(undefined)}
-                                >
-                                    Clear date
-                                </Button>
-                            </div>
-                        )}
-                    </PopoverContent>
-                </Popover>
-            </div>
+            <DateTimePicker
+                label="Start Date"
+                value={startDate}
+                onChange={setStartDate}
+                placeholder="Pick a date"
+                error={!!isInvalidRange}
+            />
+            <DateTimePicker
+                label="Due Date"
+                value={dueDate}
+                onChange={setDueDate}
+                placeholder="Pick a date"
+                error={!!isInvalidRange}
+            />
             {isInvalidRange && (
                 <p className="col-span-2 text-[10px] font-medium text-destructive">
                     Start date cannot be after due date

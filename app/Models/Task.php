@@ -15,17 +15,17 @@ class Task extends Model
      */
     protected $fillable = [
         'project_id',
+        'is_milestone',
+        'parent_id',
         'title',
         'description',
         'status',
         'priority',
+        'start_date',
         'due_date',
         'assigned_to',
         'order',
         'completed_at',
-        'is_milestone',
-        'parent_id',
-        'start_date',
     ];
 
     /**
@@ -34,10 +34,10 @@ class Task extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'due_date' => 'date',
-        'completed_at' => 'datetime',
         'is_milestone' => 'boolean',
-        'start_date' => 'date',
+        'start_date' => 'datetime',
+        'due_date' => 'datetime',
+        'completed_at' => 'datetime',
         'status' => TaskStatus::class,
         'priority' => TaskPriority::class,
     ];

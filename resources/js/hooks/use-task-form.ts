@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { useState } from 'react';
 import { taskService } from '@/services/taskService';
 import type { Task } from '@/types/project';
@@ -60,8 +59,8 @@ export function useTaskForm({ task, onSuccess, onError }: UseTaskFormProps) {
                 description: description || undefined,
                 status,
                 priority,
-                start_date: startDate ? format(startDate, 'yyyy-MM-dd') : null,
-                due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
+                start_date: startDate ? startDate.toISOString() : null,
+                due_date: dueDate ? dueDate.toISOString() : null,
                 is_milestone: isMilestone,
                 parent_id: parentId === 'none' ? null : parseInt(parentId),
             },

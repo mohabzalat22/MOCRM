@@ -1,21 +1,10 @@
-import { format } from 'date-fns';
-import {
-    Calendar as CalendarIcon,
-    Diamond,
-    Plus,
-    GitBranch,
-} from 'lucide-react';
+import { Diamond, Plus, GitBranch } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
 import {
     Select,
     SelectContent,
@@ -129,107 +118,34 @@ export function AddTaskForm({
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div className="space-y-1.5">
-                        <Label className="ml-1 text-[11px] font-semibold text-muted-foreground">
-                            Start Date
-                        </Label>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className={cn(
-                                        'h-9 w-full justify-start bg-muted/20 text-left font-medium',
-                                        !data.start_date &&
-                                            'text-muted-foreground/60',
-                                    )}
-                                >
-                                    <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-50" />
-                                    {data.start_date ? (
-                                        format(
-                                            new Date(data.start_date),
-                                            'MMM d, yyyy',
-                                        )
-                                    ) : (
-                                        <span>Start</span>
-                                    )}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent
-                                className="w-auto p-0 shadow-xl"
-                                align="start"
-                            >
-                                <Calendar
-                                    mode="single"
-                                    selected={
-                                        data.start_date
-                                            ? new Date(data.start_date)
-                                            : undefined
-                                    }
-                                    onSelect={(date) =>
-                                        setData(
-                                            'start_date',
-                                            date
-                                                ? format(date, 'yyyy-MM-dd')
-                                                : null,
-                                        )
-                                    }
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label className="ml-1 text-[11px] font-semibold text-muted-foreground">
-                            Due Date
-                        </Label>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className={cn(
-                                        'h-9 w-full justify-start bg-muted/20 text-left font-medium',
-                                        !data.due_date &&
-                                            'text-muted-foreground/60',
-                                    )}
-                                >
-                                    <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-50" />
-                                    {data.due_date ? (
-                                        format(
-                                            new Date(data.due_date),
-                                            'MMM d, yyyy',
-                                        )
-                                    ) : (
-                                        <span>End</span>
-                                    )}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent
-                                className="w-auto p-0 shadow-xl"
-                                align="start"
-                            >
-                                <Calendar
-                                    mode="single"
-                                    selected={
-                                        data.due_date
-                                            ? new Date(data.due_date)
-                                            : undefined
-                                    }
-                                    onSelect={(date) =>
-                                        setData(
-                                            'due_date',
-                                            date
-                                                ? format(date, 'yyyy-MM-dd')
-                                                : null,
-                                        )
-                                    }
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    </div>
+                    <DateTimePicker
+                        label="Start Date"
+                        value={
+                            data.start_date
+                                ? new Date(data.start_date)
+                                : undefined
+                        }
+                        onChange={(date) =>
+                            setData(
+                                'start_date',
+                                date ? date.toISOString() : null,
+                            )
+                        }
+                        placeholder="Start"
+                    />
+                    <DateTimePicker
+                        label="Due Date"
+                        value={
+                            data.due_date ? new Date(data.due_date) : undefined
+                        }
+                        onChange={(date) =>
+                            setData(
+                                'due_date',
+                                date ? date.toISOString() : null,
+                            )
+                        }
+                        placeholder="End"
+                    />
 
                     <div className="space-y-1.5">
                         <Label className="ml-1 text-[11px] font-semibold text-muted-foreground">

@@ -250,10 +250,12 @@ export function CalendarView({
                     ? new Date(task.due_date)
                     : new Date(startDate.getTime() + 60 * 60 * 1000);
 
-                const isAllDay =
-                    task.start_date?.includes(' ') === false &&
-                    task.due_date?.includes(' ') === false &&
-                    !task.start_date?.includes(':');
+                // All-day if both dates have midnight time (no time component set)
+                const startIsMidnight =
+                    startDate.getHours() === 0 && startDate.getMinutes() === 0;
+                const endIsMidnight =
+                    endDate.getHours() === 0 && endDate.getMinutes() === 0;
+                const isAllDay = startIsMidnight && endIsMidnight;
 
                 return {
                     id: task.id,
