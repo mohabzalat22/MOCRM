@@ -371,7 +371,7 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                 open={isCreateModalOpen}
                 onOpenChange={setIsCreateModalOpen}
             >
-                <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-[500px]">
+                <DialogContent className="gap-0 overflow-hidden p-0">
                     <DialogHeader className="p-6 pb-2">
                         <DialogTitle>Create New Task</DialogTitle>
                     </DialogHeader>

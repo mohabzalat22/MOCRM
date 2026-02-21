@@ -79,7 +79,7 @@ export function ClientDialog({ trigger }: { trigger?: React.ReactNode } = {}) {
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="max-w-[425px] lg:max-w-[800px]">
+            <DialogContent>
                 <form
                     onSubmit={handleSubmit}
                     action="/clients"

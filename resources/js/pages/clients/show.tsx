@@ -155,7 +155,7 @@ export default function Show({
                 open={activityDialogOpen}
                 onOpenChange={setActivityDialogOpen}
             >
-                <DialogContent className="hide-scrollbar overflow-y-auto sm:max-h-[90vh] sm:max-w-3xl">
+                <DialogContent className="hide-scrollbar overflow-y-auto sm:max-h-[90vh]">
                     <DialogHeader>
                         <DialogTitle>
                             {activityType === 'meeting'

@@ -332,7 +332,7 @@ export default function ActivityItem({
                     )}
                 </div>
 
-                <DialogContent className="overflow-y-auto sm:max-h-[90vh] sm:max-w-3xl">
+                <DialogContent className="overflow-y-auto sm:max-h-[90vh]">
                     <DialogHeader>
                         <DialogTitle>Edit Activity</DialogTitle>
                         <DialogDescription>

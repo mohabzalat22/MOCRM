@@ -202,7 +202,7 @@ export default function ClientProjectsTab({
             </div>
 
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Add New Project</DialogTitle>
                         <DialogDescription>

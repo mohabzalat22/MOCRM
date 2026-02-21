@@ -143,7 +143,7 @@ export function QuickActions({ clients }: QuickActionsProps) {
                 open={activeDialog === 'activity'}
                 onOpenChange={(open) => !open && setActiveDialog(null)}
             >
-                <DialogContent className="overflow-y-auto sm:max-h-[90vh] sm:max-w-3xl">
+                <DialogContent className="overflow-y-auto sm:max-h-[90vh]">
                     <DialogHeader>
                         <DialogTitle>Log Activity</DialogTitle>
                         <DialogDescription>
@@ -193,7 +193,7 @@ export function QuickActions({ clients }: QuickActionsProps) {
                 open={activeDialog === 'project'}
                 onOpenChange={(open) => !open && setActiveDialog(null)}
             >
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Create New Project</DialogTitle>
                         <DialogDescription>
@@ -212,7 +212,7 @@ export function QuickActions({ clients }: QuickActionsProps) {
                 open={activeDialog === 'reminder'}
                 onOpenChange={(open) => !open && setActiveDialog(null)}
             >
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Set Reminder</DialogTitle>
                         <DialogDescription>

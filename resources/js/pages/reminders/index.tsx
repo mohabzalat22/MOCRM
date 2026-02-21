@@ -124,7 +124,7 @@ export default function RemindersIndex({
 
             {/* Create Dialog */}
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Add New Reminder</DialogTitle>
                         <DialogDescription>
@@ -145,7 +145,7 @@ export default function RemindersIndex({
                 open={!!editingReminder}
                 onOpenChange={(open) => !open && setEditingReminder(null)}
             >
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Edit Reminder</DialogTitle>
                         <DialogDescription>

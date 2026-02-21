@@ -102,7 +102,7 @@ export default function ProjectsIndex({
 
             {/* Create Dialog */}
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Add New Project</DialogTitle>
                         <DialogDescription>
@@ -121,7 +121,7 @@ export default function ProjectsIndex({
                 open={!!editingProject}
                 onOpenChange={(open) => !open && setEditingProject(null)}
             >
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Edit Project</DialogTitle>
                         <DialogDescription>

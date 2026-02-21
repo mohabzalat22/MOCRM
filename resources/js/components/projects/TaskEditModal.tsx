@@ -56,7 +56,7 @@ export function TaskEditModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="flex max-h-[90vh] w-full max-w-lg flex-col p-0">
+            <DialogContent className="flex max-h-[90vh] w-full flex-col p-0">
                 <div className="hide-scrollbar flex flex-1 flex-col overflow-y-auto p-6">
                     <DialogHeader className="pb-4">
                         <DialogTitle className="flex items-center gap-2 text-base">
