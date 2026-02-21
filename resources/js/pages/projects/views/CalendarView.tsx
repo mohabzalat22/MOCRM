@@ -10,29 +10,15 @@ import {
     isSameDay,
     addMonths,
     subMonths,
-    differenceInDays,
-    isPast,
-    isToday,
 } from 'date-fns';
 import { enUS } from 'date-fns/locale';
-import {
-    ChevronLeft,
-    Plus,
-    Filter,
-    X,
-    Pencil,
-    Calendar as CalendarIcon,
-    Clock,
-    AlertTriangle,
-} from 'lucide-react';
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { ChevronLeft, Plus, Filter } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import type { ToolbarProps, EventProps, View } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import {
-    PRIORITY_COLORS,
-    STATUS_COLORS,
-} from '@/components/projects/timeline/constants';
+import { TaskTooltip } from '@/components/projects/TaskTooltip';
+import { STATUS_COLORS } from '@/components/projects/timeline/constants';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
@@ -121,214 +107,41 @@ const CustomEvent = ({ event }: EventProps<CalendarEvent>) => {
     const isAllDay = event.allDay;
 
     return (
-        <div
-            className={cn(
-                'group relative flex h-full w-full flex-col justify-center overflow-hidden rounded-md px-2 py-0.5 text-[11px] leading-tight transition-all duration-200 hover:shadow-md active:scale-[0.98]',
-                isAllDay
-                    ? colors.calendar + ' text-white shadow-sm brightness-110'
-                    : 'border border-border/50 bg-background hover:border-primary/50',
-            )}
-        >
-            <div className="flex items-center gap-1.5 truncate">
-                {!isAllDay && (
-                    <div
-                        className={cn(
-                            'h-1.5 w-1.5 shrink-0 rounded-full',
-                            colors.dot,
-                        )}
-                    />
+        <TaskTooltip task={task} side="top">
+            <div
+                className={cn(
+                    'group relative flex h-full w-full flex-col justify-center overflow-hidden rounded-md px-2 py-0.5 text-[11px] leading-tight transition-all duration-200 hover:shadow-md active:scale-[0.98]',
+                    isAllDay
+                        ? colors.calendar +
+                              ' text-white shadow-sm brightness-110'
+                        : 'border border-border/50 bg-background hover:border-primary/50',
                 )}
-                <span
-                    className={cn(
-                        'truncate',
-                        isAllDay ? 'font-bold' : 'font-medium',
-                    )}
-                >
-                    {event.title}
-                </span>
-            </div>
-            {!isAllDay && (
-                <div className="text-[10px] font-medium text-muted-foreground/80">
-                    {format(event.start, 'h:mm a')}
-                </div>
-            )}
-        </div>
-    );
-};
-
-// GCal-style event detail popover
-interface EventPopoverProps {
-    task: Task;
-    position: { x: number; y: number };
-    onClose: () => void;
-    onEdit: () => void;
-}
-
-const EventDetailPopover = ({
-    task,
-    position,
-    onClose,
-    onEdit,
-}: EventPopoverProps) => {
-    const ref = useRef<HTMLDivElement>(null);
-    const colors = STATUS_COLORS[task.status] ?? STATUS_COLORS.todo;
-    const priority = PRIORITY_COLORS[task.priority] ?? PRIORITY_COLORS.medium;
-    const isLate =
-        task.due_date &&
-        isPast(new Date(task.due_date)) &&
-        !isToday(new Date(task.due_date)) &&
-        task.status !== 'done';
-
-    // Adjust position so the card doesn't overflow the viewport
-    useEffect(() => {
-        if (!ref.current) return;
-        const card = ref.current;
-        const rect = card.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        if (rect.right > vw - 16)
-            card.style.left = `${position.x - rect.width - 8}px`;
-        if (rect.bottom > vh - 16)
-            card.style.top = `${position.y - rect.height}px`;
-    }, [position]);
-
-    // Close on outside click
-    useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (ref.current && !ref.current.contains(e.target as Node))
-                onClose();
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, [onClose]);
-
-    return (
-        <div
-            ref={ref}
-            className="fixed z-50 w-80 rounded-xl border border-border bg-popover shadow-2xl"
-            style={{ left: position.x + 8, top: position.y }}
-        >
-            {/* Color-coded top strip */}
-            <div className={cn('h-2 w-full rounded-t-xl', colors.calendar)} />
-
-            {/* Header */}
-            <div className="flex items-start justify-between p-4 pb-2">
-                <h3 className="pr-6 text-[15px] leading-tight font-semibold text-foreground">
-                    {task.title}
-                </h3>
-                <div className="flex shrink-0 items-center gap-1">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit();
-                        }}
-                        title="Edit task"
-                    >
-                        <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        onClick={onClose}
-                    >
-                        <X className="h-3.5 w-3.5" />
-                    </Button>
-                </div>
-            </div>
-
-            {/* Body */}
-            <div className="space-y-2.5 px-4 pb-4">
-                {/* Status & Priority badges */}
-                <div className="flex flex-wrap gap-1.5">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold">
-                        <span
-                            className={cn('h-2 w-2 rounded-full', colors.dot)}
+            >
+                <div className="flex items-center gap-1.5 truncate">
+                    {!isAllDay && (
+                        <div
+                            className={cn(
+                                'h-1.5 w-1.5 shrink-0 rounded-full',
+                                colors.dot,
+                            )}
                         />
-                        {colors.label}
-                    </span>
+                    )}
                     <span
                         className={cn(
-                            'inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold',
-                            priority.bg,
-                            priority.text,
+                            'truncate',
+                            isAllDay ? 'font-bold' : 'font-medium',
                         )}
                     >
-                        {priority.label}
+                        {event.title}
                     </span>
-                    {isLate && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-600 dark:bg-red-950/30 dark:text-red-400">
-                            <AlertTriangle className="h-3 w-3" />
-                            Overdue
-                        </span>
-                    )}
                 </div>
-
-                {/* Dates */}
-                {(task.start_date || task.due_date) && (
-                    <div className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                        <CalendarIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                        <div className="space-y-0.5">
-                            {task.start_date && (
-                                <div className="text-[12px]">
-                                    <span className="mr-1 text-muted-foreground/70">
-                                        Start:
-                                    </span>
-                                    {format(
-                                        new Date(task.start_date),
-                                        'EEEE, MMM d, yyyy',
-                                    )}
-                                </div>
-                            )}
-                            {task.due_date && (
-                                <div
-                                    className={cn(
-                                        'text-[12px]',
-                                        isLate &&
-                                            'font-medium text-destructive',
-                                    )}
-                                >
-                                    <span className="mr-1 text-muted-foreground/70">
-                                        Due:
-                                    </span>
-                                    {format(
-                                        new Date(task.due_date),
-                                        'EEEE, MMM d, yyyy',
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                {!isAllDay && (
+                    <div className="text-[10px] font-medium text-muted-foreground/80">
+                        {format(event.start, 'h:mm a')}
                     </div>
-                )}
-
-                {/* Duration */}
-                {task.start_date && task.due_date && (
-                    <div className="flex items-center gap-2.5 text-[12px] text-muted-foreground">
-                        <Clock className="h-3.5 w-3.5 shrink-0" />
-                        {(() => {
-                            const d = Math.max(
-                                1,
-                                differenceInDays(
-                                    new Date(task.due_date!),
-                                    new Date(task.start_date!),
-                                ) + 1,
-                            );
-                            return `${d} day${d !== 1 ? 's' : ''}`;
-                        })()}
-                    </div>
-                )}
-
-                {/* Description */}
-                {task.description && (
-                    <p className="border-t border-border/50 pt-2.5 text-[12px] leading-relaxed text-muted-foreground">
-                        {task.description}
-                    </p>
                 )}
             </div>
-        </div>
+        </TaskTooltip>
     );
 };
 
@@ -413,10 +226,6 @@ export function CalendarView({
     const [visibleStatuses, setVisibleStatuses] = useState<Set<string>>(
         new Set(Object.keys(STATUS_COLORS)),
     );
-    const [selectedEvent, setSelectedEvent] = useState<{
-        task: Task;
-        position: { x: number; y: number };
-    } | null>(null);
 
     const toggleStatus = (status: string) => {
         setVisibleStatuses((prev) => {
@@ -596,31 +405,10 @@ export function CalendarView({
                         toolbar: CustomToolbar,
                         event: CustomEvent,
                     }}
-                    onSelectEvent={(event, e) => {
-                        const rect = (
-                            e.target as HTMLElement
-                        ).getBoundingClientRect();
-                        setSelectedEvent({
-                            task: event.resource,
-                            position: { x: rect.right, y: rect.top },
-                        });
-                    }}
+                    onSelectEvent={(event) => onEditTask(event.resource)}
                     className="calendar-transition"
                 />
             </div>
-
-            {/* GCal-style event detail popover */}
-            {selectedEvent && (
-                <EventDetailPopover
-                    task={selectedEvent.task}
-                    position={selectedEvent.position}
-                    onClose={() => setSelectedEvent(null)}
-                    onEdit={() => {
-                        onEditTask(selectedEvent.task);
-                        setSelectedEvent(null);
-                    }}
-                />
-            )}
         </div>
     );
 }
