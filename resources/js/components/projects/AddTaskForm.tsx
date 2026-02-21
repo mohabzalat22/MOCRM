@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import {
     Calendar as CalendarIcon,
-    Milestone,
+    Diamond,
     Plus,
     GitBranch,
 } from 'lucide-react';
@@ -248,7 +248,6 @@ export function AddTaskForm({
                                 <SelectItem value="low">Low</SelectItem>
                                 <SelectItem value="medium">Medium</SelectItem>
                                 <SelectItem value="high">High</SelectItem>
-                                <SelectItem value="urgent">Urgent</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -279,7 +278,7 @@ export function AddTaskForm({
                                 >
                                     <div className="flex items-center gap-2">
                                         {task.is_milestone ? (
-                                            <Milestone className="h-3.5 w-3.5 text-warning" />
+                                            <Diamond className="h-3.5 w-3.5 fill-warning/20 text-warning" />
                                         ) : (
                                             <GitBranch className="h-3.5 w-3.5 text-muted-foreground" />
                                         )}
@@ -307,11 +306,11 @@ export function AddTaskForm({
                             htmlFor="is_milestone_add"
                             className="flex flex-1 cursor-pointer items-center gap-2 py-1 text-xs font-medium"
                         >
-                            <Milestone
+                            <Diamond
                                 className={cn(
                                     'h-3.5 w-3.5 transition-colors',
                                     data.is_milestone
-                                        ? 'fill-warning/10 text-warning'
+                                        ? 'fill-warning/20 text-warning'
                                         : 'text-muted-foreground/40',
                                 )}
                             />
