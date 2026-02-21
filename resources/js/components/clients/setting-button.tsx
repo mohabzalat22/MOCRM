@@ -39,9 +39,8 @@ export default function SettingButton() {
                 });
             },
             {
-                title: 'Confirm Delete',
-                message:
-                    'Are you sure you want to delete this client? This action cannot be undone.',
+                title: 'Delete Client Profile?',
+                message: `Are you sure you want to delete "${client?.name}"? This will permanently remove the client and all associated records. This action cannot be undone.`,
             },
         );
     };

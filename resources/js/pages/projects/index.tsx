@@ -142,7 +142,7 @@ export default function ProjectsIndex({
             <ConfirmDialog
                 isOpen={!!deletingProject}
                 title="Delete Project?"
-                message="Are you sure you want to delete this project? This action cannot be undone."
+                message={`Are you sure you want to delete "${deletingProject?.name}"? This will permanently remove all associated tasks and data.`}
                 onConfirm={handleDelete}
                 onCancel={() => setDeletingProject(null)}
             />

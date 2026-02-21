@@ -345,7 +345,7 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                 <ConfirmDialog
                     isOpen={confirmArchive}
                     title="Archive Project?"
-                    message="Values this project as completed? It will be moved to the active archive."
+                    message={`Are you sure you want to archive "${project.name}"? It will be moved to the archives but can be restored later.`}
                     onConfirm={() => {
                         projectService.archiveProject(project.id, {
                             preserveScroll: true,

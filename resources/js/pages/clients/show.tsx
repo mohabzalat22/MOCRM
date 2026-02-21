@@ -72,8 +72,9 @@ export default function Show({
                 submitClient();
             },
             {
-                title: 'Confirm Update',
-                message: 'Are you sure you want to update this client data?',
+                title: 'Save Client Details?',
+                message:
+                    'Are you sure you want to save these changes to the client profile?',
             },
         );
     };

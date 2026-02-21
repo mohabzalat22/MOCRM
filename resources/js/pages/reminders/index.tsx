@@ -174,7 +174,7 @@ export default function RemindersIndex({
             <ConfirmDialog
                 isOpen={!!deletingReminder}
                 title="Delete Reminder?"
-                message="Are you sure you want to delete this reminder? This action cannot be undone."
+                message={`Are you sure you want to delete "${deletingReminder?.title}"? This action is permanent and cannot be undone.`}
                 onConfirm={handleDelete}
                 onCancel={() => setDeletingReminder(null)}
             />

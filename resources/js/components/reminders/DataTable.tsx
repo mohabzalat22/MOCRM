@@ -38,6 +38,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -53,6 +54,7 @@ export function DataTable<TData, TValue>({
     onStatusChange,
 }: DataTableProps<TData, TValue>) {
     'use no memo';
+    const { confirm, ConfirmDialog } = useConfirmDialog();
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([]);
@@ -178,24 +180,31 @@ export function DataTable<TData, TValue>({
                         size="sm"
                         className="h-8 gap-2"
                         onClick={() => {
-                            if (
-                                !window.confirm(
-                                    'Are you sure you want to delete selected reminders?',
-                                )
-                            )
-                                return;
                             const ids = table
                                 .getFilteredSelectedRowModel()
                                 .rows.map(
                                     (row) =>
                                         (row.original as { id: number }).id,
                                 );
-                            import('@/services/reminderService').then(
-                                ({ reminderService }) => {
-                                    reminderService.bulkAction('delete', ids, {
-                                        onSuccess: () =>
-                                            table.resetRowSelection(),
-                                    });
+
+                            confirm(
+                                () => {
+                                    import('@/services/reminderService').then(
+                                        ({ reminderService }) => {
+                                            reminderService.bulkAction(
+                                                'delete',
+                                                ids,
+                                                {
+                                                    onSuccess: () =>
+                                                        table.resetRowSelection(),
+                                                },
+                                            );
+                                        },
+                                    );
+                                },
+                                {
+                                    title: 'Delete Selected Reminders?',
+                                    message: `Are you sure you want to delete ${ids.length} selected reminders? This action cannot be undone.`,
                                 },
                             );
                         }}
@@ -281,6 +290,7 @@ export function DataTable<TData, TValue>({
                     </Button>
                 </div>
             </div>
+            <ConfirmDialog />
         </div>
     );
 }

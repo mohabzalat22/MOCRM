@@ -400,8 +400,8 @@ export function ReminderForm({
 
             <ConfirmDialog
                 isOpen={showUpdateConfirm}
-                title="Update Reminder?"
-                message="Are you sure you want to save these changes to the reminder?"
+                title="Save Changes?"
+                message="Are you sure you want to update this reminder? All modifications will be saved immediately."
                 onConfirm={() => {
                     setShowUpdateConfirm(false);
                     performSubmit();

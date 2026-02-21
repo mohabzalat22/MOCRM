@@ -20,6 +20,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import { cn } from '@/lib/utils';
 import { taskService } from '@/services/taskService';
 import type { Task } from '@/types/project';
@@ -42,6 +43,7 @@ export function TaskItem({
     onToggleExpand,
     onEditTask,
 }: TaskItemProps) {
+    const { confirm, ConfirmDialog } = useConfirmDialog();
     const {
         attributes,
         listeners,
@@ -58,9 +60,15 @@ export function TaskItem({
     };
 
     const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this task?')) {
-            taskService.deleteTask(task.id);
-        }
+        confirm(
+            () => {
+                taskService.deleteTask(task.id);
+            },
+            {
+                title: 'Delete Task?',
+                message: `Are you sure you want to delete "${task.title}"? This will permanently remove the task and any subtasks.`,
+            },
+        );
     };
 
     const isOverdue =
@@ -208,6 +216,7 @@ export function TaskItem({
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
+            <ConfirmDialog />
         </div>
     );
 }

@@ -31,7 +31,7 @@ export function ConfirmDialog({
                 if (!open) onCancel();
             }}
         >
-            <DialogContent>
+            <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     <DialogDescription>{message}</DialogDescription>
