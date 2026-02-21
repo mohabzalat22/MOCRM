@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -19,6 +19,40 @@ interface StatusButtonProps {
     className?: string;
 }
 
+const statusColorMap: Record<string, string> = {
+    [Status.ACTIVE]: 'bg-green-500',
+    [Status.LEAD]: 'bg-yellow-500',
+    [Status.AT_RISK]: 'bg-red-500',
+    [Status.IN_ACTIVE]: 'bg-slate-500',
+};
+
+const StatusBadge = ({
+    label,
+    isInteractive = false,
+    className,
+}: {
+    label: string;
+    isInteractive?: boolean;
+    className?: string;
+}) => (
+    <Badge
+        variant="secondary"
+        className={cn(
+            'gap-1.5 border-none bg-muted px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase shadow-none transition-all',
+            isInteractive && 'cursor-pointer hover:bg-muted/80',
+            className,
+        )}
+    >
+        <div
+            className={cn(
+                'h-1.5 w-1.5 rounded-full',
+                statusColorMap[label] || 'bg-slate-400',
+            )}
+        />
+        {label}
+    </Badge>
+);
+
 export default function StatusButton({ className }: StatusButtonProps) {
     const { editMode, formData, updateFormData } = useClientStore();
     const status = formData.status;
@@ -28,61 +62,31 @@ export default function StatusButton({ className }: StatusButtonProps) {
     };
 
     if (!editMode) {
-        return (
-            <div
-                className={cn(
-                    'flex items-center gap-2 rounded-full border bg-muted/50 px-3 py-1 text-xs font-medium',
-                    className,
-                )}
-            >
-                <div
-                    className={cn(
-                        'h-2 w-2 rounded-full',
-                        status === Status.ACTIVE && 'bg-green-500',
-                        status === Status.LEAD && 'bg-yellow-500',
-                        status === Status.AT_RISK && 'bg-red-500',
-                        status === Status.IN_ACTIVE && 'bg-slate-500',
-                    )}
-                />
-                {status}
-            </div>
-        );
+        return <StatusBadge label={status} className={className} />;
     }
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className={cn('h-8 gap-2 rounded-full', className)}
-                >
-                    <div
-                        className={cn(
-                            'h-2 w-2 rounded-full',
-                            status === Status.ACTIVE && 'bg-green-500',
-                            status === Status.LEAD && 'bg-yellow-500',
-                            status === Status.AT_RISK && 'bg-red-500',
-                            status === Status.IN_ACTIVE && 'bg-slate-500',
-                        )}
+                <div className="inline-block">
+                    <StatusBadge
+                        label={status}
+                        isInteractive
+                        className={className}
                     />
-                    {status}
-                </Button>
+                </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
+            <DropdownMenuContent align="center" className="min-w-32 rounded-xl">
                 {Object.values(Status).map((e) => (
                     <DropdownMenuItem
                         key={e}
                         onClick={() => handleSelect(e)}
-                        className="gap-2"
+                        className="gap-2 text-xs font-semibold"
                     >
                         <div
                             className={cn(
-                                'h-2 w-2 rounded-full',
-                                e === Status.ACTIVE && 'bg-green-500',
-                                e === Status.LEAD && 'bg-yellow-500',
-                                e === Status.AT_RISK && 'bg-red-500',
-                                e === Status.IN_ACTIVE && 'bg-slate-500',
+                                'h-1.5 w-1.5 rounded-full',
+                                statusColorMap[e],
                             )}
                         />
                         {e}

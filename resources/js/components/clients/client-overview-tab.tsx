@@ -11,73 +11,91 @@ interface ClientOverviewTabProps {
 
 export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
     return (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* Main Content - 2 spans */}
-            <div className="space-y-6 lg:col-span-2">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Contact Information</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ClientForm />
-                    </CardContent>
-                </Card>
+        <div className="space-y-6">
+            {/* Contact Information */}
+            <Card className="shadow-sm">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-semibold">
+                        Contact Information
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <ClientForm />
+                </CardContent>
+            </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Additional Details</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <CustomFieldsView />
-                    </CardContent>
-                </Card>
-            </div>
+            {/* Additional Details (Custom Fields) */}
+            <Card className="shadow-sm">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-semibold">
+                        Additional Details
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <CustomFieldsView />
+                </CardContent>
+            </Card>
 
-            {/* Sidebar - 1 span */}
-            <div className="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Organization</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="space-y-2">
-                            <h3 className="text-sm font-medium text-muted-foreground">
-                                Tags
-                            </h3>
-                            <TagInput />
+            {/* Organization & Tags */}
+            <Card className="shadow-sm">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-semibold">
+                        Organization
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <h3 className="text-xs font-semibold tracking-wider text-muted-foreground/70 uppercase">
+                            Tags
+                        </h3>
+                        <TagInput />
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+                        <h3 className="text-xs font-semibold tracking-wider text-muted-foreground/70 uppercase">
+                            System Info
+                        </h3>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">ID</span>
+                            <span className="font-mono text-xs">
+                                #{client.id}
+                            </span>
                         </div>
-
-                        <Separator />
-
-                        <div className="space-y-3">
-                            <h3 className="text-sm font-medium text-muted-foreground">
-                                System Info
-                            </h3>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">
-                                    ID
-                                </span>
-                                <span className="font-mono">#{client.id}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">
-                                    Updated
-                                </span>
-                                <span>
-                                    {new Date(
-                                        client.updated_at,
-                                    ).toLocaleDateString('en-US', {
-                                        weekday: 'short',
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                                Joined
+                            </span>
+                            <span>
+                                {new Date(client.created_at).toLocaleDateString(
+                                    'en-US',
+                                    {
                                         month: 'short',
                                         day: 'numeric',
                                         year: 'numeric',
-                                    })}
-                                </span>
-                            </div>
+                                    },
+                                )}
+                            </span>
                         </div>
-                    </CardContent>
-                </Card>
-            </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                                Updated
+                            </span>
+                            <span>
+                                {new Date(client.updated_at).toLocaleDateString(
+                                    'en-US',
+                                    {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        year: 'numeric',
+                                    },
+                                )}
+                            </span>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

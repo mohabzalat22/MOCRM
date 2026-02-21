@@ -11,64 +11,50 @@ interface ClientHeaderProps {
 
 export default function ClientHeader({ client }: ClientHeaderProps) {
     return (
-        <div className="relative overflow-hidden rounded-2xl border bg-linear-to-br from-card via-card to-muted/20 shadow-xl">
-            {/* Decorative background pattern */}
-            <div className="bg-grid-pattern absolute inset-0 opacity-[0.02]" />
-
-            <div className="relative flex flex-col items-center gap-6 p-6 md:flex-row md:items-start md:gap-8 md:p-10">
-                {/* Profile Image Section */}
-                <div className="shrink-0">
-                    <ClientImageUpload />
-                </div>
-
-                {/* Client Information */}
-                <div className="flex-1 space-y-4 text-center md:space-y-6 md:text-left">
-                    {/* Name and Company */}
-                    <div className="space-y-1 md:space-y-2">
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground capitalize md:text-4xl">
+        <div className="relative overflow-hidden rounded-2xl border bg-card shadow-sm">
+            <div className="relative flex flex-col gap-6 p-6">
+                {/* Profile Image & Basic Info - Horizontal Layout */}
+                <div className="flex flex-row items-center gap-5 text-left">
+                    <div className="shrink-0">
+                        <ClientImageUpload />
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-1">
+                        <h1 className="truncate text-xl font-bold tracking-tight text-foreground capitalize">
                             {client.name}
                         </h1>
-                        {client.company_name && (
-                            <div className="flex items-center justify-center md:justify-start">
-                                <div className="h-1 w-1 rounded-full bg-primary md:h-1.5 md:w-1.5" />
-                                <p className="my-auto ms-2 text-lg font-semibold text-muted-foreground md:text-xl">
+                        <div className="flex flex-col items-start gap-1 pt-0.5">
+                            {client.company_name && (
+                                <p className="truncate text-sm font-semibold text-muted-foreground">
                                     {client.company_name}
                                 </p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Status and Member Info */}
-                    <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start md:gap-4">
-                        <StatusButton />
-                        <Separator
-                            orientation="vertical"
-                            className="hidden h-5 md:block"
-                        />
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground md:text-base">
-                            <span className="font-medium">Joined</span>
-                            <span className="font-semibold text-foreground">
+                            )}
+                            <p className="text-[11px] font-medium text-muted-foreground/60">
+                                Joined at{' '}
                                 {new Date(client.created_at).toLocaleDateString(
                                     'en-US',
                                     {
-                                        weekday: 'short',
                                         month: 'short',
                                         day: 'numeric',
                                         year: 'numeric',
                                     },
                                 )}
-                            </span>
+                            </p>
+                            <div className="pt-1.5">
+                                <StatusButton />
+                            </div>
                         </div>
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div className="pt-1 md:pt-2">
-                        <QuickActions client={client} />
                     </div>
                 </div>
 
-                {/* Settings Button */}
-                <div className="absolute top-4 right-4 md:relative md:top-0 md:right-0 md:mt-0">
+                <Separator />
+
+                {/* Quick Actions */}
+                <div className="flex justify-center">
+                    <QuickActions client={client} />
+                </div>
+
+                {/* Settings Button - absolute positioned */}
+                <div className="absolute top-4 right-4">
                     <SettingButton />
                 </div>
             </div>

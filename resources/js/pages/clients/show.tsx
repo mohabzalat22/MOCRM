@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { LayoutDashboard, History as HistoryIcon, Book } from 'lucide-react';
+import { History as HistoryIcon, Book } from 'lucide-react';
 import { useEffect } from 'react';
 import ActivityForm from '@/components/clients/activity-form';
 import ClientActivityTab from '@/components/clients/client-activity-tab';
@@ -81,74 +81,74 @@ export default function Show({
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Clients" />
-            <div className="flex flex-col gap-6 p-4 md:p-8">
-                {/* Enhanced Modern Header Section */}
-                <ClientHeader client={client} />
+            <Head title={`Client: ${client.name}`} />
+            <div className="mx-auto w-full max-w-(--breakpoint-2xl) p-4 md:p-6 lg:p-8">
+                <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+                    {/* Left Sidebar - Client Info */}
+                    <aside className="space-y-6">
+                        <ClientHeader client={client} />
 
-                <Tabs defaultValue="overview" className="w-full space-y-8">
-                    <div className="flex items-center justify-center">
-                        <TabsList className="h-12 gap-2 rounded-2xl border border-border/40 bg-muted/50 p-1.5 shadow-inner">
-                            <TabsTrigger
-                                value="overview"
-                                className="flex items-center gap-2 rounded-xl px-6 py-2 text-sm font-bold transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"
-                            >
-                                <LayoutDashboard className="h-4 w-4" />
-                                Overview
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="projects"
-                                className="flex items-center gap-2 rounded-xl px-6 py-2 text-sm font-bold transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"
-                            >
-                                <Book className="h-4 w-4" />
-                                Projects
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="activity"
-                                className="flex items-center gap-2 rounded-xl px-6 py-2 text-sm font-bold transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"
-                            >
-                                <HistoryIcon className="h-4 w-4" />
-                                Activity History
-                            </TabsTrigger>
-                        </TabsList>
-                    </div>
-
-                    <form onSubmit={onSubmit} className="mt-6">
-                        <TabsContent
-                            value="overview"
-                            className="mt-0 focus-visible:outline-none"
-                        >
+                        <div className="space-y-6">
                             <ClientOverviewTab client={client} />
-                        </TabsContent>
+                        </div>
+                    </aside>
 
-                        <TabsContent
-                            value="projects"
-                            className="mt-0 focus-visible:outline-none"
+                    {/* Right Main Content - Activities & Projects */}
+                    <main>
+                        <Tabs
+                            defaultValue="activity"
+                            className="w-full space-y-6"
                         >
-                            <ClientProjectsTab
-                                projects={projects}
-                                client={client}
-                            />
-                        </TabsContent>
+                            <div className="flex items-center justify-between overflow-x-auto rounded-xl border bg-card p-1 shadow-sm">
+                                <TabsList className="h-10 bg-transparent p-0">
+                                    <TabsTrigger
+                                        value="activity"
+                                        className="gap-2 px-4 py-2 transition-all data-[state=active]:bg-muted data-[state=active]:shadow-none"
+                                    >
+                                        <HistoryIcon className="h-4 w-4" />
+                                        Activity History
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                        value="projects"
+                                        className="gap-2 px-4 py-2 transition-all data-[state=active]:bg-muted data-[state=active]:shadow-none"
+                                    >
+                                        <Book className="h-4 w-4" />
+                                        Projects
+                                    </TabsTrigger>
+                                </TabsList>
+                            </div>
 
-                        <TabsContent
-                            value="activity"
-                            className="mt-0 focus-visible:outline-none"
-                        >
-                            <ClientActivityTab
-                                activities={activities}
-                                client={client}
-                            />
-                        </TabsContent>
+                            <form onSubmit={onSubmit} className="mt-0">
+                                <TabsContent
+                                    value="activity"
+                                    className="mt-0 focus-visible:outline-none"
+                                >
+                                    <ClientActivityTab
+                                        activities={activities}
+                                        client={client}
+                                    />
+                                </TabsContent>
 
-                        {editMode && (
-                            <SaveButtonFooter
-                                isSaving={isSaving}
-                                onCancel={resetForm}
-                            />
-                        )}
-                    </form>
-                </Tabs>
+                                <TabsContent
+                                    value="projects"
+                                    className="mt-0 focus-visible:outline-none"
+                                >
+                                    <ClientProjectsTab
+                                        projects={projects}
+                                        client={client}
+                                    />
+                                </TabsContent>
+
+                                {editMode && (
+                                    <SaveButtonFooter
+                                        isSaving={isSaving}
+                                        onCancel={resetForm}
+                                    />
+                                )}
+                            </form>
+                        </Tabs>
+                    </main>
+                </div>
             </div>
             <ConfirmDialog />
 
