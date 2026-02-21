@@ -101,7 +101,7 @@ export function ClientDialog({ trigger }: { trigger?: React.ReactNode } = {}) {
                                     <img
                                         src={image}
                                         alt="client image"
-                                        className="h-60 w-60 cursor-pointer rounded-full object-cover"
+                                        className="h-60 w-60 cursor-pointer rounded-2xl object-cover"
                                         onClick={() =>
                                             inputRef.current?.click()
                                         }
@@ -109,7 +109,7 @@ export function ClientDialog({ trigger }: { trigger?: React.ReactNode } = {}) {
                                 </div>
                             ) : (
                                 <div
-                                    className="flex h-30 w-30 items-center justify-center rounded-full bg-gray-800 lg:h-50 lg:w-50"
+                                    className="flex h-30 w-30 items-center justify-center rounded-2xl bg-gray-800 lg:h-50 lg:w-50"
                                     onClick={() => inputRef.current?.click()}
                                 >
                                     <Camera className="h-10 w-10 text-white" />

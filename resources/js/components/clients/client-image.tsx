@@ -59,7 +59,7 @@ export default function ClientImageUpload() {
                             src={image}
                             alt="Client profile"
                             className={cn(
-                                'h-full w-full rounded-full border-4 border-background object-cover shadow-xl ring-2 ring-border transition-all duration-300',
+                                'h-full w-full rounded-2xl border-4 border-background object-cover shadow-xl ring-2 ring-border transition-all duration-300',
                                 editMode &&
                                     'cursor-pointer hover:ring-primary/50',
                             )}
@@ -69,7 +69,7 @@ export default function ClientImageUpload() {
                         {/* Overlay for edit mode */}
                         {editMode && isHovered && (
                             <div
-                                className="absolute inset-0 flex items-center justify-center rounded-full bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+                                className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 backdrop-blur-sm transition-opacity duration-300"
                                 onClick={handleClick}
                             >
                                 <Upload className="h-8 w-8 text-white" />
@@ -94,7 +94,7 @@ export default function ClientImageUpload() {
             ) : (
                 <div
                     className={cn(
-                        'group relative flex h-48 w-48 items-center justify-center rounded-full border-4 border-dashed border-border bg-muted/50 shadow-inner transition-all duration-300 lg:h-56 lg:w-56',
+                        'group relative flex h-48 w-48 items-center justify-center rounded-2xl border-4 border-dashed border-border bg-muted/50 shadow-inner transition-all duration-300 lg:h-56 lg:w-56',
                         editMode &&
                             'cursor-pointer hover:border-primary hover:bg-muted hover:shadow-lg',
                     )}
