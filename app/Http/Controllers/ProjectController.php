@@ -13,7 +13,6 @@ use App\Models\Project;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -100,7 +99,7 @@ class ProjectController extends Controller
     public function store(CreateProjectRequest $request, AttachTagToModel $attachTag): RedirectResponse
     {
         $validated = $request->validated();
-        $projectData = Arr::except($validated, ['tags']);
+        $projectData = collect($validated)->except('tags')->toArray();
 
         $project = Project::create($projectData);
 
@@ -129,7 +128,7 @@ class ProjectController extends Controller
         }
 
         $validated = $request->validated();
-        $projectData = Arr::except($validated, ['tags']);
+        $projectData = collect($validated)->except('tags')->toArray();
 
         $project->update($projectData);
 
