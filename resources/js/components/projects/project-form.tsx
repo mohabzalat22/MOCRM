@@ -13,11 +13,13 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { projectService } from '@/services/projectService';
-import type { Project, ProjectStatus } from '@/types';
+import type { Project, ProjectStatus, Tag } from '@/types';
+import ProjectFormTagInput, { type FormTag } from './ProjectFormTagInput';
 
 interface ProjectFormProps {
     project?: Project;
     clients: { id: number; name: string }[];
+    allTags?: Tag[];
     defaultClientId?: number;
     onSuccess?: () => void;
 }
@@ -25,6 +27,7 @@ interface ProjectFormProps {
 export function ProjectForm({
     project,
     clients,
+    allTags = [],
     defaultClientId,
     onSuccess,
 }: ProjectFormProps) {
@@ -42,6 +45,11 @@ export function ProjectForm({
             ? format(new Date(project.end_date), 'yyyy-MM-dd')
             : '',
         status: (project?.status || 'not_started') as ProjectStatus,
+        tags: (project?.tags?.map((t) => ({
+            name: t.name,
+            color: t.color,
+            id: t.id,
+        })) || []) as FormTag[],
     });
 
     const submit = (e: React.FormEvent) => {
@@ -174,6 +182,12 @@ export function ProjectForm({
                     </SelectContent>
                 </Select>
             </div>
+
+            <ProjectFormTagInput
+                tags={data.tags}
+                allTags={allTags}
+                onChange={(tags) => setData({ ...data, tags })}
+            />
 
             <div className="flex justify-end gap-2 pt-2">
                 <Button type="submit" disabled={processing}>

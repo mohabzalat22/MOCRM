@@ -9,6 +9,7 @@ export interface ProjectData {
     start_date: string;
     end_date?: string;
     status: ProjectStatus;
+    tags?: { name: string; color: string; id?: number }[];
 }
 
 export const projectService = {

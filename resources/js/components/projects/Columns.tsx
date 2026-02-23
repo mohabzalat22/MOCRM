@@ -4,7 +4,7 @@ import { ArrowUpDown, Calendar, Edit2, Trash2, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { Project } from '@/types';
+import type { Project, Tag } from '@/types';
 
 interface ColumnProps {
     onEdit: (project: Project) => void;
@@ -144,6 +144,30 @@ export const getColumns = ({
                 variant: 'secondary' as const,
             };
             return <Badge variant={config.variant}>{config.label}</Badge>;
+        },
+    },
+    {
+        accessorKey: 'tags',
+        header: 'Tags',
+        cell: ({ row }) => {
+            const tags = row.original.tags || [];
+            if (tags.length === 0) return null;
+
+            return (
+                <div className="flex flex-wrap gap-1">
+                    {tags.map((tag: Tag) => (
+                        <Badge
+                            key={tag.id}
+                            style={{
+                                backgroundColor: tag.color,
+                                color: '#fff',
+                            }}
+                        >
+                            {tag.name}
+                        </Badge>
+                    ))}
+                </div>
+            );
         },
     },
     {

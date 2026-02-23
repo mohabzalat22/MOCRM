@@ -14,11 +14,12 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem, Project } from '@/types';
+import type { BreadcrumbItem, Project, Tag } from '@/types';
 
 interface ProjectsPageProps {
     projects: Project[];
     clients: { id: number; name: string }[];
+    allTags: Tag[];
     filters?: { status: string };
 }
 
@@ -32,6 +33,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function ProjectsIndex({
     projects,
     clients,
+    allTags = [],
     filters = { status: 'all' },
 }: ProjectsPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -111,6 +113,7 @@ export default function ProjectsIndex({
                     </DialogHeader>
                     <ProjectForm
                         clients={clients}
+                        allTags={allTags}
                         onSuccess={() => setIsCreateOpen(false)}
                     />
                 </DialogContent>
@@ -132,6 +135,7 @@ export default function ProjectsIndex({
                         <ProjectForm
                             project={editingProject}
                             clients={clients}
+                            allTags={allTags}
                             onSuccess={() => setEditingProject(null)}
                         />
                     )}

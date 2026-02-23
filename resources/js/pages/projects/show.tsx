@@ -20,6 +20,7 @@ import ActivityTimeline from '@/components/clients/activity-timeline';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { AddTaskForm } from '@/components/projects/AddTaskForm';
 import { ProjectFiles } from '@/components/projects/ProjectFiles';
+import ProjectTagInput from '@/components/projects/ProjectTagInput';
 import { ProjectTimeline } from '@/components/projects/ProjectTimeline';
 import { ProjectUpdates } from '@/components/projects/ProjectUpdates';
 import { TaskEditModal } from '@/components/projects/TaskEditModal';
@@ -42,13 +43,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
 import { projectService } from '@/services/projectService';
-import type { BreadcrumbItem, Project } from '@/types';
+import type { BreadcrumbItem, Project, Tag } from '@/types';
 import type { Task } from '@/types/project';
 import { BoardView } from './views/BoardView';
 import { CalendarView } from './views/CalendarView';
 
 interface ProjectShowProps {
-    project: Project;
+    project: Project & { tags?: Tag[] };
+    allTags: Tag[];
 }
 
 const statusMap = {
@@ -60,7 +62,7 @@ const statusMap = {
     archived: { label: 'Archived', variant: 'outline' as const },
 };
 
-export default function ProjectShow({ project }: ProjectShowProps) {
+export default function ProjectShow({ project, allTags }: ProjectShowProps) {
     const [activeTab, setActiveTab] = useState<string>('list');
     const [confirmArchive, setConfirmArchive] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -102,6 +104,20 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                                 >
                                     {status.label}
                                 </Badge>
+
+                                {/* Project Tags */}
+                                {project.tags &&
+                                    project.tags.map((tag) => (
+                                        <Badge
+                                            key={tag.id}
+                                            className="px-2 text-[10px] font-bold tracking-wider text-white uppercase transition-opacity hover:opacity-90"
+                                            style={{
+                                                backgroundColor: tag.color,
+                                            }}
+                                        >
+                                            {tag.name}
+                                        </Badge>
+                                    ))}
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -242,6 +258,13 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                                     <Files className="h-4 w-4" />
                                     Files
                                 </TabsTrigger>
+                                <TabsTrigger
+                                    value="settings"
+                                    className="gap-2 rounded-md px-4 data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                                >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                    Settings
+                                </TabsTrigger>
                             </TabsList>
 
                             <div className="min-h-[600px] rounded-xl border bg-background shadow-sm">
@@ -335,6 +358,34 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                                 >
                                     <div className="h-full p-6">
                                         <ProjectFiles project={project} />
+                                    </div>
+                                </TabsContent>
+                                <TabsContent
+                                    value="settings"
+                                    className="m-0 h-full border-none p-0"
+                                >
+                                    <div className="max-w-2xl p-6">
+                                        <div className="space-y-6">
+                                            <div>
+                                                <h3 className="text-lg font-medium">
+                                                    Project Tags
+                                                </h3>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Manage tags for this project
+                                                    to help with organization
+                                                    and filtering.
+                                                </p>
+                                                <div className="mt-4">
+                                                    <ProjectTagInput
+                                                        projectId={project.id}
+                                                        currentTags={
+                                                            project.tags || []
+                                                        }
+                                                        allTags={allTags}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </TabsContent>
                             </div>

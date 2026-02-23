@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Projects\CreateProjectUpdate;
+use App\Actions\Tags\AttachTagToModel;
 use App\Enums\ProjectStatus;
 use App\Enums\TaskStatus;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -23,7 +26,7 @@ class ProjectController extends Controller
     {
         $status = $request->input('status', 'all');
 
-        $projects = Project::with('client')
+        $projects = Project::with(['client', 'tags'])
             ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
                 $query->where('status', TaskStatus::DONE);
             }])
@@ -48,6 +51,7 @@ class ProjectController extends Controller
         return Inertia::render('projects/index', [
             'projects' => $projects,
             'clients' => $clients,
+            'allTags' => Tag::orderBy('name')->get(),
             'filters' => ['status' => $status],
         ]);
     }
@@ -59,6 +63,7 @@ class ProjectController extends Controller
     {
         $project->load([
             'client',
+            'tags',
             'tasks' => function ($query) {
                 $query->ordered();
             },
@@ -85,17 +90,29 @@ class ProjectController extends Controller
         return Inertia::render('projects/show', [
             'project' => $project,
             'siblingProjects' => $siblingProjects,
+            'allTags' => Tag::orderBy('name')->get(),
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CreateProjectRequest $request): RedirectResponse
+    public function store(CreateProjectRequest $request, AttachTagToModel $attachTag): RedirectResponse
     {
         $validated = $request->validated();
+        $projectData = Arr::except($validated, ['tags']);
 
-        Project::create($validated);
+        $project = Project::create($projectData);
+
+        if (isset($validated['tags'])) {
+            foreach ($validated['tags'] as $tagData) {
+                $attachTag->execute(
+                    $project,
+                    $tagData['name'],
+                    $tagData['color'] ?? null
+                );
+            }
+        }
 
         return back()->with('success', 'Project created successfully.');
     }
@@ -103,7 +120,7 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
+    public function update(UpdateProjectRequest $request, Project $project, AttachTagToModel $attachTag): RedirectResponse
     {
         // Ensure the project belongs to the authenticated user's client
         $project->load('client');
@@ -112,7 +129,23 @@ class ProjectController extends Controller
         }
 
         $validated = $request->validated();
-        $project->update($validated);
+        $projectData = Arr::except($validated, ['tags']);
+
+        $project->update($projectData);
+
+        if (isset($validated['tags'])) {
+            $tagIds = [];
+            foreach ($validated['tags'] as $tagData) {
+                $tag = $attachTag->execute(
+                    $project,
+                    $tagData['name'],
+                    $tagData['color'] ?? null
+                );
+                $tagIds[] = $tag->id;
+            }
+            // Sync to remove any tags that were in our current list but not in the request
+            $project->tags()->sync($tagIds);
+        }
 
         return back()->with('success', 'Project updated successfully.');
     }

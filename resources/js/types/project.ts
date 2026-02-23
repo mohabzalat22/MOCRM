@@ -1,6 +1,7 @@
 import type { Activity } from './activity';
 import type { Attachment } from './attachment';
 import type { Client } from './client';
+import type { Tag } from './index';
 
 export type ProjectStatus =
     | 'not_started'
@@ -45,6 +46,7 @@ export interface Project {
 
     // Relationships
     client?: Client;
+    tags?: Tag[];
     tasks?: Task[];
     activities?: Activity[];
     attachments?: Attachment[];

@@ -23,6 +23,14 @@ class Tag extends Model
     }
 
     /**
+     * Summary of projects
+     */
+    public function projects(): void
+    {
+        $this->morphedByMany(Project::class, 'taggable');
+    }
+
+    /**
      * Summary of getPopular
      *
      * @param  mixed  $limit
