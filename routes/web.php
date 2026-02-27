@@ -12,6 +12,7 @@ use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
     Route::post('/dashboard/preferences', [App\Http\Controllers\DashboardPreferenceController::class, 'update'])
         ->name('dashboard.preferences.update');
 
