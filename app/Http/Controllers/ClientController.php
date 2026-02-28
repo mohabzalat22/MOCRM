@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Clients\BulkUpdateClients;
+use App\Enums\ClientStatus;
+use App\Enums\ProjectStatus;
 use App\Enums\TaskStatus;
 use App\Http\Requests\BulkUpdateRequest;
 use App\Http\Requests\CreateClientRequest;
@@ -25,11 +27,16 @@ class ClientController extends Controller
         $clients = Client::forUser()->with([
             'customFields',
             'tags',
-        ])->get();
+            'projects:id,client_id,status',
+        ])
+            ->withMax('activities', 'created_at')
+            ->get();
 
         return Inertia::render('clients/index', [
             'clients' => $clients,
             'allTags' => Tag::orderBy('name')->get(),
+            'statuses' => ClientStatus::values(),
+            'projectStatuses' => ProjectStatus::values(),
         ]);
     }
 

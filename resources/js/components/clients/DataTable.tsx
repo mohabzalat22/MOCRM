@@ -20,6 +20,7 @@ import {
     CheckCircle2,
     Tag as TagIcon,
     Download,
+    FilterX,
 } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
@@ -31,18 +32,9 @@ import {
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -53,22 +45,31 @@ import {
 } from '@/components/ui/table';
 import { clientService } from '@/services/clientService';
 import type { Client, Tag } from '@/types';
+import ClientFilters, { type ClientFilterValues } from './ClientFilters';
 
 interface WithId {
     id: string | number;
     tags?: { id: number; name: string; color: string }[];
+    status: string;
+    monthly_value: number;
+    activities_max_created_at?: string;
+    projects?: { id: number; client_id: number; status: string }[];
 }
 
 interface DataTableProps<TData extends WithId, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
     allTags?: Tag[];
+    statuses?: string[];
+    projectStatuses?: string[];
 }
 
 export function DataTable<TData extends WithId, TValue>({
     columns,
     data,
     allTags = [],
+    statuses = [],
+    projectStatuses = [],
 }: DataTableProps<TData, TValue>) {
     'use no memo';
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -78,24 +79,76 @@ export function DataTable<TData extends WithId, TValue>({
         React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
     const [globalFilter, setGlobalFilter] = React.useState('');
+    const [isFiltersVisible, setIsFiltersVisible] = React.useState(false);
+    const [filterValues, setFilterValues] = React.useState<ClientFilterValues>({
+        status: [],
+    });
 
-    // Extract unique tags from data for the filter
-    const uniqueTags = React.useMemo(() => {
-        const tagsMap = new Map<string, string>();
-        data.forEach((item) => {
-            item.tags?.forEach((tag) => {
-                if (!tagsMap.has(tag.name)) {
-                    tagsMap.set(tag.name, tag.color);
+    const filteredData = React.useMemo(() => {
+        return data.filter((item) => {
+            // Status filter
+            if (filterValues.status && filterValues.status.length > 0) {
+                if (!filterValues.status.includes(item.status)) return false;
+            }
+
+            // Tags filter
+            if (filterValues.tags && filterValues.tags.length > 0) {
+                const itemTagIds = item.tags?.map((t) => Number(t.id)) || [];
+                if (!filterValues.tags.some((id) => itemTagIds.includes(id)))
+                    return false;
+            }
+
+            // Monthly Value filter
+            const val = Number(item.monthly_value);
+            if (
+                filterValues.minValue !== undefined &&
+                val < filterValues.minValue
+            )
+                return false;
+            if (
+                filterValues.maxValue !== undefined &&
+                val > filterValues.maxValue
+            )
+                return false;
+
+            // Last Contact filter
+            if (filterValues.lastContactStart || filterValues.lastContactEnd) {
+                if (!item.activities_max_created_at) return false;
+                const lastContact = new Date(item.activities_max_created_at);
+                if (
+                    filterValues.lastContactStart &&
+                    lastContact < new Date(filterValues.lastContactStart)
+                )
+                    return false;
+                if (filterValues.lastContactEnd) {
+                    const endDate = new Date(filterValues.lastContactEnd);
+                    endDate.setHours(23, 59, 59, 999);
+                    if (lastContact > endDate) return false;
                 }
-            });
+            }
+
+            // Project Status filter
+            if (
+                filterValues.projectStatuses &&
+                filterValues.projectStatuses.length > 0
+            ) {
+                const itemProjectStatuses =
+                    item.projects?.map((p) => p.status) || [];
+                if (
+                    !filterValues.projectStatuses.some((s) =>
+                        itemProjectStatuses.includes(s),
+                    )
+                )
+                    return false;
+            }
+
+            return true;
         });
-        return Array.from(tagsMap.entries())
-            .sort((a, b) => a[0].localeCompare(b[0]))
-            .map(([name, color]) => ({ name, color }));
-    }, [data]);
+    }, [data, filterValues]);
+
     /* eslint-disable react-hooks/incompatible-library */
     const table = useReactTable({
-        data,
+        data: filteredData,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -117,6 +170,9 @@ export function DataTable<TData extends WithId, TValue>({
 
     const selectedRows = table.getFilteredSelectedRowModel().rows;
     const hasSelection = selectedRows.length > 0;
+    const activeFilterCount = Object.values(filterValues).filter(
+        (v) => v !== undefined && (Array.isArray(v) ? v.length > 0 : true),
+    ).length;
 
     const handleBulkAction = (action: string, value?: string | number) => {
         const ids = selectedRows.map((row) => row.original.id);
@@ -139,7 +195,7 @@ export function DataTable<TData extends WithId, TValue>({
     const handleExport = () => {
         const rowsToExport = hasSelection
             ? selectedRows.map((r) => r.original)
-            : data;
+            : filteredData;
 
         const headers = ['Name', 'Company', 'Email', 'Phone', 'Status', 'Tags'];
         const csvData = [
@@ -183,156 +239,6 @@ export function DataTable<TData extends WithId, TValue>({
                         className="pl-8"
                     />
                 </div>
-
-                {/* Status Filter */}
-                <Select
-                    onValueChange={(value) =>
-                        table
-                            .getColumn('status')
-                            ?.setFilterValue(value === 'all' ? '' : value)
-                    }
-                >
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Filter by Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Lead">Lead</SelectItem>
-                        <SelectItem value="At Risk">At Risk</SelectItem>
-                        <SelectItem value="In Active">In Active</SelectItem>
-                    </SelectContent>
-                </Select>
-
-                {/* Tags Filter */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="outline"
-                            className="ml-2 border-dashed"
-                        >
-                            <Filter className="mr-2 h-4 w-4" />
-                            Filter Tags
-                            {/* Show count of selected filters */}
-                            {(
-                                table
-                                    .getColumn('tags')
-                                    ?.getFilterValue() as string[]
-                            )?.length > 0 && (
-                                <Badge
-                                    variant="secondary"
-                                    className="ml-2 rounded-sm px-1 font-normal"
-                                >
-                                    {
-                                        (
-                                            table
-                                                .getColumn('tags')
-                                                ?.getFilterValue() as string[]
-                                        ).length
-                                    }
-                                </Badge>
-                            )}
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-[200px]">
-                        <DropdownMenuLabel>Filter by Tag</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <div className="max-h-[300px] overflow-y-auto">
-                            {/* None Option */}
-                            <DropdownMenuCheckboxItem
-                                checked={(
-                                    table
-                                        .getColumn('tags')
-                                        ?.getFilterValue() as string[]
-                                )?.includes('_none_')}
-                                onCheckedChange={(checked) => {
-                                    const filterValue =
-                                        (table
-                                            .getColumn('tags')
-                                            ?.getFilterValue() as string[]) ||
-                                        [];
-                                    const newValue = checked
-                                        ? [...filterValue, '_none_']
-                                        : filterValue.filter(
-                                              (val) => val !== '_none_',
-                                          );
-                                    table
-                                        .getColumn('tags')
-                                        ?.setFilterValue(
-                                            newValue.length
-                                                ? newValue
-                                                : undefined,
-                                        );
-                                }}
-                            >
-                                <span className="text-muted-foreground italic">
-                                    None (No Tags)
-                                </span>
-                            </DropdownMenuCheckboxItem>
-
-                            {uniqueTags.map((tag) => {
-                                const filterValue =
-                                    (table
-                                        .getColumn('tags')
-                                        ?.getFilterValue() as string[]) || [];
-                                const isSelected = filterValue.includes(
-                                    tag.name,
-                                );
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={tag.name}
-                                        checked={isSelected}
-                                        onCheckedChange={(checked) => {
-                                            const newValue = checked
-                                                ? [...filterValue, tag.name]
-                                                : filterValue.filter(
-                                                      (val) => val !== tag.name,
-                                                  );
-                                            table
-                                                .getColumn('tags')
-                                                ?.setFilterValue(
-                                                    newValue.length
-                                                        ? newValue
-                                                        : undefined,
-                                                );
-                                        }}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <span
-                                                className="h-2 w-2 rounded-full"
-                                                style={{
-                                                    backgroundColor: tag.color,
-                                                }}
-                                            />
-                                            {tag.name}
-                                        </div>
-                                    </DropdownMenuCheckboxItem>
-                                );
-                            })}
-                        </div>
-                        {uniqueTags.length === 0 && (
-                            <DropdownMenuItem disabled>
-                                No tags found
-                            </DropdownMenuItem>
-                        )}
-                        {(table.getColumn('tags')?.getFilterValue() as string[])
-                            ?.length > 0 && (
-                            <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onSelect={() =>
-                                        table
-                                            .getColumn('tags')
-                                            ?.setFilterValue(undefined)
-                                    }
-                                    className="justify-center text-center"
-                                >
-                                    Clear filters
-                                </DropdownMenuItem>
-                            </>
-                        )}
-                    </DropdownMenuContent>
-                </DropdownMenu>
 
                 {/* Bulk Actions */}
                 {hasSelection && (
@@ -444,33 +350,67 @@ export function DataTable<TData extends WithId, TValue>({
                     </div>
                 )}
 
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Columns <ChevronDown className="ml-2 h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }
-                                    >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                );
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="ml-auto flex items-center gap-2">
+                    <Button
+                        variant={isFiltersVisible ? 'secondary' : 'outline'}
+                        onClick={() => setIsFiltersVisible(!isFiltersVisible)}
+                        className="relative"
+                    >
+                        {activeFilterCount > 0 ? (
+                            <FilterX className="mr-2 h-4 w-4" />
+                        ) : (
+                            <Filter className="mr-2 h-4 w-4" />
+                        )}
+                        Filters
+                        {activeFilterCount > 0 && (
+                            <Badge
+                                variant="default"
+                                className="ml-2 h-5 w-5 justify-center rounded-full p-0 text-[10px]"
+                            >
+                                {activeFilterCount}
+                            </Badge>
+                        )}
+                    </Button>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline">
+                                Columns <ChevronDown className="ml-2 h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {table
+                                .getAllColumns()
+                                .filter((column) => column.getCanHide())
+                                .map((column) => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={column.id}
+                                            className="capitalize"
+                                            checked={column.getIsVisible()}
+                                            onCheckedChange={(value) =>
+                                                column.toggleVisibility(!!value)
+                                            }
+                                        >
+                                            {column.id}
+                                        </DropdownMenuCheckboxItem>
+                                    );
+                                })}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
+
+            {isFiltersVisible && (
+                <ClientFilters
+                    values={filterValues}
+                    onChange={setFilterValues}
+                    onClear={() => setFilterValues({ status: [] })}
+                    allTags={allTags}
+                    statuses={statuses}
+                    projectStatuses={projectStatuses}
+                />
+            )}
 
             <div className="overflow-hidden rounded-md border bg-card shadow-sm">
                 <Table>

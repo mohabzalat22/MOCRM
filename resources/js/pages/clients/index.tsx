@@ -16,9 +16,16 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface ClientsPageProps {
     clients: Client[];
     allTags: Tag[];
+    statuses: string[];
+    projectStatuses: string[];
 }
 
-export default function clients({ clients, allTags }: ClientsPageProps) {
+export default function clients({
+    clients,
+    allTags,
+    statuses,
+    projectStatuses,
+}: ClientsPageProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Clients" />
@@ -34,7 +41,13 @@ export default function clients({ clients, allTags }: ClientsPageProps) {
                     </div>
                     <ClientDialog></ClientDialog>
                 </div>
-                <DataTable columns={columns} data={clients} allTags={allTags} />
+                <DataTable
+                    columns={columns}
+                    data={clients}
+                    allTags={allTags}
+                    statuses={statuses}
+                    projectStatuses={projectStatuses}
+                />
             </div>
         </AppLayout>
     );

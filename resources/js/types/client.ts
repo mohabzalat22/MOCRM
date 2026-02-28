@@ -21,6 +21,8 @@ export interface Client {
     custom_fields: CustomField[];
     created_at: string;
     updated_at: string;
+    activities_max_created_at?: string;
+    projects?: { id: number; client_id: number; status: string }[];
 
     // Relationships
     activities?: Activity[];
