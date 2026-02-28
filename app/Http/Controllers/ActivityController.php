@@ -9,12 +9,39 @@ use App\Models\Client;
 use App\Services\ActivityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Response;
 
 class ActivityController extends Controller
 {
     public function __construct(
         protected ActivityService $activityService
     ) {}
+
+    /**
+     * Display a listing of activities.
+     */
+    public function index(): Response
+    {
+        $activities = Activity::with(['user', 'client', 'tags', 'attachments'])
+            ->latest()
+            ->get();
+
+        $clients = Client::select('id', 'name')->get();
+        $activityTypes = [
+            'call',
+            'email',
+            'meeting',
+            'note',
+            'transaction',
+            'status_change',
+        ];
+
+        return inertia('activities/index', [
+            'activities' => $activities,
+            'clients' => $clients,
+            'activityTypes' => $activityTypes,
+        ]);
+    }
 
     /**
      * Summary of store

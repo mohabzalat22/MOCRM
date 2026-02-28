@@ -44,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('tags.destroy');
 
     // Activity routes
+    Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::post(
         '/clients/{client}/activities',
         [ActivityController::class, 'store']
