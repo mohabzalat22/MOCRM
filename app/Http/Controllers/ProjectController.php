@@ -23,24 +23,12 @@ class ProjectController extends Controller
      */
     public function index(Request $request): Response
     {
-        $status = $request->input('status', 'all');
-
         $projects = Project::with(['client', 'tags'])
             ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
                 $query->where('status', TaskStatus::DONE);
             }])
             ->whereHas('client', function ($query) {
                 $query->where('user_id', auth()->id());
-            })
-            ->when($status === 'active', function ($query) {
-                $query->whereIn('status', [
-                    ProjectStatus::NOT_STARTED->value,
-                    ProjectStatus::IN_PROGRESS->value,
-                    ProjectStatus::ON_HOLD->value,
-                ]);
-            })
-            ->when($status !== 'active' && $status !== 'all', function ($query) use ($status) {
-                $query->where('status', $status);
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -51,7 +39,7 @@ class ProjectController extends Controller
             'projects' => $projects,
             'clients' => $clients,
             'allTags' => Tag::orderBy('name')->get(),
-            'filters' => ['status' => $status],
+            'statuses' => ProjectStatus::values(),
         ]);
     }
 

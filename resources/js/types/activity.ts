@@ -1,4 +1,4 @@
-import type { User, Tag } from '@/types';
+import type { User, Tag, Project } from '@/types';
 import type { Attachment } from './attachment';
 import type { Client } from './client';
 
@@ -43,6 +43,7 @@ export interface Activity {
     occurred_at: string;
     user?: User;
     client?: Client;
+    project?: Project;
     attachments?: Attachment[];
     tags?: Tag[];
 }

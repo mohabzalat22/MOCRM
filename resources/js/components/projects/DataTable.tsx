@@ -1,9 +1,3 @@
-import type {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-} from '@tanstack/react-table';
 import {
     flexRender,
     getCoreRowModel,
@@ -12,9 +6,16 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { ChevronDown, Search } from 'lucide-react';
+import type {
+    ColumnDef,
+    ColumnFiltersState,
+    SortingState,
+    VisibilityState,
+} from '@tanstack/react-table';
+import { ChevronDown, Search, Filter, FilterX } from 'lucide-react';
 import * as React from 'react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -24,13 +25,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
     Table,
     TableBody,
     TableCell,
@@ -38,19 +32,23 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import type { Project, Tag } from '@/types';
+import ProjectFilters, { type ProjectFilterValues } from './ProjectFilters';
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends Project, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
-    statusFilter?: string;
-    onStatusChange?: (value: string) => void;
+    allTags?: Tag[];
+    clients?: { id: number; name: string }[];
+    statuses?: string[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends Project, TValue>({
     columns,
     data,
-    statusFilter,
-    onStatusChange,
+    allTags = [],
+    clients = [],
+    statuses = [],
 }: DataTableProps<TData, TValue>) {
     'use no memo';
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -59,10 +57,76 @@ export function DataTable<TData, TValue>({
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({});
     const [globalFilter, setGlobalFilter] = React.useState('');
+    const [isFiltersVisible, setIsFiltersVisible] = React.useState(false);
+    const [filterValues, setFilterValues] = React.useState<ProjectFilterValues>(
+        {},
+    );
+
+    const filteredData = React.useMemo(() => {
+        return data.filter((item) => {
+            // Status filter
+            if (filterValues.status && filterValues.status.length > 0) {
+                if (!filterValues.status.includes(item.status)) return false;
+            }
+
+            // Client filter
+            if (filterValues.clientId && filterValues.clientId.length > 0) {
+                if (!filterValues.clientId.includes(item.client_id))
+                    return false;
+            }
+
+            // Tags filter
+            if (filterValues.tags && filterValues.tags.length > 0) {
+                const itemTagIds = item.tags?.map((t) => Number(t.id)) || [];
+                if (!filterValues.tags.some((id) => itemTagIds.includes(id)))
+                    return false;
+            }
+
+            // Due Date filter
+            if (filterValues.dueDateStart || filterValues.dueDateEnd) {
+                if (!item.end_date) return false;
+                const dueDate = new Date(item.end_date);
+                if (
+                    filterValues.dueDateStart &&
+                    dueDate < new Date(filterValues.dueDateStart)
+                )
+                    return false;
+                if (filterValues.dueDateEnd) {
+                    const endDate = new Date(filterValues.dueDateEnd);
+                    endDate.setHours(23, 59, 59, 999);
+                    if (dueDate > endDate) return false;
+                }
+            }
+
+            // Completion Percentage filter
+            if (
+                filterValues.minCompletion !== undefined ||
+                filterValues.maxCompletion !== undefined
+            ) {
+                const tasksCount = item.tasks_count || 0;
+                const completedCount = item.completed_tasks_count || 0;
+                const completion =
+                    tasksCount > 0 ? (completedCount / tasksCount) * 100 : 0;
+
+                if (
+                    filterValues.minCompletion !== undefined &&
+                    completion < filterValues.minCompletion
+                )
+                    return false;
+                if (
+                    filterValues.maxCompletion !== undefined &&
+                    completion > filterValues.maxCompletion
+                )
+                    return false;
+            }
+
+            return true;
+        });
+    }, [data, filterValues]);
 
     // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
-        data,
+        data: filteredData,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -80,6 +144,10 @@ export function DataTable<TData, TValue>({
         },
     });
 
+    const activeFilterCount = Object.values(filterValues).filter(
+        (v) => v !== undefined && (Array.isArray(v) ? v.length > 0 : true),
+    ).length;
+
     return (
         <div className="w-full">
             <div className="flex flex-wrap items-center gap-2 py-4">
@@ -95,61 +163,67 @@ export function DataTable<TData, TValue>({
                     />
                 </div>
 
-                {onStatusChange && (
-                    <Select
-                        value={
-                            statusFilter === 'all' ? undefined : statusFilter
-                        }
-                        onValueChange={onStatusChange}
+                <div className="ml-auto flex items-center gap-2">
+                    <Button
+                        variant={isFiltersVisible ? 'secondary' : 'outline'}
+                        onClick={() => setIsFiltersVisible(!isFiltersVisible)}
+                        className="relative"
                     >
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Filter by Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Statuses</SelectItem>
-                            <SelectItem value="active">
-                                Active Projects
-                            </SelectItem>
-                            <SelectItem value="not_started">
-                                Not Started
-                            </SelectItem>
-                            <SelectItem value="in_progress">
-                                In Progress
-                            </SelectItem>
-                            <SelectItem value="on_hold">On Hold</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                            <SelectItem value="archived">Archived</SelectItem>
-                        </SelectContent>
-                    </Select>
-                )}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Columns <ChevronDown className="ml-2 h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }
-                                    >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                );
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                        {activeFilterCount > 0 ? (
+                            <FilterX className="mr-2 h-4 w-4" />
+                        ) : (
+                            <Filter className="mr-2 h-4 w-4" />
+                        )}
+                        Filters
+                        {activeFilterCount > 0 && (
+                            <Badge
+                                variant="default"
+                                className="ml-2 h-5 w-5 justify-center rounded-full p-0 text-[10px]"
+                            >
+                                {activeFilterCount}
+                            </Badge>
+                        )}
+                    </Button>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline">
+                                Columns <ChevronDown className="ml-2 h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {table
+                                .getAllColumns()
+                                .filter((column) => column.getCanHide())
+                                .map((column) => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={column.id}
+                                            className="capitalize"
+                                            checked={column.getIsVisible()}
+                                            onCheckedChange={(value) =>
+                                                column.toggleVisibility(!!value)
+                                            }
+                                        >
+                                            {column.id}
+                                        </DropdownMenuCheckboxItem>
+                                    );
+                                })}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
+
+            {isFiltersVisible && (
+                <ProjectFilters
+                    values={filterValues}
+                    onChange={setFilterValues}
+                    onClear={() => setFilterValues({})}
+                    allTags={allTags}
+                    clients={clients}
+                    statuses={statuses}
+                />
+            )}
 
             <div className="overflow-hidden rounded-md border bg-card shadow-sm">
                 <Table>

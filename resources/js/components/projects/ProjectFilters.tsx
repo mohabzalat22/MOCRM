@@ -2,9 +2,10 @@ import {
     X,
     Filter,
     Calendar,
+    Tag as TagIcon,
+    Activity,
     Users,
     RotateCcw,
-    Activity as ActivityIcon,
     Percent,
 } from 'lucide-react';
 import React from 'react';
@@ -13,56 +14,47 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Separator } from '@/components/ui/separator';
+import type { Tag } from '@/types';
 
-export interface ActivityFilterValues {
-    types?: string[];
-    clientIds?: number[];
-    startDate?: string;
-    endDate?: string;
-    projectStatuses?: string[];
-    projectDueDateStart?: string;
-    projectDueDateEnd?: string;
-    minProjectCompletion?: number;
-    maxProjectCompletion?: number;
+export interface ProjectFilterValues {
+    status?: string[];
+    tags?: number[];
+    clientId?: number[];
+    dueDateStart?: string;
+    dueDateEnd?: string;
+    minCompletion?: number;
+    maxCompletion?: number;
 }
 
-interface ActivityFiltersProps {
-    values: ActivityFilterValues;
-    onChange: (values: ActivityFilterValues) => void;
+interface ProjectFiltersProps {
+    values: ProjectFilterValues;
+    onChange: (values: ProjectFilterValues) => void;
     onClear: () => void;
+    allTags: Tag[];
     clients: { id: number; name: string }[];
-    activityTypes: string[];
-    projectStatuses: string[];
+    statuses: string[];
 }
 
-export default function ActivityFilters({
+export default function ProjectFilters({
     values,
     onChange,
     onClear,
+    allTags,
     clients,
-    activityTypes,
-    projectStatuses,
-}: ActivityFiltersProps) {
+    statuses,
+}: ProjectFiltersProps) {
     const hasFilters = Object.values(values).some(
         (v) => v !== undefined && (Array.isArray(v) ? v.length > 0 : true),
     );
 
+    const tagOptions = allTags.map((tag) => ({
+        label: tag.name,
+        value: tag.id,
+    }));
+
     const clientOptions = clients.map((client) => ({
         label: client.name,
         value: client.id,
-    }));
-
-    const typeOptions = activityTypes.map((type) => ({
-        label: type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' '),
-        value: type,
-    }));
-
-    const projectStatusOptions = projectStatuses.map((s) => ({
-        label: s
-            .split('_')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' '),
-        value: s,
     }));
 
     return (
@@ -76,10 +68,10 @@ export default function ActivityFilters({
                         </div>
                         <div>
                             <h3 className="text-sm font-semibold capitalize">
-                                Activity Filters
+                                Advanced Filters
                             </h3>
                             <p className="text-[11px] leading-none text-muted-foreground">
-                                Refine activity results
+                                Refine your project list with precision
                             </p>
                         </div>
                     </div>
@@ -97,25 +89,36 @@ export default function ActivityFilters({
                 </div>
 
                 <div className="space-y-8 p-5">
+                    {/* Top Row: Categorical Filters */}
                     <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-                        {/* Type Filter */}
+                        {/* Status Filter */}
                         <div className="space-y-2.5">
                             <div className="flex items-center gap-2 text-muted-foreground">
-                                <ActivityIcon className="h-3.5 w-3.5" />
+                                <Activity className="h-3.5 w-3.5" />
                                 <Label className="text-xs font-bold tracking-wider uppercase">
-                                    Activity Type
+                                    Project Status
                                 </Label>
                             </div>
                             <MultiSelect
-                                options={typeOptions}
-                                selected={values.types || []}
+                                options={statuses.map((s) => ({
+                                    label: s
+                                        .split('_')
+                                        .map(
+                                            (word) =>
+                                                word.charAt(0).toUpperCase() +
+                                                word.slice(1),
+                                        )
+                                        .join(' '),
+                                    value: s,
+                                }))}
+                                selected={values.status || []}
                                 onChange={(selected) =>
                                     onChange({
                                         ...values,
-                                        types: selected as string[],
+                                        status: selected as string[],
                                     })
                                 }
-                                placeholder="All Types"
+                                placeholder="All Statuses"
                                 className="bg-background"
                             />
                         </div>
@@ -125,41 +128,41 @@ export default function ActivityFilters({
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <Users className="h-3.5 w-3.5" />
                                 <Label className="text-xs font-bold tracking-wider uppercase">
-                                    Client
+                                    Clients
                                 </Label>
                             </div>
                             <MultiSelect
                                 options={clientOptions}
-                                selected={values.clientIds || []}
+                                selected={values.clientId || []}
                                 onChange={(selected) =>
                                     onChange({
                                         ...values,
-                                        clientIds: selected as number[],
+                                        clientId: selected as number[],
                                     })
                                 }
-                                placeholder="All Clients"
+                                placeholder="Any Client"
                                 className="bg-background"
                             />
                         </div>
 
-                        {/* Project Status Filter */}
+                        {/* Tags Filter */}
                         <div className="space-y-2.5">
                             <div className="flex items-center gap-2 text-muted-foreground">
-                                <ActivityIcon className="h-3.5 w-3.5" />
+                                <TagIcon className="h-3.5 w-3.5" />
                                 <Label className="text-xs font-bold tracking-wider uppercase">
-                                    Project Status
+                                    Tags
                                 </Label>
                             </div>
                             <MultiSelect
-                                options={projectStatusOptions}
-                                selected={values.projectStatuses || []}
+                                options={tagOptions}
+                                selected={values.tags || []}
                                 onChange={(selected) =>
                                     onChange({
                                         ...values,
-                                        projectStatuses: selected as string[],
+                                        tags: selected as number[],
                                     })
                                 }
-                                placeholder="Any Status"
+                                placeholder="Any Tags"
                                 className="bg-background"
                             />
                         </div>
@@ -167,106 +170,76 @@ export default function ActivityFilters({
 
                     <Separator className="opacity-50" />
 
-                    <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                        {/* Date Range Filter */}
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                                <Calendar className="h-3.5 w-3.5" />
-                                <Label className="text-xs font-bold tracking-wider uppercase">
-                                    Activity Date Range
-                                </Label>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <Input
-                                    type="date"
-                                    value={values.startDate || ''}
-                                    onChange={(e) =>
-                                        onChange({
-                                            ...values,
-                                            startDate:
-                                                e.target.value || undefined,
-                                        })
-                                    }
-                                    className="h-10 flex-1 bg-background px-4 text-xs transition-all focus:ring-1"
-                                />
-                                <span className="shrink-0 text-[11px] font-bold text-muted-foreground/30">
-                                    to
-                                </span>
-                                <Input
-                                    type="date"
-                                    value={values.endDate || ''}
-                                    onChange={(e) =>
-                                        onChange({
-                                            ...values,
-                                            endDate:
-                                                e.target.value || undefined,
-                                        })
-                                    }
-                                    className="h-10 flex-1 bg-background px-4 text-xs transition-all focus:ring-1"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Project Due Date Range */}
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                                <Calendar className="h-3.5 w-3.5" />
-                                <Label className="text-xs font-bold tracking-wider uppercase">
-                                    Project Due Date Range
-                                </Label>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <Input
-                                    type="date"
-                                    value={values.projectDueDateStart || ''}
-                                    onChange={(e) =>
-                                        onChange({
-                                            ...values,
-                                            projectDueDateStart:
-                                                e.target.value || undefined,
-                                        })
-                                    }
-                                    className="h-10 flex-1 bg-background px-4 text-xs transition-all focus:ring-1"
-                                />
-                                <span className="shrink-0 text-[11px] font-bold text-muted-foreground/30">
-                                    to
-                                </span>
-                                <Input
-                                    type="date"
-                                    value={values.projectDueDateEnd || ''}
-                                    onChange={(e) =>
-                                        onChange({
-                                            ...values,
-                                            projectDueDateEnd:
-                                                e.target.value || undefined,
-                                        })
-                                    }
-                                    className="h-10 flex-1 bg-background px-4 text-xs transition-all focus:ring-1"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Project Completion Filter */}
+                    {/* Range Filters Grid */}
+                    <div className="grid grid-cols-1 gap-8 pb-2 lg:grid-cols-2">
+                        {/* Completion Percentage Range */}
                         <div className="space-y-3">
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <Percent className="h-3.5 w-3.5" />
                                 <Label className="text-xs font-bold tracking-wider uppercase">
-                                    Project Completion %
+                                    Completion Percentage
+                                </Label>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="relative flex-1">
+                                    <Input
+                                        type="number"
+                                        placeholder="Min %"
+                                        min={0}
+                                        max={100}
+                                        value={values.minCompletion ?? ''}
+                                        onChange={(e) =>
+                                            onChange({
+                                                ...values,
+                                                minCompletion: e.target.value
+                                                    ? Number(e.target.value)
+                                                    : undefined,
+                                            })
+                                        }
+                                        className="h-10 bg-background text-xs transition-all focus:ring-1"
+                                    />
+                                </div>
+                                <span className="shrink-0 text-[11px] font-bold text-muted-foreground/30">
+                                    to
+                                </span>
+                                <div className="relative flex-1">
+                                    <Input
+                                        type="number"
+                                        placeholder="Max %"
+                                        min={0}
+                                        max={100}
+                                        value={values.maxCompletion ?? ''}
+                                        onChange={(e) =>
+                                            onChange({
+                                                ...values,
+                                                maxCompletion: e.target.value
+                                                    ? Number(e.target.value)
+                                                    : undefined,
+                                            })
+                                        }
+                                        className="h-10 bg-background text-xs transition-all focus:ring-1"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Due Date Range */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <Calendar className="h-3.5 w-3.5" />
+                                <Label className="text-xs font-bold tracking-wider uppercase">
+                                    Due Date Range
                                 </Label>
                             </div>
                             <div className="flex items-center gap-3">
                                 <Input
-                                    type="number"
-                                    placeholder="Min %"
-                                    min={0}
-                                    max={100}
-                                    value={values.minProjectCompletion ?? ''}
+                                    type="date"
+                                    value={values.dueDateStart || ''}
                                     onChange={(e) =>
                                         onChange({
                                             ...values,
-                                            minProjectCompletion: e.target.value
-                                                ? Number(e.target.value)
-                                                : undefined,
+                                            dueDateStart:
+                                                e.target.value || undefined,
                                         })
                                     }
                                     className="h-10 flex-1 bg-background px-4 text-xs transition-all focus:ring-1"
@@ -275,17 +248,13 @@ export default function ActivityFilters({
                                     to
                                 </span>
                                 <Input
-                                    type="number"
-                                    placeholder="Max %"
-                                    min={0}
-                                    max={100}
-                                    value={values.maxProjectCompletion ?? ''}
+                                    type="date"
+                                    value={values.dueDateEnd || ''}
                                     onChange={(e) =>
                                         onChange({
                                             ...values,
-                                            maxProjectCompletion: e.target.value
-                                                ? Number(e.target.value)
-                                                : undefined,
+                                            dueDateEnd:
+                                                e.target.value || undefined,
                                         })
                                     }
                                     className="h-10 flex-1 bg-background px-4 text-xs transition-all focus:ring-1"

@@ -20,7 +20,7 @@ interface ProjectsPageProps {
     projects: Project[];
     clients: { id: number; name: string }[];
     allTags: Tag[];
-    filters?: { status: string };
+    statuses: string[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -34,7 +34,7 @@ export default function ProjectsIndex({
     projects,
     clients,
     allTags = [],
-    filters = { status: 'all' },
+    statuses = [],
 }: ProjectsPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -57,18 +57,6 @@ export default function ProjectsIndex({
             }),
         [],
     );
-
-    const handleTabChange = (value: string) => {
-        router.get(
-            '/projects',
-            { status: value },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                replace: true,
-            },
-        );
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -96,8 +84,9 @@ export default function ProjectsIndex({
                     <DataTable
                         columns={columns}
                         data={projects}
-                        statusFilter={filters.status}
-                        onStatusChange={handleTabChange}
+                        allTags={allTags}
+                        clients={clients}
+                        statuses={statuses}
                     />
                 </div>
             </div>

@@ -40,6 +40,7 @@ interface DataTableProps {
     data: Activity[];
     clients: { id: number; name: string }[];
     activityTypes: string[];
+    projectStatuses: string[];
 }
 
 export function DataTable({
@@ -47,6 +48,7 @@ export function DataTable({
     data,
     clients,
     activityTypes,
+    projectStatuses,
 }: DataTableProps) {
     'use no memo';
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -86,6 +88,62 @@ export function DataTable({
                     endDate.setHours(23, 59, 59, 999);
                     if (occurredAt > endDate) return false;
                 }
+            }
+
+            // Project-related filters
+            const project = item.project;
+
+            // Project status filter
+            if (
+                filterValues.projectStatuses &&
+                filterValues.projectStatuses.length > 0
+            ) {
+                if (
+                    !project ||
+                    !filterValues.projectStatuses.includes(project.status)
+                )
+                    return false;
+            }
+
+            // Project due date range filter
+            if (
+                filterValues.projectDueDateStart ||
+                filterValues.projectDueDateEnd
+            ) {
+                if (!project || !project.end_date) return false;
+                const dueDate = new Date(project.end_date);
+                if (
+                    filterValues.projectDueDateStart &&
+                    dueDate < new Date(filterValues.projectDueDateStart)
+                )
+                    return false;
+                if (filterValues.projectDueDateEnd) {
+                    const endDate = new Date(filterValues.projectDueDateEnd);
+                    endDate.setHours(23, 59, 59, 999);
+                    if (dueDate > endDate) return false;
+                }
+            }
+
+            // Project completion percentage range filter
+            if (
+                filterValues.minProjectCompletion !== undefined ||
+                filterValues.maxProjectCompletion !== undefined
+            ) {
+                if (!project) return false;
+                const total = project.tasks_count || 0;
+                const completed = project.completed_tasks_count || 0;
+                const completion = total > 0 ? (completed / total) * 100 : 0;
+
+                if (
+                    filterValues.minProjectCompletion !== undefined &&
+                    completion < filterValues.minProjectCompletion
+                )
+                    return false;
+                if (
+                    filterValues.maxProjectCompletion !== undefined &&
+                    completion > filterValues.maxProjectCompletion
+                )
+                    return false;
             }
 
             return true;
@@ -191,6 +249,7 @@ export function DataTable({
                     onClear={() => setFilterValues({})}
                     clients={clients}
                     activityTypes={activityTypes}
+                    projectStatuses={projectStatuses}
                 />
             )}
 

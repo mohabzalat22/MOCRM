@@ -16,12 +16,14 @@ interface ActivitiesPageProps {
     activities: Activity[];
     clients: { id: number; name: string }[];
     activityTypes: string[];
+    projectStatuses: string[];
 }
 
 export default function ActivitiesPage({
     activities,
     clients,
     activityTypes,
+    projectStatuses,
 }: ActivitiesPageProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -42,6 +44,7 @@ export default function ActivitiesPage({
                     data={activities}
                     clients={clients}
                     activityTypes={activityTypes}
+                    projectStatuses={projectStatuses}
                 />
             </div>
         </AppLayout>

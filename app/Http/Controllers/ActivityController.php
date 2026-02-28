@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ProjectStatus;
+use App\Enums\TaskStatus;
 use App\Http\Requests\CreateActivityRequest;
 use App\Http\Requests\UpdateActivityRequest;
 use App\Models\Activity;
@@ -22,7 +24,17 @@ class ActivityController extends Controller
      */
     public function index(): Response
     {
-        $activities = Activity::with(['user', 'client', 'tags', 'attachments'])
+        $activities = Activity::with([
+            'user',
+            'client',
+            'tags',
+            'attachments',
+            'project' => function ($query) {
+                $query->withCount(['tasks', 'tasks as completed_tasks_count' => function ($q) {
+                    $q->where('status', TaskStatus::DONE);
+                }]);
+            },
+        ])
             ->latest()
             ->get();
 
@@ -40,6 +52,7 @@ class ActivityController extends Controller
             'activities' => $activities,
             'clients' => $clients,
             'activityTypes' => $activityTypes,
+            'projectStatuses' => ProjectStatus::values(),
         ]);
     }
 
