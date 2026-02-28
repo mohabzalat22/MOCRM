@@ -17,6 +17,12 @@ trait ProfileValidationRules
         return [
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
+            'avatar' => ['nullable', 'image', 'max:2048'],
+            'business_name' => ['nullable', 'string', 'max:255'],
+            'business_logo' => ['nullable', 'image', 'max:2048'],
+            'timezone' => ['nullable', 'string', 'max:255'],
+            'date_format' => ['nullable', 'string', 'max:255'],
+            'currency' => ['nullable', 'string', 'max:255'],
         ];
     }
 
