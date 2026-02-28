@@ -1,11 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import {
-    ListChecks,
-    LayoutGrid,
-    User,
-    Bell,
-    Activity,
-} from 'lucide-react';
+import { ListChecks, LayoutGrid, User, Bell, Activity } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -18,7 +12,6 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import type { NavItem, SharedData } from '@/types';
 
@@ -61,13 +54,16 @@ export function AppSidebar() {
 
     const footerNavItems: NavItem[] = [];
 
-
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild className="group-data-[collapsible=icon]:justify-center">
+                        <SidebarMenuButton
+                            size="lg"
+                            asChild
+                            className="group-data-[collapsible=icon]:justify-center"
+                        >
                             <Link href={dashboard()} prefetch>
                                 <AppLogo />
                             </Link>

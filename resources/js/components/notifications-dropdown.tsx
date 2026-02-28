@@ -41,23 +41,16 @@ export function NotificationsDropdown() {
                     )}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-                className="w-80 p-0"
-                align="end"
-            >
+            <DropdownMenuContent className="w-80 p-0" align="end">
                 <div className="flex items-center justify-between border-b px-4 py-2">
-                    <h3 className="text-sm font-semibold">
-                        Notifications
-                    </h3>
+                    <h3 className="text-sm font-semibold">Notifications</h3>
                     {auth.notifications.length > 0 && (
                         <Button
                             variant="ghost"
                             size="sm"
                             className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
                             onClick={() =>
-                                router.post(
-                                    '/notifications/mark-as-read',
-                                )
+                                router.post('/notifications/mark-as-read')
                             }
                         >
                             Mark all as read
@@ -70,93 +63,69 @@ export function NotificationsDropdown() {
                             No new notifications
                         </div>
                     ) : (
-                        auth.notifications.map(
-                            (notification) => (
-                                <div
-                                    key={notification.id}
-                                    className="group/item relative flex flex-col space-y-1 border-b px-4 py-3 last:border-0 hover:bg-neutral-50 dark:hover:bg-neutral-900"
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <span className="pr-6 text-sm font-medium">
-                                            {
-                                                notification
-                                                    .data
-                                                    .title
-                                            }
-                                        </span>
-                                        <span className="text-[10px] whitespace-nowrap text-muted-foreground">
-                                            {new Date(
-                                                notification.created_at,
-                                            ).toLocaleTimeString(
-                                                [],
-                                                {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                },
-                                            )}
-                                        </span>
-                                    </div>
-                                    <p className="line-clamp-2 text-xs text-muted-foreground">
-                                        {
-                                            notification
-                                                .data
-                                                .description
-                                        }
-                                    </p>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-2">
-                                            <span
-                                                className={cn(
-                                                    'rounded px-1.5 py-0.5 text-[10px] font-bold uppercase',
-                                                    notification
-                                                        .data
-                                                        .priority ===
-                                                        'high'
-                                                        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                                        : notification
-                                                                .data
-                                                                .priority ===
-                                                            'medium'
-                                                            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                                            : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-                                                )}
-                                            >
-                                                {
-                                                    notification
-                                                        .data
-                                                        .priority
-                                                }
-                                            </span>
-                                            <span className="text-[10px] text-muted-foreground">
-                                                Type:{' '}
-                                                {notification
-                                                    .data
-                                                    .remindable_type
-                                                    ? notification.data.remindable_type
-                                                          .split(
-                                                              '\\',
-                                                          )
-                                                          .pop()
-                                                    : 'General'}
-                                            </span>
-                                        </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-6 w-6 opacity-0 transition-opacity group-hover/item:opacity-100"
-                                            onClick={() =>
-                                                router.post(
-                                                    `/notifications/${notification.id}/mark-as-read`,
-                                                )
-                                            }
-                                            title="Mark as read"
-                                        >
-                                            <Check className="h-3 w-3" />
-                                        </Button>
-                                    </div>
+                        auth.notifications.map((notification) => (
+                            <div
+                                key={notification.id}
+                                className="group/item relative flex flex-col space-y-1 border-b px-4 py-3 last:border-0 hover:bg-neutral-50 dark:hover:bg-neutral-900"
+                            >
+                                <div className="flex items-start justify-between">
+                                    <span className="pr-6 text-sm font-medium">
+                                        {notification.data.title}
+                                    </span>
+                                    <span className="text-[10px] whitespace-nowrap text-muted-foreground">
+                                        {new Date(
+                                            notification.created_at,
+                                        ).toLocaleTimeString([], {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        })}
+                                    </span>
                                 </div>
-                            ),
-                        )
+                                <p className="line-clamp-2 text-xs text-muted-foreground">
+                                    {notification.data.description}
+                                </p>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                        <span
+                                            className={cn(
+                                                'rounded px-1.5 py-0.5 text-[10px] font-bold uppercase',
+                                                notification.data.priority ===
+                                                    'high'
+                                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                                    : notification.data
+                                                            .priority ===
+                                                        'medium'
+                                                      ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                                      : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+                                            )}
+                                        >
+                                            {notification.data.priority}
+                                        </span>
+                                        <span className="text-[10px] text-muted-foreground">
+                                            Type:{' '}
+                                            {notification.data.remindable_type
+                                                ? notification.data.remindable_type
+                                                      .split('\\')
+                                                      .pop()
+                                                : 'General'}
+                                        </span>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6 opacity-0 transition-opacity group-hover/item:opacity-100"
+                                        onClick={() =>
+                                            router.post(
+                                                `/notifications/${notification.id}/mark-as-read`,
+                                            )
+                                        }
+                                        title="Mark as read"
+                                    >
+                                        <Check className="h-3 w-3" />
+                                    </Button>
+                                </div>
+                            </div>
+                        ))
                     )}
                 </div>
                 {auth.notifications.length > 0 && (
