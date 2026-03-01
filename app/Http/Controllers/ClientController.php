@@ -118,6 +118,7 @@ class ClientController extends Controller
                 'user_id' => auth()->id(),
                 'type' => 'status_change',
                 'summary' => "Status updated from {$oldStatus} to {$client->status}",
+                'occurred_at' => now(),
                 'data' => [
                     'old_status' => $oldStatus,
                     'new_status' => $client->status,

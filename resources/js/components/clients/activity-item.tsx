@@ -1,3 +1,4 @@
+import { format, parseISO } from 'date-fns';
 import {
     Phone,
     Mail,
@@ -251,13 +252,13 @@ export default function ActivityItem({
                                     <div className="mt-1.5 flex items-center gap-2">
                                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3" />
-                                            {new Date(
-                                                activity.occurred_at ||
-                                                    activity.created_at,
-                                            ).toLocaleString([], {
-                                                dateStyle: 'medium',
-                                                timeStyle: 'short',
-                                            })}
+                                            {format(
+                                                parseISO(
+                                                    activity.occurred_at ||
+                                                        activity.created_at,
+                                                ),
+                                                'MMM d, yyyy h:mm a',
+                                            )}
                                         </span>
                                         {activity.user && (
                                             <span className="text-xs text-muted-foreground">
