@@ -24,6 +24,21 @@ class ActivityController extends Controller
      */
     public function index(): Response
     {
+        $filters = request()->all([
+            'search',
+            'types',
+            'clientIds',
+            'startDate',
+            'endDate',
+            'projectStatuses',
+            'projectDueDateStart',
+            'projectDueDateEnd',
+            'minProjectCompletion',
+            'maxProjectCompletion',
+            'sort',
+            'direction',
+        ]);
+
         $activities = Activity::with([
             'user',
             'client',
@@ -35,10 +50,15 @@ class ActivityController extends Controller
                 }]);
             },
         ])
-            ->latest()
-            ->get();
+            ->whereHas('client', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->filter($filters)
+            ->orderBy($filters['sort'] ?? 'occurred_at', $filters['direction'] ?? 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
-        $clients = Client::select('id', 'name')->get();
+        $clients = Client::forUser()->orderBy('name')->get(['id', 'name']);
         $activityTypes = [
             'call',
             'email',
@@ -50,6 +70,7 @@ class ActivityController extends Controller
 
         return inertia('activities/index', [
             'activities' => $activities,
+            'filters' => $filters,
             'clients' => $clients,
             'activityTypes' => $activityTypes,
             'projectStatuses' => ProjectStatus::values(),

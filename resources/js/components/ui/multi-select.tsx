@@ -134,7 +134,7 @@ export function MultiSelect({
                 <CommandGroup>
                   <CommandItem
                     onSelect={() => onChange([])}
-                    className="justify-center text-center"
+                    className="justify-center text-center font-medium"
                   >
                     Clear filters
                   </CommandItem>

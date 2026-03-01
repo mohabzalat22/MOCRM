@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ClientStatus;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -130,7 +131,7 @@ class Client extends Model
     {
         return $query->notInactive()
             ->whereHas('activities', function ($query) {
-                $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays(7));
+                $query->where('created_at', '>=', Carbon::now()->subDays(7));
             });
     }
 
@@ -143,11 +144,11 @@ class Client extends Model
     {
         return $query->notInactive()
             ->whereHas('activities', function ($query) {
-                $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays(14))
-                    ->where('created_at', '<', \Carbon\Carbon::now()->subDays(7));
+                $query->where('created_at', '>=', Carbon::now()->subDays(14))
+                    ->where('created_at', '<', Carbon::now()->subDays(7));
             })
             ->whereDoesntHave('activities', function ($query) {
-                $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays(7));
+                $query->where('created_at', '>=', Carbon::now()->subDays(7));
             });
     }
 
@@ -160,8 +161,42 @@ class Client extends Model
     {
         return $query->notInactive()
             ->whereDoesntHave('activities', function ($query) {
-                $query->where('created_at', '>=', \Carbon\Carbon::now()->subDays(14));
+                $query->where('created_at', '>=', Carbon::now()->subDays(14));
             });
+    }
+
+    /**
+     * Scope a query to filter clients based on request parameters.
+     *
+     * @param  mixed  $query
+     */
+    public function scopeFilter($query, array $filters): mixed
+    {
+        return $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->whereAny(['name', 'company_name', 'email'], 'like', '%'.$search.'%');
+        })->when($filters['status'] ?? null, function ($query, $status) {
+            $query->whereIn('status', (array) $status);
+        })->when($filters['tags'] ?? null, function ($query, $tags) {
+            $query->whereHas('tags', function ($query) use ($tags) {
+                $query->whereIn('tags.id', (array) $tags);
+            });
+        })->when($filters['minValue'] ?? null, function ($query, $minValue) {
+            $query->where('monthly_value', '>=', $minValue);
+        })->when($filters['maxValue'] ?? null, function ($query, $maxValue) {
+            $query->where('monthly_value', '<=', $maxValue);
+        })->when($filters['lastContactStart'] ?? null, function ($query, $start) {
+            $query->whereHas('activities', function ($query) use ($start) {
+                $query->where('created_at', '>=', Carbon::parse($start)->startOfDay());
+            });
+        })->when($filters['lastContactEnd'] ?? null, function ($query, $end) {
+            $query->whereHas('activities', function ($query) use ($end) {
+                $query->where('created_at', '<=', Carbon::parse($end)->endOfDay());
+            });
+        })->when($filters['projectStatuses'] ?? null, function ($query, $projectStatuses) {
+            $query->whereHas('projects', function ($query) use ($projectStatuses) {
+                $query->whereIn('status', (array) $projectStatuses);
+            });
+        });
     }
 
     /**

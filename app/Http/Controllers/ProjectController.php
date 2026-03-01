@@ -23,6 +23,19 @@ class ProjectController extends Controller
      */
     public function index(Request $request): Response
     {
+        $filters = $request->all([
+            'search',
+            'status',
+            'clientId',
+            'tags',
+            'dueDateStart',
+            'dueDateEnd',
+            'minCompletion',
+            'maxCompletion',
+            'sort',
+            'direction',
+        ]);
+
         $projects = Project::with(['client', 'tags'])
             ->withCount(['tasks', 'tasks as completed_tasks_count' => function ($query) {
                 $query->where('status', TaskStatus::DONE);
@@ -30,13 +43,16 @@ class ProjectController extends Controller
             ->whereHas('client', function ($query) {
                 $query->where('user_id', auth()->id());
             })
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->filter($filters)
+            ->orderBy($filters['sort'] ?? 'created_at', $filters['direction'] ?? 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
         $clients = Client::forUser()->orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('projects/index', [
             'projects' => $projects,
+            'filters' => $filters,
             'clients' => $clients,
             'allTags' => Tag::orderBy('name')->get(),
             'statuses' => ProjectStatus::values(),

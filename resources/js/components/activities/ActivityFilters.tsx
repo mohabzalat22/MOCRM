@@ -1,5 +1,4 @@
 import {
-    X,
     Filter,
     Calendar,
     Users,
@@ -7,7 +6,6 @@ import {
     Activity as ActivityIcon,
     Percent,
 } from 'lucide-react';
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -293,20 +291,6 @@ export default function ActivityFilters({
                             </div>
                         </div>
                     </div>
-
-                    {hasFilters && (
-                        <div className="mt-4 flex items-center justify-center border-t pt-6">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={onClear}
-                                className="group h-10 bg-background px-16 text-xs font-medium shadow-sm transition-all duration-300 hover:border-destructive/30 hover:bg-destructive/5 hover:text-destructive"
-                            >
-                                <X className="mr-2 h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-90" />
-                                <span>Clear all filters</span>
-                            </Button>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

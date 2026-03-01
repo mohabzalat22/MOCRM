@@ -1,8 +1,9 @@
 import { Head } from '@inertiajs/react';
 import { columns } from '@/components/activities/Columns';
 import { DataTable } from '@/components/activities/DataTable';
+import type { TableFilters } from '@/components/activities/DataTable';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, PaginatedResponse } from '@/types';
 import type { Activity } from '@/types/activity';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -13,7 +14,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface ActivitiesPageProps {
-    activities: Activity[];
+    activities: PaginatedResponse<Activity>;
+    filters: TableFilters;
     clients: { id: number; name: string }[];
     activityTypes: string[];
     projectStatuses: string[];
@@ -21,6 +23,7 @@ interface ActivitiesPageProps {
 
 export default function ActivitiesPage({
     activities,
+    filters,
     clients,
     activityTypes,
     projectStatuses,
@@ -41,7 +44,9 @@ export default function ActivitiesPage({
                 </div>
                 <DataTable
                     columns={columns}
-                    data={activities}
+                    data={activities.data}
+                    pagination={activities}
+                    filters={filters}
                     clients={clients}
                     activityTypes={activityTypes}
                     projectStatuses={projectStatuses}

@@ -1,10 +1,10 @@
 import { Head } from '@inertiajs/react';
 import { columns } from '@/components/clients/Columns';
 import { DataTable } from '@/components/clients/DataTable';
+import type { TableFilters } from '@/components/clients/DataTable';
 import { ClientDialog } from '@/components/clients/dialog';
 import AppLayout from '@/layouts/app-layout';
-import type { Client, Tag } from '@/types';
-import type { BreadcrumbItem } from '@/types';
+import type { Client, Tag, PaginatedResponse, BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -14,10 +14,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface ClientsPageProps {
-    clients: Client[];
+    clients: PaginatedResponse<Client>;
     allTags: Tag[];
     statuses: string[];
     projectStatuses: string[];
+    filters: TableFilters;
 }
 
 export default function clients({
@@ -25,6 +26,7 @@ export default function clients({
     allTags,
     statuses,
     projectStatuses,
+    filters,
 }: ClientsPageProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -43,7 +45,9 @@ export default function clients({
                 </div>
                 <DataTable
                     columns={columns}
-                    data={clients}
+                    data={clients.data}
+                    pagination={clients}
+                    filters={filters}
                     allTags={allTags}
                     statuses={statuses}
                     projectStatuses={projectStatuses}

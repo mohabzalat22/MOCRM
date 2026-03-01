@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import type {
     ColumnDef,
     ColumnFiltersState,
@@ -7,15 +8,10 @@ import type {
 import {
     flexRender,
     getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
 import { ChevronDown, Search, Filter, FilterX } from 'lucide-react';
-import * as React from 'react';
-
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -32,12 +28,22 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import type { PaginatedResponse } from '@/types';
 import type { Activity } from '@/types/activity';
 import ActivityFilters, { type ActivityFilterValues } from './ActivityFilters';
+
+export interface TableFilters extends ActivityFilterValues {
+    search?: string;
+    sort?: string;
+    direction?: 'asc' | 'desc';
+    page?: number;
+}
 
 interface DataTableProps {
     columns: ColumnDef<Activity, unknown>[];
     data: Activity[];
+    pagination?: PaginatedResponse<Activity>;
+    filters?: TableFilters;
     clients: { id: number; name: string }[];
     activityTypes: string[];
     projectStatuses: string[];
@@ -46,123 +52,125 @@ interface DataTableProps {
 export function DataTable({
     columns,
     data,
+    pagination,
+    filters,
     clients,
     activityTypes,
     projectStatuses,
 }: DataTableProps) {
     'use no memo';
-    const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] =
-        React.useState<ColumnFiltersState>([]);
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({});
-    const [rowSelection, setRowSelection] = React.useState({});
-    const [globalFilter, setGlobalFilter] = React.useState('');
-    const [isFiltersVisible, setIsFiltersVisible] = React.useState(false);
-    const [filterValues, setFilterValues] =
-        React.useState<ActivityFilterValues>({});
-
-    const filteredData = React.useMemo(() => {
-        return data.filter((item) => {
-            // Type filter
-            if (filterValues.types && filterValues.types.length > 0) {
-                if (!filterValues.types.includes(item.type)) return false;
+    const [sorting, setSorting] = useState<SortingState>(
+        filters?.sort
+            ? [{ id: filters.sort, desc: filters.direction === 'desc' }]
+            : [],
+    );
+    const [columnFilters] = useState<ColumnFiltersState>([]);
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+        {},
+    );
+    const [rowSelection, setRowSelection] = useState({});
+    const [globalFilter, setGlobalFilter] = useState(filters?.search ?? '');
+    const [isFiltersVisible, setIsFiltersVisible] = useState(
+        Object.keys(filters || {}).some(
+            (k) =>
+                !['sort', 'direction', 'search', 'page'].includes(k) &&
+                filters?.[k as keyof TableFilters],
+        ),
+    );
+    const [filterValues, setFilterValues] = useState<ActivityFilterValues>(
+        () => {
+            const initial = { ...filters };
+            if (initial.clientIds) {
+                initial.clientIds = (
+                    initial.clientIds as (string | number)[]
+                ).map((c) => Number(c));
             }
+            return initial || {};
+        },
+    );
 
-            // Client filter
-            if (filterValues.clientIds && filterValues.clientIds.length > 0) {
-                if (!filterValues.clientIds.includes(item.client_id))
-                    return false;
+    // Sync filters with props when they change (e.g. on navigation)
+    useEffect(() => {
+        if (filters) {
+            const normalizedFilters = { ...filters };
+            if (normalizedFilters.clientIds) {
+                normalizedFilters.clientIds = (
+                    normalizedFilters.clientIds as (string | number)[]
+                ).map((c) => Number(c));
             }
-
-            // Date range filter
-            if (filterValues.startDate || filterValues.endDate) {
-                const occurredAt = new Date(item.occurred_at);
-                if (
-                    filterValues.startDate &&
-                    occurredAt < new Date(filterValues.startDate)
-                )
-                    return false;
-                if (filterValues.endDate) {
-                    const endDate = new Date(filterValues.endDate);
-                    endDate.setHours(23, 59, 59, 999);
-                    if (occurredAt > endDate) return false;
-                }
+            setFilterValues(normalizedFilters);
+            if (filters.search !== undefined)
+                setGlobalFilter(filters.search as string);
+            if (filters.sort) {
+                setSorting([
+                    { id: filters.sort, desc: filters.direction === 'desc' },
+                ]);
             }
+        }
+    }, [filters]);
 
-            // Project-related filters
-            const project = item.project;
+    const handleFilterChange = (newValues: ActivityFilterValues) => {
+        setFilterValues(newValues);
+        updateQuery({ ...newValues, page: 1 });
+    };
 
-            // Project status filter
+    const updateQuery = (
+        newParams: Record<
+            string,
+            string | number | string[] | number[] | undefined
+        >,
+    ) => {
+        const currentParams: Record<
+            string,
+            string | number | string[] | number[] | undefined
+        > = {
+            search: globalFilter,
+            sort: sorting[0]?.id,
+            direction: sorting[0]?.desc ? 'desc' : 'asc',
+            ...filterValues,
+            ...newParams,
+        };
+
+        // Remove empty values
+        Object.keys(currentParams).forEach((key) => {
+            const val = currentParams[key];
             if (
-                filterValues.projectStatuses &&
-                filterValues.projectStatuses.length > 0
+                val === undefined ||
+                val === '' ||
+                (Array.isArray(val) && val.length === 0)
             ) {
-                if (
-                    !project ||
-                    !filterValues.projectStatuses.includes(project.status)
-                )
-                    return false;
+                delete currentParams[key];
             }
-
-            // Project due date range filter
-            if (
-                filterValues.projectDueDateStart ||
-                filterValues.projectDueDateEnd
-            ) {
-                if (!project || !project.end_date) return false;
-                const dueDate = new Date(project.end_date);
-                if (
-                    filterValues.projectDueDateStart &&
-                    dueDate < new Date(filterValues.projectDueDateStart)
-                )
-                    return false;
-                if (filterValues.projectDueDateEnd) {
-                    const endDate = new Date(filterValues.projectDueDateEnd);
-                    endDate.setHours(23, 59, 59, 999);
-                    if (dueDate > endDate) return false;
-                }
-            }
-
-            // Project completion percentage range filter
-            if (
-                filterValues.minProjectCompletion !== undefined ||
-                filterValues.maxProjectCompletion !== undefined
-            ) {
-                if (!project) return false;
-                const total = project.tasks_count || 0;
-                const completed = project.completed_tasks_count || 0;
-                const completion = total > 0 ? (completed / total) * 100 : 0;
-
-                if (
-                    filterValues.minProjectCompletion !== undefined &&
-                    completion < filterValues.minProjectCompletion
-                )
-                    return false;
-                if (
-                    filterValues.maxProjectCompletion !== undefined &&
-                    completion > filterValues.maxProjectCompletion
-                )
-                    return false;
-            }
-
-            return true;
         });
-    }, [data, filterValues]);
+
+        router.get(window.location.pathname, currentParams, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
 
     /* eslint-disable react-hooks/incompatible-library */
     const table = useReactTable({
-        data: filteredData,
+        data,
         columns,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
+        manualPagination: true,
+        manualSorting: true,
+        manualFiltering: true,
+        pageCount: pagination?.last_page ?? 1,
+        onSortingChange: (updater) => {
+            const nextSorting =
+                typeof updater === 'function' ? updater(sorting) : updater;
+            setSorting(nextSorting);
+            updateQuery({
+                sort: nextSorting[0]?.id,
+                direction: nextSorting[0]?.desc ? 'desc' : 'asc',
+                page: 1,
+            });
+        },
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
-        onGlobalFilterChange: setGlobalFilter,
         state: {
             sorting,
             columnFilters,
@@ -184,9 +192,15 @@ export function DataTable({
                     <Input
                         placeholder="Search activities..."
                         value={globalFilter ?? ''}
-                        onChange={(event) =>
-                            setGlobalFilter(event.target.value)
-                        }
+                        onChange={(event) => {
+                            const val = event.target.value;
+                            setGlobalFilter(val);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                updateQuery({ search: globalFilter, page: 1 });
+                            }
+                        }}
                         className="pl-8"
                     />
                 </div>
@@ -203,14 +217,6 @@ export function DataTable({
                             <Filter className="mr-2 h-4 w-4" />
                         )}
                         Filters
-                        {activeFilterCount > 0 && (
-                            <Badge
-                                variant="default"
-                                className="ml-2 h-5 w-5 justify-center rounded-full p-0 text-[10px]"
-                            >
-                                {activeFilterCount}
-                            </Badge>
-                        )}
                     </Button>
 
                     <DropdownMenu>
@@ -245,8 +251,8 @@ export function DataTable({
             {isFiltersVisible && (
                 <ActivityFilters
                     values={filterValues}
-                    onChange={setFilterValues}
-                    onClear={() => setFilterValues({})}
+                    onChange={handleFilterChange}
+                    onClear={() => handleFilterChange({})}
                     clients={clients}
                     activityTypes={activityTypes}
                     projectStatuses={projectStatuses}
@@ -312,25 +318,76 @@ export function DataTable({
             </div>
             <div className="flex items-center justify-between space-x-2 py-4">
                 <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredRowModel().rows.length} activity(s) found.
+                    {pagination ? (
+                        <>
+                            Showing {pagination.from} to {pagination.to} of{' '}
+                            {pagination.total} results
+                        </>
+                    ) : (
+                        <>{data.length} activity(s) found.</>
+                    )}
                 </div>
-                <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
+                <div className="flex items-center space-x-2">
+                    {pagination?.links.map((link, i) => {
+                        if (
+                            link.label.includes('Previous') ||
+                            link.label.includes('Next')
+                        ) {
+                            return (
+                                <Button
+                                    key={i}
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                        router.get(
+                                            link.url!,
+                                            {},
+                                            {
+                                                preserveState: true,
+                                                preserveScroll: true,
+                                            },
+                                        )
+                                    }
+                                    disabled={!link.url}
+                                >
+                                    {link.label.includes('Previous')
+                                        ? 'Previous'
+                                        : 'Next'}
+                                </Button>
+                            );
+                        }
+                        if (pagination.last_page > 1) {
+                            return (
+                                <Button
+                                    key={i}
+                                    variant={
+                                        link.active ? 'default' : 'outline'
+                                    }
+                                    size="sm"
+                                    onClick={() =>
+                                        link.url &&
+                                        router.get(
+                                            link.url,
+                                            {},
+                                            {
+                                                preserveState: true,
+                                                preserveScroll: true,
+                                            },
+                                        )
+                                    }
+                                    disabled={!link.url}
+                                    className="hidden h-8 w-8 p-0 sm:flex"
+                                >
+                                    <span
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                </Button>
+                            );
+                        }
+                        return null;
+                    })}
                 </div>
             </div>
         </div>

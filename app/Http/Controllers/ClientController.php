@@ -24,16 +24,34 @@ class ClientController extends Controller
      */
     public function index(): Response
     {
-        $clients = Client::forUser()->with([
-            'customFields',
+        $filters = request()->all([
+            'search',
+            'status',
             'tags',
-            'projects:id,client_id,status',
-        ])
+            'lastContactStart',
+            'lastContactEnd',
+            'minValue',
+            'maxValue',
+            'projectStatuses',
+            'sort',
+            'direction',
+        ]);
+
+        $clients = Client::forUser()
+            ->with([
+                'customFields',
+                'tags',
+                'projects:id,client_id,status',
+            ])
             ->withMax('activities', 'created_at')
-            ->get();
+            ->filter($filters)
+            ->orderBy($filters['sort'] ?? 'created_at', $filters['direction'] ?? 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('clients/index', [
             'clients' => $clients,
+            'filters' => $filters,
             'allTags' => Tag::orderBy('name')->get(),
             'statuses' => ClientStatus::values(),
             'projectStatuses' => ProjectStatus::values(),

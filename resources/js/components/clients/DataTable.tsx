@@ -8,9 +8,6 @@ import type {
 import {
     flexRender,
     getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
 import {
@@ -22,10 +19,8 @@ import {
     Download,
     FilterX,
 } from 'lucide-react';
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -44,7 +39,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { clientService } from '@/services/clientService';
-import type { Client, Tag } from '@/types';
+import type { Client, Tag, PaginatedResponse } from '@/types';
 import ClientFilters, { type ClientFilterValues } from './ClientFilters';
 
 interface WithId {
@@ -56,9 +51,18 @@ interface WithId {
     projects?: { id: number; client_id: number; status: string }[];
 }
 
+export interface TableFilters extends ClientFilterValues {
+    search?: string;
+    sort?: string;
+    direction?: 'asc' | 'desc';
+    page?: number;
+}
+
 interface DataTableProps<TData extends WithId, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    pagination?: PaginatedResponse<TData>;
+    filters?: TableFilters;
     allTags?: Tag[];
     statuses?: string[];
     projectStatuses?: string[];
@@ -67,98 +71,123 @@ interface DataTableProps<TData extends WithId, TValue> {
 export function DataTable<TData extends WithId, TValue>({
     columns,
     data,
+    pagination,
+    filters,
     allTags = [],
     statuses = [],
     projectStatuses = [],
 }: DataTableProps<TData, TValue>) {
     'use no memo';
-    const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] =
-        React.useState<ColumnFiltersState>([]);
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({});
-    const [rowSelection, setRowSelection] = React.useState({});
-    const [globalFilter, setGlobalFilter] = React.useState('');
-    const [isFiltersVisible, setIsFiltersVisible] = React.useState(false);
-    const [filterValues, setFilterValues] = React.useState<ClientFilterValues>({
-        status: [],
+    const [sorting, setSorting] = useState<SortingState>(
+        filters?.sort
+            ? [{ id: filters.sort, desc: filters.direction === 'desc' }]
+            : [],
+    );
+    const [columnFilters] = useState<ColumnFiltersState>([]);
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+        {},
+    );
+    const [rowSelection, setRowSelection] = useState({});
+    const [globalFilter, setGlobalFilter] = useState(filters?.search ?? '');
+    const [isFiltersVisible, setIsFiltersVisible] = useState(
+        Object.keys(filters || {}).some(
+            (k) =>
+                !['sort', 'direction', 'search', 'page'].includes(k) &&
+                filters?.[k as keyof ClientFilterValues],
+        ),
+    );
+    const [filterValues, setFilterValues] = useState<ClientFilterValues>(() => {
+        const initial = { ...filters };
+        if (initial.tags) {
+            initial.tags = (initial.tags as (string | number)[]).map((t) =>
+                Number(t),
+            );
+        }
+        return initial || { status: [] };
     });
 
-    const filteredData = React.useMemo(() => {
-        return data.filter((item) => {
-            // Status filter
-            if (filterValues.status && filterValues.status.length > 0) {
-                if (!filterValues.status.includes(item.status)) return false;
+    // Sync filters with props when they change (e.g. on navigation)
+    useEffect(() => {
+        if (filters) {
+            const normalizedFilters = { ...filters };
+            if (normalizedFilters.tags) {
+                normalizedFilters.tags = (
+                    normalizedFilters.tags as (string | number)[]
+                ).map((t) => Number(t));
             }
-
-            // Tags filter
-            if (filterValues.tags && filterValues.tags.length > 0) {
-                const itemTagIds = item.tags?.map((t) => Number(t.id)) || [];
-                if (!filterValues.tags.some((id) => itemTagIds.includes(id)))
-                    return false;
+            setFilterValues(normalizedFilters);
+            if (filters.search !== undefined)
+                setGlobalFilter(filters.search as string);
+            if (filters.sort) {
+                setSorting([
+                    { id: filters.sort, desc: filters.direction === 'desc' },
+                ]);
             }
+        }
+    }, [filters]);
 
-            // Monthly Value filter
-            const val = Number(item.monthly_value);
-            if (
-                filterValues.minValue !== undefined &&
-                val < filterValues.minValue
-            )
-                return false;
-            if (
-                filterValues.maxValue !== undefined &&
-                val > filterValues.maxValue
-            )
-                return false;
+    const handleFilterChange = (newValues: ClientFilterValues) => {
+        setFilterValues(newValues);
+        updateQuery({ ...newValues, page: 1 });
+    };
 
-            // Last Contact filter
-            if (filterValues.lastContactStart || filterValues.lastContactEnd) {
-                if (!item.activities_max_created_at) return false;
-                const lastContact = new Date(item.activities_max_created_at);
-                if (
-                    filterValues.lastContactStart &&
-                    lastContact < new Date(filterValues.lastContactStart)
-                )
-                    return false;
-                if (filterValues.lastContactEnd) {
-                    const endDate = new Date(filterValues.lastContactEnd);
-                    endDate.setHours(23, 59, 59, 999);
-                    if (lastContact > endDate) return false;
-                }
-            }
+    const updateQuery = (
+        newParams: Record<
+            string,
+            string | number | string[] | number[] | undefined
+        >,
+    ) => {
+        const currentParams: Record<
+            string,
+            string | number | string[] | number[] | undefined
+        > = {
+            search: globalFilter,
+            sort: sorting[0]?.id,
+            direction: sorting[0]?.desc ? 'desc' : 'asc',
+            ...filterValues,
+            ...newParams,
+        };
 
-            // Project Status filter
+        // Remove empty values
+        Object.keys(currentParams).forEach((key) => {
+            const val = currentParams[key];
             if (
-                filterValues.projectStatuses &&
-                filterValues.projectStatuses.length > 0
+                val === undefined ||
+                val === '' ||
+                (Array.isArray(val) && val.length === 0)
             ) {
-                const itemProjectStatuses =
-                    item.projects?.map((p) => p.status) || [];
-                if (
-                    !filterValues.projectStatuses.some((s) =>
-                        itemProjectStatuses.includes(s),
-                    )
-                )
-                    return false;
+                delete currentParams[key];
             }
-
-            return true;
         });
-    }, [data, filterValues]);
 
-    /* eslint-disable react-hooks/incompatible-library */
+        router.get(window.location.pathname, currentParams, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
-        data: filteredData,
+        data,
         columns,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
+        manualPagination: true,
+        manualSorting: true,
+        manualFiltering: true,
+        pageCount: pagination?.last_page ?? 1,
+        onSortingChange: (updater) => {
+            const nextSorting =
+                typeof updater === 'function' ? updater(sorting) : updater;
+            setSorting(nextSorting);
+            updateQuery({
+                sort: nextSorting[0]?.id,
+                direction: nextSorting[0]?.desc ? 'desc' : 'asc',
+                page: 1,
+            });
+        },
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
-        onGlobalFilterChange: setGlobalFilter,
         state: {
             sorting,
             columnFilters,
@@ -195,7 +224,7 @@ export function DataTable<TData extends WithId, TValue>({
     const handleExport = () => {
         const rowsToExport = hasSelection
             ? selectedRows.map((r) => r.original)
-            : filteredData;
+            : data;
 
         const headers = ['Name', 'Company', 'Email', 'Phone', 'Status', 'Tags'];
         const csvData = [
@@ -233,9 +262,15 @@ export function DataTable<TData extends WithId, TValue>({
                     <Input
                         placeholder="Search clients..."
                         value={globalFilter ?? ''}
-                        onChange={(event) =>
-                            setGlobalFilter(event.target.value)
-                        }
+                        onChange={(event) => {
+                            const val = event.target.value;
+                            setGlobalFilter(val);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                updateQuery({ search: globalFilter, page: 1 });
+                            }
+                        }}
                         className="pl-8"
                     />
                 </div>
@@ -362,14 +397,6 @@ export function DataTable<TData extends WithId, TValue>({
                             <Filter className="mr-2 h-4 w-4" />
                         )}
                         Filters
-                        {activeFilterCount > 0 && (
-                            <Badge
-                                variant="default"
-                                className="ml-2 h-5 w-5 justify-center rounded-full p-0 text-[10px]"
-                            >
-                                {activeFilterCount}
-                            </Badge>
-                        )}
                     </Button>
 
                     <DropdownMenu>
@@ -404,8 +431,8 @@ export function DataTable<TData extends WithId, TValue>({
             {isFiltersVisible && (
                 <ClientFilters
                     values={filterValues}
-                    onChange={setFilterValues}
-                    onClear={() => setFilterValues({ status: [] })}
+                    onChange={handleFilterChange}
+                    onClear={() => handleFilterChange({ status: [] })}
                     allTags={allTags}
                     statuses={statuses}
                     projectStatuses={projectStatuses}
@@ -485,26 +512,82 @@ export function DataTable<TData extends WithId, TValue>({
             </div>
             <div className="flex items-center justify-between space-x-2 py-4">
                 <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
+                    {pagination ? (
+                        <>
+                            Showing {pagination.from} to {pagination.to} of{' '}
+                            {pagination.total} results
+                        </>
+                    ) : (
+                        <>
+                            {table.getFilteredSelectedRowModel().rows.length} of{' '}
+                            {table.getFilteredRowModel().rows.length} row(s)
+                            selected.
+                        </>
+                    )}
                 </div>
-                <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
+                <div className="flex items-center space-x-2">
+                    {pagination?.links.map((link, i) => {
+                        // Skip "Previous" and "Next" labels if they are not needed or duplicated
+                        if (
+                            link.label.includes('Previous') ||
+                            link.label.includes('Next')
+                        ) {
+                            return (
+                                <Button
+                                    key={i}
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                        router.get(
+                                            link.url!,
+                                            {},
+                                            {
+                                                preserveState: true,
+                                                preserveScroll: true,
+                                            },
+                                        )
+                                    }
+                                    disabled={!link.url}
+                                >
+                                    {link.label.includes('Previous')
+                                        ? 'Previous'
+                                        : 'Next'}
+                                </Button>
+                            );
+                        }
+                        // Only show numeric links if there are more than 1 page
+                        if (pagination.last_page > 1) {
+                            return (
+                                <Button
+                                    key={i}
+                                    variant={
+                                        link.active ? 'default' : 'outline'
+                                    }
+                                    size="sm"
+                                    onClick={() =>
+                                        link.url &&
+                                        router.get(
+                                            link.url,
+                                            {},
+                                            {
+                                                preserveState: true,
+                                                preserveScroll: true,
+                                            },
+                                        )
+                                    }
+                                    disabled={!link.url}
+                                    className="hidden h-8 w-8 p-0 sm:flex"
+                                >
+                                    <span
+                                        dangerouslySetInnerHTML={{
+                                            __html: link.label,
+                                        }}
+                                    />
+                                </Button>
+                            );
+                        }
+                        return null;
+                    })}
                 </div>
             </div>
         </div>

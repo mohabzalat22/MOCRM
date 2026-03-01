@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { getColumns } from '@/components/projects/Columns';
 import { DataTable } from '@/components/projects/DataTable';
+import type { TableFilters } from '@/components/projects/DataTable';
 import { ProjectForm } from '@/components/projects/project-form';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,13 +15,14 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem, Project, Tag } from '@/types';
+import type { BreadcrumbItem, Project, Tag, PaginatedResponse } from '@/types';
 
 interface ProjectsPageProps {
-    projects: Project[];
+    projects: PaginatedResponse<Project>;
     clients: { id: number; name: string }[];
     allTags: Tag[];
     statuses: string[];
+    filters: TableFilters;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -35,6 +37,7 @@ export default function ProjectsIndex({
     clients,
     allTags = [],
     statuses = [],
+    filters,
 }: ProjectsPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -83,7 +86,9 @@ export default function ProjectsIndex({
                 <div className="mt-0">
                     <DataTable
                         columns={columns}
-                        data={projects}
+                        data={projects.data}
+                        pagination={projects}
+                        filters={filters}
                         allTags={allTags}
                         clients={clients}
                         statuses={statuses}

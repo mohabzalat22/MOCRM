@@ -85,4 +85,51 @@ class Project extends Model
     {
         return $this->morphToMany(Tag::class, 'taggable')->withTimestamps();
     }
+
+    /**
+     * Scope a query to filter projects based on request parameters.
+     *
+     * @param  mixed  $query
+     */
+    public function scopeFilter($query, array $filters): mixed
+    {
+        return $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
+            });
+        })->when($filters['status'] ?? null, function ($query, $status) {
+            $query->whereIn('status', (array) $status);
+        })->when($filters['clientId'] ?? null, function ($query, $clientId) {
+            $query->whereIn('client_id', (array) $clientId);
+        })->when($filters['tags'] ?? null, function ($query, $tags) {
+            $query->whereHas('tags', function ($query) use ($tags) {
+                $query->whereIn('tags.id', (array) $tags);
+            });
+        })->when($filters['dueDateStart'] ?? null, function ($query, $start) {
+            $query->where('end_date', '>=', $start);
+        })->when($filters['dueDateEnd'] ?? null, function ($query, $end) {
+            $query->where('end_date', '<=', $end);
+        })->when(isset($filters['minCompletion']) || isset($filters['maxCompletion']), function ($query) use ($filters) {
+            $query->where(function ($query) use ($filters) {
+                $query->whereHas('tasks', '>=', 0); // Ensure tasks relationship exists for this logic
+
+                // This is a bit complex for a single scope, but let's try to use withCount-like logic in a subquery
+                // For simplicity and performance, we might want to skip percentage filter if it's too complex or
+                // use a more direct approach if the DB supports it.
+                // Let's use a subquery for the ratio.
+
+                $tasksCountSql = '(SELECT count(*) FROM tasks WHERE project_id = projects.id)';
+                $completedTasksCountSql = '(SELECT count(*) FROM tasks WHERE project_id = projects.id AND status = "done")';
+                $percentageSql = "CASE WHEN $tasksCountSql > 0 THEN ($completedTasksCountSql * 100.0 / $tasksCountSql) ELSE 0 END";
+
+                if (isset($filters['minCompletion'])) {
+                    $query->whereRaw("$percentageSql >= ?", [$filters['minCompletion']]);
+                }
+                if (isset($filters['maxCompletion'])) {
+                    $query->whereRaw("$percentageSql <= ?", [$filters['maxCompletion']]);
+                }
+            });
+        });
+    }
 }
