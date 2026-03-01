@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { ListChecks, LayoutGrid, User, Bell, Activity } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -13,13 +13,11 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import type { NavItem, SharedData } from '@/types';
+import type { NavItem } from '@/types';
 
 import AppLogo from './app-logo';
 
 export function AppSidebar() {
-    const { auth } = usePage<SharedData>().props;
-
     const mainNavItems: NavItem[] = [
         {
             title: 'Dashboard',
@@ -45,10 +43,6 @@ export function AppSidebar() {
             title: 'Reminders',
             href: '/reminders',
             icon: Bell,
-            badge:
-                auth.today_reminders_count && auth.today_reminders_count > 0
-                    ? auth.today_reminders_count
-                    : undefined,
         },
     ];
 

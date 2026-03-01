@@ -2,8 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Reminder;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -43,9 +41,6 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
                 'notifications' => $request->user() ? $request->user()->unreadNotifications : [],
-                'today_reminders_count' => $request->user() ? Reminder::where('user_id', $request->user()->id)
-                    ->whereDate('reminder_at', Carbon::today())
-                    ->count() : 0,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'ziggy' => fn () => [

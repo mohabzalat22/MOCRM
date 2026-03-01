@@ -38,7 +38,6 @@ export interface Notification {
 export type Auth = {
     user: User;
     notifications: Notification[];
-    today_reminders_count?: number;
 };
 
 export type TwoFactorSetupData = {
