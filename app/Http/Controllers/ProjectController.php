@@ -94,7 +94,9 @@ class ProjectController extends Controller
             'project' => $project,
             'siblingProjects' => $siblingProjects,
             'allTags' => Tag::orderBy('name')->get(),
+            'clients' => Client::forUser()->orderBy('name')->get(['id', 'name']),
         ]);
+
     }
 
     /**
@@ -166,7 +168,8 @@ class ProjectController extends Controller
 
         $project->delete();
 
-        return back()->with('success', 'Project deleted successfully.');
+        return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
+
     }
 
     /**

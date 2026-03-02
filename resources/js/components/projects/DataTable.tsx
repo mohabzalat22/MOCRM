@@ -298,7 +298,24 @@ export function DataTable<TData extends Project, TValue>({
                                     className="group hover:bg-muted/50"
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
+                                        <TableCell
+                                            key={cell.id}
+                                            onClick={(e) => {
+                                                // Prevent navigation when clicking checkbox
+                                                if (
+                                                    (
+                                                        e.target as HTMLElement
+                                                    ).closest(
+                                                        '[role="checkbox"]',
+                                                    )
+                                                )
+                                                    return;
+                                                router.visit(
+                                                    `/projects/${row.original.id}`,
+                                                );
+                                            }}
+                                            className="cursor-pointer"
+                                        >
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext(),

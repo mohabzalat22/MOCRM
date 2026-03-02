@@ -1,7 +1,6 @@
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import { ConfirmDialog } from '@/components/confirm-dialog';
 import { getColumns } from '@/components/projects/Columns';
 import { DataTable } from '@/components/projects/DataTable';
 import type { TableFilters } from '@/components/projects/DataTable';
@@ -40,26 +39,8 @@ export default function ProjectsIndex({
     filters,
 }: ProjectsPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
-    const [editingProject, setEditingProject] = useState<Project | null>(null);
-    const [deletingProject, setDeletingProject] = useState<Project | null>(
-        null,
-    );
 
-    const handleDelete = () => {
-        if (!deletingProject) return;
-        router.delete(`/projects/${deletingProject.id}`, {
-            onSuccess: () => setDeletingProject(null),
-        });
-    };
-
-    const columns = useMemo(
-        () =>
-            getColumns({
-                onEdit: (project) => setEditingProject(project),
-                onDelete: (project) => setDeletingProject(project),
-            }),
-        [],
-    );
+    const columns = useMemo(() => getColumns(), []);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -112,38 +93,6 @@ export default function ProjectsIndex({
                     />
                 </DialogContent>
             </Dialog>
-
-            {/* Edit Dialog */}
-            <Dialog
-                open={!!editingProject}
-                onOpenChange={(open) => !open && setEditingProject(null)}
-            >
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Edit Project</DialogTitle>
-                        <DialogDescription>
-                            Make changes to your project details.
-                        </DialogDescription>
-                    </DialogHeader>
-                    {editingProject && (
-                        <ProjectForm
-                            project={editingProject}
-                            clients={clients}
-                            allTags={allTags}
-                            onSuccess={() => setEditingProject(null)}
-                        />
-                    )}
-                </DialogContent>
-            </Dialog>
-
-            {/* Delete Confirmation */}
-            <ConfirmDialog
-                isOpen={!!deletingProject}
-                title="Delete Project?"
-                message={`Are you sure you want to delete "${deletingProject?.name}"? This will permanently remove all associated tasks and data.`}
-                onConfirm={handleDelete}
-                onCancel={() => setDeletingProject(null)}
-            />
         </AppLayout>
     );
 }

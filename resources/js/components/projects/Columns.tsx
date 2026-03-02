@@ -1,15 +1,9 @@
-import { router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Calendar, Edit2, Trash2, Eye } from 'lucide-react';
+import { ArrowUpDown, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Project, Tag } from '@/types';
-
-interface ColumnProps {
-    onEdit: (project: Project) => void;
-    onDelete: (project: Project) => void;
-}
 
 const statusConfig: Record<
     string,
@@ -26,10 +20,7 @@ const statusConfig: Record<
     archived: { label: 'Archived', variant: 'outline' },
 };
 
-export const getColumns = ({
-    onEdit,
-    onDelete,
-}: ColumnProps): ColumnDef<Project>[] => [
+export const getColumns = (): ColumnDef<Project>[] => [
     {
         id: 'select',
         header: ({ table }) => (
@@ -218,42 +209,6 @@ export const getColumns = ({
                 <div className="flex items-center gap-1.5 text-sm">
                     <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>{date.toLocaleDateString()}</span>
-                </div>
-            );
-        },
-    },
-    {
-        id: 'actions',
-        header: () => <div className="text-right">Actions</div>,
-        cell: ({ row }) => {
-            const project = row.original;
-            return (
-                <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => router.get(`/projects/${project.id}`)}
-                        title="View Project"
-                    >
-                        <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onEdit(project)}
-                        title="Edit"
-                    >
-                        <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => onDelete(project)}
-                        title="Delete"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
                 </div>
             );
         },

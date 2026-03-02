@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
 import {
     Calendar as CalendarIcon,
@@ -14,14 +14,18 @@ import {
     Files,
     MoreHorizontal,
     Clock,
+    Pencil,
+    Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import ActivityTimeline from '@/components/clients/activity-timeline';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { AddTaskForm } from '@/components/projects/AddTaskForm';
+import { ProjectForm } from '@/components/projects/project-form';
 import { ProjectFiles } from '@/components/projects/ProjectFiles';
-import ProjectTagInput from '@/components/projects/ProjectTagInput';
 import { ProjectTimeline } from '@/components/projects/ProjectTimeline';
+
 import { ProjectUpdates } from '@/components/projects/ProjectUpdates';
 import { TaskEditModal } from '@/components/projects/TaskEditModal';
 import { TaskList } from '@/components/projects/TaskList';
@@ -30,6 +34,7 @@ import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
@@ -38,6 +43,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -51,6 +57,7 @@ import { CalendarView } from './views/CalendarView';
 interface ProjectShowProps {
     project: Project & { tags?: Tag[] };
     allTags: Tag[];
+    clients: { id: number; name: string }[];
 }
 
 const statusMap = {
@@ -62,14 +69,32 @@ const statusMap = {
     archived: { label: 'Archived', variant: 'outline' as const },
 };
 
-export default function ProjectShow({ project, allTags }: ProjectShowProps) {
+export default function ProjectShow({
+    project,
+    allTags,
+    clients,
+}: ProjectShowProps) {
     const [activeTab, setActiveTab] = useState<string>('list');
     const [confirmArchive, setConfirmArchive] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
 
     const handleEditTask = (task: Task) => {
         setEditingTask(task);
+    };
+
+    const handleDeleteProject = () => {
+        projectService.deleteProject(project.id, {
+            onSuccess: () => {
+                toast.success('Project deleted successfully');
+                router.visit('/projects');
+            },
+            onError: () => {
+                toast.error('Failed to delete project');
+            },
+        });
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -150,12 +175,29 @@ export default function ProjectShow({ project, allTags }: ProjectShowProps) {
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem
                                                 onClick={() =>
+                                                    setIsEditProjectOpen(true)
+                                                }
+                                            >
+                                                <Pencil className="mr-2 h-4 w-4" />
+                                                Edit
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() =>
                                                     setConfirmArchive(true)
+                                                }
+                                            >
+                                                <FolderArchive className="mr-2 h-4 w-4" />
+                                                Archive
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                                onClick={() =>
+                                                    setConfirmDelete(true)
                                                 }
                                                 className="text-destructive focus:text-destructive"
                                             >
-                                                <FolderArchive className="mr-2 h-4 w-4" />
-                                                Archive Project
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                Delete
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -258,13 +300,6 @@ export default function ProjectShow({ project, allTags }: ProjectShowProps) {
                                     <Files className="h-4 w-4" />
                                     Files
                                 </TabsTrigger>
-                                <TabsTrigger
-                                    value="settings"
-                                    className="gap-2 rounded-md px-4 data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-none"
-                                >
-                                    <MoreHorizontal className="h-4 w-4" />
-                                    Settings
-                                </TabsTrigger>
                             </TabsList>
 
                             <div className="min-h-[600px] rounded-xl border bg-background shadow-sm">
@@ -360,34 +395,6 @@ export default function ProjectShow({ project, allTags }: ProjectShowProps) {
                                         <ProjectFiles project={project} />
                                     </div>
                                 </TabsContent>
-                                <TabsContent
-                                    value="settings"
-                                    className="m-0 h-full border-none p-0"
-                                >
-                                    <div className="max-w-2xl p-6">
-                                        <div className="space-y-6">
-                                            <div>
-                                                <h3 className="text-lg font-medium">
-                                                    Project Tags
-                                                </h3>
-                                                <p className="text-sm text-muted-foreground">
-                                                    Manage tags for this project
-                                                    to help with organization
-                                                    and filtering.
-                                                </p>
-                                                <div className="mt-4">
-                                                    <ProjectTagInput
-                                                        projectId={project.id}
-                                                        currentTags={
-                                                            project.tags || []
-                                                        }
-                                                        allTags={allTags}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </TabsContent>
                             </div>
                         </Tabs>
                     </div>
@@ -404,6 +411,14 @@ export default function ProjectShow({ project, allTags }: ProjectShowProps) {
                         setConfirmArchive(false);
                     }}
                     onCancel={() => setConfirmArchive(false)}
+                />
+
+                <ConfirmDialog
+                    isOpen={confirmDelete}
+                    title="Delete Project?"
+                    message={`Are you sure you want to delete "${project.name}"? This will permanently remove all associated tasks and data.`}
+                    onConfirm={handleDeleteProject}
+                    onCancel={() => setConfirmDelete(false)}
                 />
 
                 {editingTask && (
@@ -434,6 +449,26 @@ export default function ProjectShow({ project, allTags }: ProjectShowProps) {
                             initialAdding={true}
                         />
                     </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={isEditProjectOpen}
+                onOpenChange={setIsEditProjectOpen}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Project</DialogTitle>
+                        <DialogDescription>
+                            Make changes to your project details.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <ProjectForm
+                        project={project}
+                        clients={clients}
+                        allTags={allTags}
+                        onSuccess={() => setIsEditProjectOpen(false)}
+                    />
                 </DialogContent>
             </Dialog>
         </AppLayout>
