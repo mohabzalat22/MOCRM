@@ -94,11 +94,42 @@ class ActivityController extends Controller
     }
 
     /**
-     * Summary of show
+     * Display the specified activity.
      */
-    public function show(Activity $activity): JsonResponse
+    public function show(Activity $activity): Response|JsonResponse
     {
-        return response()->json($activity->load(['user', 'tags', 'attachments']));
+        $activity->load([
+            'user',
+            'client',
+            'tags',
+            'attachments',
+            'project' => function ($query) {
+                $query->withCount(['tasks', 'tasks as completed_tasks_count' => function ($q) {
+                    $q->where('status', TaskStatus::DONE);
+                }]);
+            },
+        ]);
+
+        if (request()->wantsJson()) {
+            return response()->json($activity);
+        }
+
+        $clients = Client::forUser()->orderBy('name')->get(['id', 'name']);
+        $activityTypes = [
+            'call',
+            'email',
+            'meeting',
+            'note',
+            'transaction',
+            'status_change',
+        ];
+
+        return inertia('activities/show', [
+            'activity' => $activity,
+            'clients' => $clients,
+            'activityTypes' => $activityTypes,
+            'projectStatuses' => ProjectStatus::values(),
+        ]);
     }
 
     /**
@@ -125,6 +156,6 @@ class ActivityController extends Controller
     {
         $activity->delete();
 
-        return back()->with('success', 'Activity deleted successfully.');
+        return redirect()->route('activities.index')->with('success', 'Activity deleted successfully.');
     }
 }

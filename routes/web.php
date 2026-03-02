@@ -49,6 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         '/clients/{client}/activities',
         [ActivityController::class, 'store']
     )->name('clients.activities.store');
+    Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activities.show');
     Route::patch('/activities/{activity}', [ActivityController::class, 'update'])->name('activities.update');
     Route::delete('/activities/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
 

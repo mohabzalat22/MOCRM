@@ -288,7 +288,12 @@ export function DataTable({
                                     data-state={
                                         row.getIsSelected() && 'selected'
                                     }
-                                    className="group hover:bg-muted/50"
+                                    className="group cursor-pointer hover:bg-muted/50"
+                                    onClick={() =>
+                                        router.visit(
+                                            `/activities/${row.original.id}`,
+                                        )
+                                    }
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell
