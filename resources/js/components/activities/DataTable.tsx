@@ -296,10 +296,7 @@ export function DataTable({
                                     }
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell
-                                            key={cell.id}
-                                            className="py-3"
-                                        >
+                                        <TableCell key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext(),
