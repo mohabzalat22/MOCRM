@@ -45,6 +45,7 @@ interface DataTableProps<TData, TValue> {
     data: TData[];
     status?: string;
     onStatusChange?: (value: string) => void;
+    onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -52,6 +53,7 @@ export function DataTable<TData, TValue>({
     data,
     status,
     onStatusChange,
+    onRowClick,
 }: DataTableProps<TData, TValue>) {
     'use no memo';
     const { confirm, ConfirmDialog } = useConfirmDialog();
@@ -242,7 +244,8 @@ export function DataTable<TData, TValue>({
                                     data-state={
                                         row.getIsSelected() && 'selected'
                                     }
-                                    className="group hover:bg-muted/50"
+                                    className={`group hover:bg-muted/50 ${onRowClick ? 'cursor-pointer' : ''}`}
+                                    onClick={() => onRowClick?.(row.original)}
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>

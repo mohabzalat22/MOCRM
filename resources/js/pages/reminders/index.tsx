@@ -1,8 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import React from 'react';
-import { ConfirmDialog } from '@/components/confirm-dialog';
 import { getColumns } from '@/components/reminders/Columns';
 import { DataTable } from '@/components/reminders/DataTable';
 import { ReminderForm } from '@/components/reminders/reminder-form';
@@ -40,6 +38,7 @@ export default function RemindersIndex({
     filters,
 }: RemindersPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const columns = useMemo(() => getColumns(), []);
 
     // Derived from filters prop, defaults to 'incomplete'
     const status = filters.status || 'incomplete';
@@ -54,19 +53,9 @@ export default function RemindersIndex({
             },
         );
     };
-    const [editingReminder, setEditingReminder] = useState<Reminder | null>(
-        null,
-    );
-    const [deletingReminder, setDeletingReminder] = useState<Reminder | null>(
-        null,
-    );
     const [snoozingReminder, setSnoozingReminder] = useState<Reminder | null>(
         null,
     );
-
-    const handleComplete = (reminder: Reminder) => {
-        reminderService.complete(reminder.id);
-    };
 
     const handleSnooze = (date: Date) => {
         if (!snoozingReminder) return;
@@ -74,23 +63,9 @@ export default function RemindersIndex({
         setSnoozingReminder(null);
     };
 
-    const handleDelete = () => {
-        if (!deletingReminder) return;
-        reminderService.delete(deletingReminder.id, {
-            onSuccess: () => setDeletingReminder(null),
-        });
+    const handleRowClick = (reminder: Reminder) => {
+        router.visit(`/reminders/${reminder.id}`);
     };
-
-    const columns = useMemo(
-        () =>
-            getColumns({
-                onEdit: (reminder) => setEditingReminder(reminder),
-                onDelete: (reminder) => setDeletingReminder(reminder),
-                onComplete: (reminder) => handleComplete(reminder),
-                onSnooze: (reminder) => setSnoozingReminder(reminder),
-            }),
-        [],
-    );
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -119,6 +94,7 @@ export default function RemindersIndex({
                     data={reminders}
                     status={status}
                     onStatusChange={handleStatusChange}
+                    onRowClick={handleRowClick}
                 />
             </div>
 
@@ -140,43 +116,11 @@ export default function RemindersIndex({
                 </DialogContent>
             </Dialog>
 
-            {/* Edit Dialog */}
-            <Dialog
-                open={!!editingReminder}
-                onOpenChange={(open) => !open && setEditingReminder(null)}
-            >
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Edit Reminder</DialogTitle>
-                        <DialogDescription>
-                            Make changes to your reminder details.
-                        </DialogDescription>
-                    </DialogHeader>
-                    {editingReminder && (
-                        <ReminderForm
-                            reminder={editingReminder}
-                            clients={clients}
-                            activities={activities}
-                            onSuccess={() => setEditingReminder(null)}
-                        />
-                    )}
-                </DialogContent>
-            </Dialog>
-
             {/* Snooze Dialog */}
             <SnoozeDialog
                 open={!!snoozingReminder}
                 onOpenChange={(open) => !open && setSnoozingReminder(null)}
                 onSnooze={handleSnooze}
-            />
-
-            {/* Delete Confirmation */}
-            <ConfirmDialog
-                isOpen={!!deletingReminder}
-                title="Delete Reminder?"
-                message={`Are you sure you want to delete "${deletingReminder?.title}"? This action is permanent and cannot be undone.`}
-                onConfirm={handleDelete}
-                onCancel={() => setDeletingReminder(null)}
             />
         </AppLayout>
     );

@@ -68,6 +68,25 @@ class ReminderController extends Controller
     }
 
     /**
+     * Display the specified reminder.
+     */
+    public function show(Reminder $reminder): Response
+    {
+        $reminder->load('remindable');
+
+        $clients = Client::orderBy('name')->get(['id', 'name']);
+        $activities = Activity::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'type', 'summary']);
+
+        return Inertia::render('reminders/show', [
+            'reminder' => $reminder,
+            'clients' => $clients,
+            'activities' => $activities,
+        ]);
+    }
+
+    /**
      * Summary of update
      */
     public function update(UpdateReminderRequest $request, Reminder $reminder): RedirectResponse
@@ -83,6 +102,10 @@ class ReminderController extends Controller
                 ->delay($reminder->reminder_at);
         }
 
+        if ($request->header('X-Inertia-Partial-Component') === 'reminders/show') {
+            return redirect()->route('reminders.show', $reminder)->with('success', 'Reminder updated successfully.');
+        }
+
         return back()->with('success', 'Reminder updated successfully.');
     }
 
@@ -93,6 +116,8 @@ class ReminderController extends Controller
     {
         $reminder->delete();
 
-        return back()->with('success', 'Reminder deleted successfully.');
+        $reminder->delete();
+
+        return redirect()->route('reminders.index')->with('success', 'Reminder deleted successfully.');
     }
 }

@@ -1,23 +1,9 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import {
-    ArrowUpDown,
-    Calendar,
-    Check,
-    Clock,
-    Edit2,
-    Trash2,
-} from 'lucide-react';
+import { ArrowUpDown, Calendar, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Reminder } from '@/types';
-
-interface ColumnProps {
-    onEdit: (reminder: Reminder) => void;
-    onDelete: (reminder: Reminder) => void;
-    onComplete: (reminder: Reminder) => void;
-    onSnooze: (reminder: Reminder) => void;
-}
 
 const priorityWeights: Record<string, number> = {
     low: 1,
@@ -25,12 +11,7 @@ const priorityWeights: Record<string, number> = {
     high: 3,
 };
 
-export const getColumns = ({
-    onEdit,
-    onDelete,
-    onComplete,
-    onSnooze,
-}: ColumnProps): ColumnDef<Reminder>[] => [
+export const getColumns = (): ColumnDef<Reminder>[] => [
     {
         id: 'select',
         header: ({ table }) => (
@@ -207,58 +188,6 @@ export const getColumns = ({
             const a = priorityWeights[rowA.getValue(columnId) as string] || 0;
             const b = priorityWeights[rowB.getValue(columnId) as string] || 0;
             return a - b;
-        },
-    },
-    {
-        id: 'actions',
-        accessorKey: 'actions',
-        header: () => <div className="text-right">Actions</div>,
-        cell: ({ row }) => {
-            const isCompleted = !!row.original.completed_at;
-
-            return (
-                <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    {!isCompleted && (
-                        <>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-green-600 hover:bg-green-50 hover:text-green-700"
-                                onClick={() => onComplete(row.original)}
-                                title="Mark as Complete"
-                            >
-                                <Check className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                                onClick={() => onSnooze(row.original)}
-                                title="Snooze"
-                            >
-                                <Clock className="h-4 w-4" />
-                            </Button>
-                        </>
-                    )}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onEdit(row.original)}
-                        title="Edit"
-                    >
-                        <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => onDelete(row.original)}
-                        title="Delete"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                </div>
-            );
         },
     },
 ];
