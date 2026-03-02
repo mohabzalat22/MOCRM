@@ -186,6 +186,7 @@ export default function ClientProjectsTab({
                         {currentStatus === 'all' && (
                             <Button
                                 variant="link"
+                                type="button"
                                 onClick={() => setIsCreateOpen(true)}
                             >
                                 Create one?
