@@ -54,6 +54,7 @@ export const getColumns = (): ColumnDef<Project>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Project Name
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -73,6 +74,7 @@ export const getColumns = (): ColumnDef<Project>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Client
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -122,6 +124,7 @@ export const getColumns = (): ColumnDef<Project>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Status
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -170,6 +173,7 @@ export const getColumns = (): ColumnDef<Project>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Start Date
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -195,6 +199,7 @@ export const getColumns = (): ColumnDef<Project>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Due Date
                     <ArrowUpDown className="ml-2 h-4 w-4" />

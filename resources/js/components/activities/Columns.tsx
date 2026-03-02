@@ -67,6 +67,7 @@ export const columns: ColumnDef<Activity>[] = [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Type
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -121,6 +122,7 @@ export const columns: ColumnDef<Activity>[] = [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Date
                     <ArrowUpDown className="ml-2 h-4 w-4" />

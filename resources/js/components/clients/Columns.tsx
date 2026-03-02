@@ -71,6 +71,7 @@ export const columns: ColumnDef<Client>[] = [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Name
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -87,6 +88,7 @@ export const columns: ColumnDef<Client>[] = [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Status
                     <ArrowUpDown className="ml-2 h-4 w-4" />

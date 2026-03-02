@@ -46,6 +46,7 @@ export const getColumns = (): ColumnDef<Reminder>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Client
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -67,6 +68,7 @@ export const getColumns = (): ColumnDef<Reminder>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     What to do
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -88,6 +90,7 @@ export const getColumns = (): ColumnDef<Reminder>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Description
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -111,6 +114,7 @@ export const getColumns = (): ColumnDef<Reminder>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     When
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -145,6 +149,7 @@ export const getColumns = (): ColumnDef<Reminder>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === 'asc')
                     }
+                    className="-ml-4"
                 >
                     Priority
                     <ArrowUpDown className="ml-2 h-4 w-4" />
