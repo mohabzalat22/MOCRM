@@ -61,6 +61,7 @@ export const getColumns = (): ColumnDef<Project>[] => [
                 </Button>
             );
         },
+        meta: { label: 'Project Name' },
         cell: ({ row }) => (
             <span className="font-medium">{row.original.name}</span>
         ),
@@ -81,11 +82,13 @@ export const getColumns = (): ColumnDef<Project>[] => [
                 </Button>
             );
         },
+        meta: { label: 'Client' },
         cell: ({ row }) => row.original.client?.name || '-',
     },
     {
         accessorKey: 'tasks_count',
         header: 'Tasks',
+        meta: { label: 'Tasks' },
         cell: ({ row }) => {
             const project = row.original;
             const total = project.tasks_count || 0;
@@ -131,6 +134,7 @@ export const getColumns = (): ColumnDef<Project>[] => [
                 </Button>
             );
         },
+        meta: { label: 'Status' },
         cell: ({ row }) => {
             const status = row.getValue('status') as string;
             const config = statusConfig[status] || {
@@ -143,6 +147,7 @@ export const getColumns = (): ColumnDef<Project>[] => [
     {
         accessorKey: 'tags',
         header: 'Tags',
+        meta: { label: 'Tags' },
         cell: ({ row }) => {
             const tags = row.original.tags || [];
             if (tags.length === 0) return null;
@@ -180,6 +185,7 @@ export const getColumns = (): ColumnDef<Project>[] => [
                 </Button>
             );
         },
+        meta: { label: 'Start Date' },
         cell: ({ row }) => {
             const date = new Date(row.original.start_date);
             return (
@@ -206,6 +212,7 @@ export const getColumns = (): ColumnDef<Project>[] => [
                 </Button>
             );
         },
+        meta: { label: 'Due Date' },
         cell: ({ row }) => {
             if (!row.original.end_date)
                 return <span className="text-muted-foreground">-</span>;

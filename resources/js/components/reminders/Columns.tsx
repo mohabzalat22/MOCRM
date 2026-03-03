@@ -53,6 +53,7 @@ export const getColumns = (): ColumnDef<Reminder>[] => [
                 </Button>
             );
         },
+        meta: { label: 'Client' },
         cell: ({ row }) => (
             <span className="font-medium">
                 {row.original.remindable?.name || '-'}
@@ -75,6 +76,7 @@ export const getColumns = (): ColumnDef<Reminder>[] => [
                 </Button>
             );
         },
+        meta: { label: 'What to do' },
         cell: ({ row }) => (
             <div className="flex flex-col">
                 <span className="font-medium">{row.original.title}</span>
@@ -97,6 +99,7 @@ export const getColumns = (): ColumnDef<Reminder>[] => [
                 </Button>
             );
         },
+        meta: { label: 'Description' },
         cell: ({ row }) => (
             <div className="max-w-[300px]">
                 <p className="line-clamp-2 text-sm">
@@ -121,6 +124,7 @@ export const getColumns = (): ColumnDef<Reminder>[] => [
                 </Button>
             );
         },
+        meta: { label: 'When' },
         cell: ({ row }) => {
             const date = new Date(row.original.reminder_at);
             return (
@@ -156,6 +160,7 @@ export const getColumns = (): ColumnDef<Reminder>[] => [
                 </Button>
             );
         },
+        meta: { label: 'Priority' },
         cell: ({ row }) => {
             const priority = row.getValue('priority') as string;
             switch (priority) {

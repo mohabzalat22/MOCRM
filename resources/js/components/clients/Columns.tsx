@@ -78,6 +78,7 @@ export const columns: ColumnDef<Client>[] = [
                 </Button>
             );
         },
+        meta: { label: 'Name' },
     },
     {
         accessorKey: 'status' as const,
@@ -95,6 +96,7 @@ export const columns: ColumnDef<Client>[] = [
                 </Button>
             );
         },
+        meta: { label: 'Status' },
         cell: ({ row }) => {
             const status = row.getValue('status') as string;
 
@@ -134,6 +136,7 @@ export const columns: ColumnDef<Client>[] = [
     {
         accessorKey: 'tags' as const,
         header: 'Tags',
+        meta: { label: 'Tags' },
         filterFn: multiSelectFilter, // Use the function reference directly
         cell: ({ row }) => {
             const tags = row.original.tags;
@@ -157,21 +160,25 @@ export const columns: ColumnDef<Client>[] = [
     {
         accessorKey: 'company_name' as const,
         header: 'Company Name',
+        meta: { label: 'Company Name' },
         cell: ({ row }) => row.original.company_name || '-',
     },
     {
         accessorKey: 'email' as const,
         header: 'Email',
+        meta: { label: 'Email' },
         cell: ({ row }) => row.original.email || '-',
     },
     {
         accessorKey: 'phone' as const,
         header: 'Phone',
+        meta: { label: 'Phone' },
         cell: ({ row }) => row.original.phone || '-',
     },
     {
         accessorKey: 'website' as const,
         header: 'Website',
+        meta: { label: 'Website' },
         cell: ({ row }) => {
             const website = row.original.website;
             if (!website) return '-';
@@ -191,6 +198,7 @@ export const columns: ColumnDef<Client>[] = [
     {
         accessorKey: 'address' as const,
         header: 'Address',
+        meta: { label: 'Address' },
         cell: ({ row }) => row.original.address || '-',
     },
 ];

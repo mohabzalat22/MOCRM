@@ -74,6 +74,7 @@ export const columns: ColumnDef<Activity>[] = [
                 </Button>
             );
         },
+        meta: { label: 'Type' },
         cell: ({ row }) => {
             const type = row.getValue('type') as string;
             const Icon = typeIcons[type] || FileText;
@@ -89,6 +90,7 @@ export const columns: ColumnDef<Activity>[] = [
     {
         accessorKey: 'client.name',
         header: 'Client',
+        meta: { label: 'Client' },
         cell: ({ row }) => {
             const client = row.original.client;
             if (!client) return '-';
@@ -106,6 +108,7 @@ export const columns: ColumnDef<Activity>[] = [
     {
         accessorKey: 'summary',
         header: 'Summary',
+        meta: { label: 'Summary' },
         cell: ({ row }) => {
             const summary = row.getValue('summary') as string;
             return (
@@ -129,6 +132,7 @@ export const columns: ColumnDef<Activity>[] = [
                 </Button>
             );
         },
+        meta: { label: 'Date' },
         cell: ({ row }) => {
             const date = row.getValue('occurred_at') as string;
             return format(new Date(date), 'MMM d, yyyy h:mm a');
@@ -137,6 +141,7 @@ export const columns: ColumnDef<Activity>[] = [
     {
         accessorKey: 'user.name',
         header: 'Created By',
+        meta: { label: 'Created By' },
         cell: ({ row }) => row.original.user?.name || '-',
     },
 ];
