@@ -71,7 +71,7 @@ export default function RemindersIndex({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Reminders" />
 
-            <div className="space-y-6 p-6">
+            <div className="mx-auto w-full max-w-[1800px] space-y-6 p-6">
                 <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">
