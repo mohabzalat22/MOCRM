@@ -30,6 +30,8 @@ class BulkActionReminder
                         'data' => ['reminder_id' => $reminder->id],
                     ]);
                 }
+            } elseif ($validated['action'] === 'incomplete') {
+                $reminder->update(['completed_at' => null]);
             } elseif ($validated['action'] === 'delete') {
                 $reminder->delete();
             }

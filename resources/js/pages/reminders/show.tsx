@@ -9,6 +9,7 @@ import {
     AlertCircle,
     User,
     FileText,
+    Undo2,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -76,10 +77,14 @@ export default function ReminderShow({
     const priority = priorityMap[reminder.priority] || priorityMap.low;
     const isCompleted = !!reminder.completed_at;
 
-    const handleComplete = () => {
+    const handleToggleComplete = () => {
         reminderService.complete(reminder.id, {
             onSuccess: () => {
-                toast.success('Reminder marked as completed');
+                toast.success(
+                    isCompleted
+                        ? 'Reminder marked as incomplete'
+                        : 'Reminder marked as completed',
+                );
             },
         });
     };
@@ -139,27 +144,34 @@ export default function ReminderShow({
                         </div>
 
                         <div className="flex items-center gap-2">
-                            {!isCompleted && (
-                                <>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="gap-2"
-                                        onClick={handleComplete}
-                                    >
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-2"
+                                onClick={handleToggleComplete}
+                            >
+                                {isCompleted ? (
+                                    <>
+                                        <Undo2 className="h-4 w-4" />
+                                        Incomplete
+                                    </>
+                                ) : (
+                                    <>
                                         <CheckCircle2 className="h-4 w-4" />
                                         Complete
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="gap-2"
-                                        onClick={() => setIsSnoozeOpen(true)}
-                                    >
-                                        <Clock className="h-4 w-4" />
-                                        Snooze
-                                    </Button>
-                                </>
+                                    </>
+                                )}
+                            </Button>
+                            {!isCompleted && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="gap-2"
+                                    onClick={() => setIsSnoozeOpen(true)}
+                                >
+                                    <Clock className="h-4 w-4" />
+                                    Snooze
+                                </Button>
                             )}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>

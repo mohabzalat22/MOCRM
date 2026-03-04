@@ -11,6 +11,12 @@ class CompleteReminder
 {
     public function execute(Reminder $reminder): RedirectResponse
     {
+        if ($reminder->completed_at) {
+            $reminder->update(['completed_at' => null]);
+
+            return back()->with('success', 'Reminder marked as incomplete.');
+        }
+
         $reminder->update(['completed_at' => now()]);
 
         // Handle Recurrence

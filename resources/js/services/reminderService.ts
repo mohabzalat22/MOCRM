@@ -87,7 +87,7 @@ export const reminderService = {
      * Perform bulk action on reminders
      */
     bulkAction(
-        action: 'complete' | 'delete',
+        action: 'complete' | 'incomplete' | 'delete',
         ids: number[],
         { onSuccess, onError }: ServiceOptions = {},
     ): void {

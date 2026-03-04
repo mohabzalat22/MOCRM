@@ -12,9 +12,10 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { ChevronDown, Search } from 'lucide-react';
+import { ChevronDown, Search, Filter, X } from 'lucide-react';
 import * as React from 'react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -28,7 +29,6 @@ import {
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue,
 } from '@/components/ui/select';
 import {
     Table,
@@ -98,19 +98,62 @@ export function DataTable<TData, TValue>({
                     />
                 </div>
 
-                <Select
-                    value={status === 'incomplete' ? undefined : status}
-                    onValueChange={onStatusChange}
-                >
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Filter by Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="incomplete">Incomplete</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                    </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                    <Select
+                        value={status === 'all' ? undefined : status}
+                        onValueChange={onStatusChange}
+                    >
+                        <SelectTrigger className="h-9 w-auto min-w-[140px] gap-2 rounded-full border-muted-foreground/20 bg-background px-4 transition-all duration-200 hover:bg-accent">
+                            <div className="flex items-center gap-2">
+                                <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+                                <span className="text-sm font-medium">
+                                    {status === 'all'
+                                        ? 'All Statuses'
+                                        : status === 'completed'
+                                          ? 'Completed'
+                                          : 'Incomplete'}
+                                </span>
+                                {status !== 'all' && (
+                                    <Badge
+                                        variant="secondary"
+                                        className="ml-1 h-5 animate-in rounded-full px-1.5 text-[10px] font-bold uppercase transition-all zoom-in-50"
+                                    >
+                                        Active
+                                    </Badge>
+                                )}
+                            </div>
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-muted-foreground/20 shadow-lg">
+                            <SelectItem value="all" className="rounded-lg">
+                                All Statuses
+                            </SelectItem>
+                            <SelectItem
+                                value="incomplete"
+                                className="rounded-lg"
+                            >
+                                Incomplete
+                            </SelectItem>
+                            <SelectItem
+                                value="completed"
+                                className="rounded-lg"
+                            >
+                                Completed
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    {status !== 'all' && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onStatusChange?.('all')}
+                            className="h-9 animate-in gap-1.5 rounded-full px-3 text-muted-foreground transition-all slide-in-from-left-2 hover:bg-muted hover:text-foreground"
+                        >
+                            <X className="h-3.5 w-3.5" />
+                            <span className="text-xs font-semibold">Clear</span>
+                        </Button>
+                    )}
+                </div>
                 <div className="ml-auto flex items-center gap-2">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -162,14 +205,12 @@ export function DataTable<TData, TValue>({
                                     (row) =>
                                         (row.original as { id: number }).id,
                                 );
-                            // Dispatched via custom event or prop?
-                            // NOTE: The previous DataTable didn't accept onBulkAction param.
-                            // I should emit an event or better yet, since I can't easily change props without updating parent,
-                            // I will import reminderService directly here.
                             import('@/services/reminderService').then(
                                 ({ reminderService }) => {
                                     reminderService.bulkAction(
-                                        'complete',
+                                        status === 'completed'
+                                            ? 'incomplete'
+                                            : 'complete',
                                         ids,
                                         {
                                             onSuccess: () =>
@@ -180,7 +221,9 @@ export function DataTable<TData, TValue>({
                             );
                         }}
                     >
-                        Mark as Complete
+                        {status === 'completed'
+                            ? 'Mark as Incomplete'
+                            : 'Mark as Complete'}
                     </Button>
                     <Button
                         variant="destructive"

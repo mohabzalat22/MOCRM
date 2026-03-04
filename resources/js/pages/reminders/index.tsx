@@ -41,7 +41,7 @@ export default function RemindersIndex({
     const columns = useMemo(() => getColumns(), []);
 
     // Derived from filters prop, defaults to 'incomplete'
-    const status = filters.status || 'incomplete';
+    const status = filters.status || 'all';
 
     const handleStatusChange = (value: string) => {
         router.get(

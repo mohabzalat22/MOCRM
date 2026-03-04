@@ -20,7 +20,7 @@ class ReminderController extends Controller
      */
     public function index(Request $request): Response
     {
-        $status = $request->input('status', 'incomplete');
+        $status = $request->input('status', 'all');
 
         $remindersQuery = Reminder::with('remindable')
             ->where('user_id', auth()->id());
