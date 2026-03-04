@@ -31,6 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/dashboard/preferences', [App\Http\Controllers\DashboardPreferenceController::class, 'update'])
         ->name('dashboard.preferences.update');
 
+    Route::get('/clients/export', [ClientController::class, 'export'])->name('clients.export');
     Route::resource('/clients', ClientController::class);
     Route::post('/clients/bulk-update', [ClientController::class, 'bulkUpdate'])->name('clients.bulk-update');
 
@@ -49,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         '/clients/{client}/activities',
         [ActivityController::class, 'store']
     )->name('clients.activities.store');
+    Route::get('/activities/export', [ActivityController::class, 'export'])->name('activities.export');
     Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activities.show');
     Route::patch('/activities/{activity}', [ActivityController::class, 'update'])->name('activities.update');
     Route::delete('/activities/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
@@ -60,6 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('/reminders', ReminderController::class);
 
     // Project routes
+    Route::get('/projects/export', [ProjectController::class, 'export'])->name('projects.export');
     Route::resource('/projects', ProjectController::class)->except(['create', 'edit']);
 
     // Task routes

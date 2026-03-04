@@ -88,10 +88,12 @@ const Ziggy = {
         },
         home: { uri: '\/', methods: ['GET', 'HEAD'] },
         dashboard: { uri: 'dashboard', methods: ['GET', 'HEAD'] },
+        search: { uri: 'search', methods: ['GET', 'HEAD'] },
         'dashboard.preferences.update': {
             uri: 'dashboard\/preferences',
             methods: ['POST'],
         },
+        'clients.export': { uri: 'clients\/export', methods: ['GET', 'HEAD'] },
         'clients.index': { uri: 'clients', methods: ['GET', 'HEAD'] },
         'clients.create': { uri: 'clients\/create', methods: ['GET', 'HEAD'] },
         'clients.store': { uri: 'clients', methods: ['POST'] },
@@ -135,11 +137,22 @@ const Ziggy = {
             parameters: ['taggableType', 'taggableId', 'tag'],
             bindings: { tag: 'id' },
         },
+        'activities.index': { uri: 'activities', methods: ['GET', 'HEAD'] },
         'clients.activities.store': {
             uri: 'clients\/{client}\/activities',
             methods: ['POST'],
             parameters: ['client'],
             bindings: { client: 'id' },
+        },
+        'activities.export': {
+            uri: 'activities\/export',
+            methods: ['GET', 'HEAD'],
+        },
+        'activities.show': {
+            uri: 'activities\/{activity}',
+            methods: ['GET', 'HEAD'],
+            parameters: ['activity'],
+            bindings: { activity: 'id' },
         },
         'activities.update': {
             uri: 'activities\/{activity}',
@@ -179,6 +192,7 @@ const Ziggy = {
             uri: 'reminders\/{reminder}',
             methods: ['GET', 'HEAD'],
             parameters: ['reminder'],
+            bindings: { reminder: 'id' },
         },
         'reminders.edit': {
             uri: 'reminders\/{reminder}\/edit',
@@ -196,6 +210,10 @@ const Ziggy = {
             methods: ['DELETE'],
             parameters: ['reminder'],
             bindings: { reminder: 'id' },
+        },
+        'projects.export': {
+            uri: 'projects\/export',
+            methods: ['GET', 'HEAD'],
         },
         'projects.index': { uri: 'projects', methods: ['GET', 'HEAD'] },
         'projects.store': { uri: 'projects', methods: ['POST'] },

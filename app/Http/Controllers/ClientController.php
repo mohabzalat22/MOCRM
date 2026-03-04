@@ -171,4 +171,34 @@ class ClientController extends Controller
 
         return back()->with('success', 'Bulk action completed successfully.');
     }
+
+    public function export()
+    {
+        $clients = Client::forUser()->get();
+
+        $callback = function () use ($clients) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Name', 'Company Name', 'Email', 'Phone', 'Status', 'Website', 'Address', 'Monthly Value', 'Created At']);
+
+            foreach ($clients as $client) {
+                fputcsv($file, [
+                    $client->name,
+                    $client->company_name,
+                    $client->email,
+                    $client->phone,
+                    $client->status,
+                    $client->website,
+                    $client->address,
+                    $client->monthly_value,
+                    $client->created_at,
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="clients.csv"',
+        ]);
+    }
 }

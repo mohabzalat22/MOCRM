@@ -158,4 +158,35 @@ class ActivityController extends Controller
 
         return redirect()->route('activities.index')->with('success', 'Activity deleted successfully.');
     }
+
+    public function export()
+    {
+        $activities = Activity::with(['client', 'project', 'user'])
+            ->whereHas('client', function ($query) {
+                $query->where('user_id', auth()->id());
+            })->get();
+
+        $callback = function () use ($activities) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Type', 'Summary', 'Client', 'Project', 'User', 'Occurred At', 'Created At']);
+
+            foreach ($activities as $activity) {
+                fputcsv($file, [
+                    $activity->type,
+                    $activity->summary,
+                    $activity->client?->name,
+                    $activity->project?->name,
+                    $activity->user?->name,
+                    $activity->occurred_at?->format('Y-m-d H:i:s'),
+                    $activity->created_at,
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="activities.csv"',
+        ]);
+    }
 }

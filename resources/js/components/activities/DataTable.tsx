@@ -10,7 +10,7 @@ import {
     getCoreRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { ChevronDown, Search, Filter, FilterX } from 'lucide-react';
+import { ChevronDown, Search, Filter, FilterX, Download } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -217,6 +217,14 @@ export function DataTable({
                             <Filter className="mr-2 h-4 w-4" />
                         )}
                         Filters
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        onClick={() => window.open(route('activities.export'))}
+                    >
+                        <Download className="mr-2 h-4 w-4" />
+                        Export CSV
                     </Button>
 
                     <DropdownMenu>

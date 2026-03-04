@@ -134,6 +134,33 @@ export const columns: ColumnDef<Client>[] = [
         },
     },
     {
+        accessorKey: 'monthly_value' as const,
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === 'asc')
+                    }
+                    className="-ml-4"
+                >
+                    Monthly Value
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+        meta: { label: 'Monthly Value' },
+        cell: ({ row }) => {
+            const amount = parseFloat(row.getValue('monthly_value'));
+            const formatted = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+            }).format(amount);
+
+            return <div className="font-medium">{formatted}</div>;
+        },
+    },
+    {
         accessorKey: 'tags' as const,
         header: 'Tags',
         meta: { label: 'Tags' },

@@ -191,4 +191,35 @@ class ProjectController extends Controller
 
         return back()->with('success', 'Project update added successfully.');
     }
+
+    public function export()
+    {
+        $projects = Project::with('client')
+            ->whereHas('client', function ($query) {
+                $query->where('user_id', auth()->id());
+            })->get();
+
+        $callback = function () use ($projects) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Name', 'Description', 'Client', 'Status', 'Start Date', 'End Date', 'Created At']);
+
+            foreach ($projects as $project) {
+                fputcsv($file, [
+                    $project->name,
+                    $project->description,
+                    $project->client?->name,
+                    $project->status,
+                    $project->start_date?->format('Y-m-d'),
+                    $project->end_date?->format('Y-m-d'),
+                    $project->created_at,
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="projects.csv"',
+        ]);
+    }
 }

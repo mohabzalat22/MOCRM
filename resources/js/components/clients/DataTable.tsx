@@ -399,6 +399,14 @@ export function DataTable<TData extends WithId, TValue>({
                         Filters
                     </Button>
 
+                    <Button
+                        variant="outline"
+                        onClick={() => window.open(route('clients.export'))}
+                    >
+                        <Download className="mr-2 h-4 w-4" />
+                        Export CSV
+                    </Button>
+
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline">
