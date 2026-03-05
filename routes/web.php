@@ -11,6 +11,8 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectTemplateController;
+use App\Http\Controllers\ProjectTemplateTaskController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TagController;
@@ -76,6 +78,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Project Updates & Attachments
     Route::post('/projects/{project}/updates', [ProjectController::class, 'storeUpdate'])->name('projects.updates.store');
     Route::get('/attachments/{attachment}/download', [AttachmentController::class, 'download'])->name('attachments.download');
+
+    // Project Template routes
+    Route::resource('/project-templates', ProjectTemplateController::class);
+    Route::post('/project-templates/{project_template}/create-project', [ProjectTemplateController::class, 'createProject'])->name('project-templates.create-project');
+
+    // Project Template Task routes
+    Route::post('/project-template-tasks', [ProjectTemplateTaskController::class, 'store'])->name('project-template-tasks.store');
+    Route::patch('/project-template-tasks/{task}', [ProjectTemplateTaskController::class, 'update'])->name('project-template-tasks.update');
+    Route::delete('/project-template-tasks/{task}', [ProjectTemplateTaskController::class, 'destroy'])->name('project-template-tasks.destroy');
+    Route::post('/project-template-tasks/reorder', [ProjectTemplateTaskController::class, 'reorder'])->name('project-template-tasks.reorder');
 
     // Notifications actions
     Route::post('/notifications/mark-as-read', [MarksAllNotificationsAsRead::class, 'execute'])->name('notifications.mark-as-read');

@@ -8,6 +8,7 @@ export type * from './reminder';
 export type * from './project';
 export type * from './dashboard';
 export type * from './attachment';
+export type * from './project-template';
 
 import type { Auth } from './auth';
 

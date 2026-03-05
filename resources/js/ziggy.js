@@ -271,6 +271,63 @@ const Ziggy = {
             parameters: ['attachment'],
             bindings: { attachment: 'id' },
         },
+        'project-templates.index': {
+            uri: 'project-templates',
+            methods: ['GET', 'HEAD'],
+        },
+        'project-templates.create': {
+            uri: 'project-templates\/create',
+            methods: ['GET', 'HEAD'],
+        },
+        'project-templates.store': {
+            uri: 'project-templates',
+            methods: ['POST'],
+        },
+        'project-templates.show': {
+            uri: 'project-templates\/{project_template}',
+            methods: ['GET', 'HEAD'],
+            parameters: ['project_template'],
+        },
+        'project-templates.edit': {
+            uri: 'project-templates\/{project_template}\/edit',
+            methods: ['GET', 'HEAD'],
+            parameters: ['project_template'],
+        },
+        'project-templates.update': {
+            uri: 'project-templates\/{project_template}',
+            methods: ['PUT', 'PATCH'],
+            parameters: ['project_template'],
+        },
+        'project-templates.destroy': {
+            uri: 'project-templates\/{project_template}',
+            methods: ['DELETE'],
+            parameters: ['project_template'],
+        },
+        'project-templates.create-project': {
+            uri: 'project-templates\/{project_template}\/create-project',
+            methods: ['POST'],
+            parameters: ['project_template'],
+        },
+        'project-template-tasks.store': {
+            uri: 'project-template-tasks',
+            methods: ['POST'],
+        },
+        'project-template-tasks.update': {
+            uri: 'project-template-tasks\/{task}',
+            methods: ['PATCH'],
+            parameters: ['task'],
+            bindings: { task: 'id' },
+        },
+        'project-template-tasks.destroy': {
+            uri: 'project-template-tasks\/{task}',
+            methods: ['DELETE'],
+            parameters: ['task'],
+            bindings: { task: 'id' },
+        },
+        'project-template-tasks.reorder': {
+            uri: 'project-template-tasks\/reorder',
+            methods: ['POST'],
+        },
         'notifications.mark-as-read': {
             uri: 'notifications\/mark-as-read',
             methods: ['POST'],

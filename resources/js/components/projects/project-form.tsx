@@ -20,6 +20,7 @@ interface ProjectFormProps {
     project?: Project;
     clients: { id: number; name: string }[];
     allTags?: Tag[];
+    templates?: { id: number; name: string }[];
     defaultClientId?: number;
     onSuccess?: () => void;
 }
@@ -28,6 +29,7 @@ export function ProjectForm({
     project,
     clients,
     allTags = [],
+    templates = [],
     defaultClientId,
     onSuccess,
 }: ProjectFormProps) {
@@ -36,6 +38,7 @@ export function ProjectForm({
     const [data, setData] = useState({
         client_id:
             project?.client_id?.toString() || defaultClientId?.toString() || '',
+        template_id: '',
         name: project?.name || '',
         description: project?.description || '',
         start_date: project?.start_date
@@ -77,6 +80,16 @@ export function ProjectForm({
 
         if (project) {
             projectService.updateProject(project.id, data, options);
+        } else if (data.template_id) {
+            projectService.createProjectFromTemplate(
+                Number(data.template_id),
+                {
+                    client_id: data.client_id,
+                    name: data.name,
+                    start_date: data.start_date,
+                },
+                options,
+            );
         } else {
             projectService.createProject(data, options);
         }
@@ -104,6 +117,36 @@ export function ProjectForm({
                                     value={client.id.toString()}
                                 >
                                     {client.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
+
+            {!project && templates.length > 0 && (
+                <div className="space-y-2">
+                    <Label htmlFor="template_id">Project Template</Label>
+                    <Select
+                        value={data.template_id || 'none'}
+                        onValueChange={(val) =>
+                            setData({
+                                ...data,
+                                template_id: val === 'none' ? '' : val,
+                            })
+                        }
+                    >
+                        <SelectTrigger id="template_id">
+                            <SelectValue placeholder="Clone from template (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="none">No Template</SelectItem>
+                            {templates.map((template) => (
+                                <SelectItem
+                                    key={template.id}
+                                    value={template.id.toString()}
+                                >
+                                    {template.name}
                                 </SelectItem>
                             ))}
                         </SelectContent>

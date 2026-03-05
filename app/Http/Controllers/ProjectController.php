@@ -10,6 +10,7 @@ use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\ProjectTemplate;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -56,6 +57,7 @@ class ProjectController extends Controller
             'clients' => $clients,
             'allTags' => Tag::orderBy('name')->get(),
             'statuses' => ProjectStatus::values(),
+            'templates' => ProjectTemplate::all(['id', 'name']),
         ]);
     }
 

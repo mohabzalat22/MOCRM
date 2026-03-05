@@ -70,4 +70,21 @@ export const projectService = {
     restoreProject(id: number, options: ServiceOptions = {}): void {
         this.updateStatus(id, 'in_progress', options);
     },
+
+    /**
+     * Create a project from a template
+     */
+    createProjectFromTemplate(
+        templateId: number,
+        data: { client_id: string | number; name: string; start_date: string },
+        options: ServiceOptions = {},
+    ): void {
+        router.post(
+            `/project-templates/${templateId}/create-project`,
+            data as unknown as RequestPayload,
+            {
+                ...options,
+            },
+        );
+    },
 };

@@ -5,6 +5,7 @@ import { getColumns } from '@/components/projects/Columns';
 import { DataTable } from '@/components/projects/DataTable';
 import type { TableFilters } from '@/components/projects/DataTable';
 import { ProjectForm } from '@/components/projects/project-form';
+import { ProjectHeader } from '@/components/projects/ProjectHeader';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -22,6 +23,7 @@ interface ProjectsPageProps {
     allTags: Tag[];
     statuses: string[];
     filters: TableFilters;
+    templates: { id: number; name: string }[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -37,6 +39,7 @@ export default function ProjectsIndex({
     allTags = [],
     statuses = [],
     filters,
+    templates = [],
 }: ProjectsPageProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -46,25 +49,20 @@ export default function ProjectsIndex({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Projects" />
 
-            <div className="mx-auto w-full max-w-[1800px] space-y-6 p-6">
-                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">
-                            Projects
-                        </h1>
-                        <p className="text-muted-foreground">
-                            Track ongoing work and deliverables.
-                        </p>
-                    </div>
+            <div className="mx-auto w-full max-w-[1800px] space-y-6">
+                <ProjectHeader
+                    title="Projects"
+                    description="Track ongoing work and deliverables."
+                >
                     <Button
                         onClick={() => setIsCreateOpen(true)}
                         className="gap-2"
                     >
                         <Plus className="h-4 w-4" /> Add Project
                     </Button>
-                </div>
+                </ProjectHeader>
 
-                <div className="mt-0">
+                <div className="mt-0 px-6 pb-6">
                     <DataTable
                         columns={columns}
                         data={projects.data}
@@ -89,6 +87,7 @@ export default function ProjectsIndex({
                     <ProjectForm
                         clients={clients}
                         allTags={allTags}
+                        templates={templates}
                         onSuccess={() => setIsCreateOpen(false)}
                     />
                 </DialogContent>
